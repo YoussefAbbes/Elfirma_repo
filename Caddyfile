@@ -1,0 +1,14 @@
+{
+    admin off
+    auto_https off
+}
+
+:{$PORT:8080} {
+    root * public
+    encode zstd gzip
+
+    # Symfony front controller fallback for non-static routes
+    try_files {path} {path}/ /index.php
+
+    php_server
+}
