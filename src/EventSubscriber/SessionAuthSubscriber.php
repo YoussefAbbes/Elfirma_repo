@@ -3,44 +3,69 @@
 namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * Centralized, role-aware session guard for the back-office, plus cache hardening.
+ * Centralized, role-aware session guard, plus cache hardening.
  *
  * This application uses a hand-rolled, session-based auth model (a "user_id" and
  * "user_role" stored on the session) instead of a Symfony firewall. This subscriber
- * provides the two things a firewall would normally give you:
+ * provides what a firewall normally would:
  *
- *  1. Authorization (kernel.request): the back-office (/elfirma) is restricted to
- *     staff (admin/employee). Anonymous users are sent to login; logged-in clients
- *     are sent back to the public home. A small allow-list of shared pages (e.g. a
- *     user's own profile) stays open to any authenticated user.
+ *  1. Back-office authorization (kernel.request): /elfirma and /admin are restricted
+ *     to staff (admin/employee). Anonymous users go to login; logged-in clients go
+ *     back to the public home. A small allow-list (e.g. a user's own profile) stays
+ *     open to any authenticated user.
  *
- *  2. Cache hardening (kernel.response): authenticated pages are marked "no-store"
- *     so the browser cannot reveal a protected page from its cache via the Back
- *     button after the user logs out.
+ *  2. Customer-interaction authorization (kernel.request): browsing the storefront is
+ *     public, but any *interaction* (cart, checkout/buying, orders, ratings,
+ *     notifications) requires being logged in. Page requests are redirected to login;
+ *     API/AJAX requests get a 401 JSON so the front-end JavaScript can react.
  *
- * Stricter, page-specific rules (e.g. the Users module being admin-only and
- * requiring 2FA) intentionally remain in their controllers.
+ *  3. Cache hardening (kernel.response): authenticated pages are marked "no-store" so
+ *     the browser cannot reveal a protected page from its cache via the Back button
+ *     after logout.
+ *
+ * Stricter page-specific rules (e.g. the Users module being admin-only and requiring
+ * 2FA) intentionally remain in their controllers.
  */
 final class SessionAuthSubscriber implements EventSubscriberInterface
 {
-    /** Path prefixes that make up the back-office. */
-    private const PROTECTED_PREFIXES = ['/elfirma'];
+    /** Back-office areas: staff (admin/employee) only. */
+    private const STAFF_PREFIXES = ['/elfirma', '/admin'];
 
-    /**
-     * Back-office paths any authenticated user may use (including clients),
-     * e.g. a user viewing their own profile.
-     */
+    /** Back-office paths any authenticated user may use (e.g. own profile). */
     private const SHARED_PREFIXES = ['/elfirma/profile'];
 
-    /** Roles allowed into the back-office management screens. */
+    /** Roles allowed into the back-office. */
     private const STAFF_ROLES = ['admin', 'administrateur', 'employee'];
+
+    /**
+     * Customer interactions that require being logged in (any role). Browsing and
+     * read-only catalogue endpoints are intentionally NOT listed, so the storefront
+     * stays public; only actions that create/modify data or expose personal data
+     * are gated.
+     */
+    private const LOGIN_REQUIRED_PREFIXES = [
+        '/panier',                 // cart page
+        '/api/panier/add',
+        '/api/panier/update',
+        '/api/panier/remove',
+        '/api/panier/clear',
+        '/commandes',              // "my orders"
+        '/commander',              // checkout (buying)
+        '/commande',               // order details, receipts, stripe intent, create
+        '/api/commande',           // quick order, checkout helpers
+        '/api/rating/add',         // submitting a supplier rating
+        '/api/user',               // per-user notifications
+        '/api/notification',       // mark notification read
+    ];
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -50,7 +75,6 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            // Run early, before the controller is resolved/executed.
             KernelEvents::REQUEST => ['onKernelRequest', 8],
             KernelEvents::RESPONSE => ['onKernelResponse', 0],
         ];
@@ -65,37 +89,58 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
-        if (!$this->isProtected($path)) {
+        $isStaffArea = $this->matchesAnyPrefix($path, self::STAFF_PREFIXES);
+        $isLoginRequired = $this->matchesAnyPrefix(
+            $path,
+            self::LOGIN_REQUIRED_PREFIXES,
+        );
+
+        // Public route: nothing to enforce.
+        if (!$isStaffArea && !$isLoginRequired) {
             return;
         }
 
         $session = $request->hasSession() ? $request->getSession() : null;
         $userId = $session?->get('user_id');
 
-        // Not logged in at all -> go authenticate.
+        if ($isStaffArea) {
+            // Anonymous -> login. Pages any authenticated user may use are allowed.
+            if (empty($userId)) {
+                $event->setResponse($this->loginRedirect());
+
+                return;
+            }
+            if ($this->matchesAnyPrefix($path, self::SHARED_PREFIXES)) {
+                return;
+            }
+            // Management screens: staff only; a logged-in client goes to the home.
+            $role = (string) $session?->get('user_role');
+            if (!in_array($role, self::STAFF_ROLES, true)) {
+                $event->setResponse(
+                    new RedirectResponse(
+                        $this->urlGenerator->generate('app_pages_home'),
+                    ),
+                );
+            }
+
+            return;
+        }
+
+        // Customer interaction: must be logged in (any role).
         if (empty($userId)) {
             $event->setResponse(
-                new RedirectResponse(
-                    $this->urlGenerator->generate('app_login'),
-                ),
-            );
-
-            return;
-        }
-
-        // Pages any authenticated user may use (e.g. their own profile).
-        if ($this->isShared($path)) {
-            return;
-        }
-
-        // Back-office management screens: staff only. A logged-in client lands
-        // back on the public home instead of being pointlessly asked to re-login.
-        $role = (string) $session?->get('user_role');
-        if (!in_array($role, self::STAFF_ROLES, true)) {
-            $event->setResponse(
-                new RedirectResponse(
-                    $this->urlGenerator->generate('app_pages_home'),
-                ),
+                $this->isApiRequest($request, $path)
+                    ? new JsonResponse(
+                        [
+                            'ok' => false,
+                            'error' => 'Authentication required. Please sign in.',
+                            'redirect' => $this->urlGenerator->generate(
+                                'app_login',
+                            ),
+                        ],
+                        401,
+                    )
+                    : $this->loginRedirect(),
             );
         }
     }
@@ -111,10 +156,9 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Only harden caching for authenticated responses. Logged-out / public
-        // pages keep their normal caching behaviour.
-        $userId = $request->getSession()->get('user_id');
-        if (empty($userId)) {
+        // Only harden caching for authenticated responses; public pages keep their
+        // normal caching behaviour.
+        if (empty($request->getSession()->get('user_id'))) {
             return;
         }
 
@@ -126,14 +170,16 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
         $response->headers->set('Pragma', 'no-cache');
     }
 
-    private function isProtected(string $path): bool
+    private function loginRedirect(): RedirectResponse
     {
-        return $this->matchesAnyPrefix($path, self::PROTECTED_PREFIXES);
+        return new RedirectResponse(
+            $this->urlGenerator->generate('app_login'),
+        );
     }
 
-    private function isShared(string $path): bool
+    private function isApiRequest(Request $request, string $path): bool
     {
-        return $this->matchesAnyPrefix($path, self::SHARED_PREFIXES);
+        return str_starts_with($path, '/api/') || $request->isXmlHttpRequest();
     }
 
     /**
