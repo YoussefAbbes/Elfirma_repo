@@ -1,0 +1,306 @@
+{% extends "base.html.twig" %}
+
+{% block title %}AgriTech Certificate System{% endblock %}
+
+{% block body %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 60px;
+    }
+
+    .header h1 {
+        font-size: 48px;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .header p {
+        font-size: 18px;
+        opacity: 0.9;
+    }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+
+    .card h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .card p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .code-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .code-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    .endpoint {
+        background: #f5f5f5;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+    }
+
+    .endpoint-method {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .method-post {
+        background: #667eea;
+        color: white;
+    }
+
+    .method-get {
+        background: #48bb78;
+        color: white;
+    }
+
+    .status-box {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .status-box h4 {
+        margin-bottom: 10px;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+        font-size: 14px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .badge-success {
+        background: #48bb78;
+        color: white;
+    }
+
+    .badge-warning {
+        background: #ed8936;
+        color: white;
+    }
+
+    .footer {
+        text-align: center;
+        color: white;
+        margin-top: 40px;
+        opacity: 0.8;
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <h1>🎓 AgriTech Training Platform</h1>
+        <p>Complete Smart Agriculture training with interactive lessons, 3D models, and certification</p>
+        <a href="/dashboard" style="display: inline-block; margin-top: 20px; padding: 15px 30px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">🚀 Start Training Now</a>
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <div class="card-icon">📄</div>
+            <h3>Generate Certificates</h3>
+            <p>Automatically generate professional PDF certificates when users pass the training quiz (score ≥ 80%).</p>
+            <a href="#endpoints" class="btn">View API</a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">⬇️</div>
+            <h3>Download PDFs</h3>
+            <p>Users can download their certificates as PDF files with unique certificate numbers and QR codes.</p>
+            <button class="btn" onclick="alert('Endpoint: GET /certificate/{userId}/download')">Learn More</button>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">✅</div>
+            <h3>Verify Certificates</h3>
+            <p>Public verification endpoint allows anyone to verify certificate authenticity using certificate number.</p>
+            <button class="btn" onclick="alert('Endpoint: GET /certificate/verify/{certificateNumber}')">Learn More</button>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">📊</div>
+            <h3>Track Progress</h3>
+            <p>Store quiz scores, completion dates, and certificate metadata in a simple, efficient database.</p>
+            <button class="btn" onclick="alert('Database: user_progress table')">Learn More</button>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🔒</div>
+            <h3>Secure Design</h3>
+            <p>Built-in security with CSRF protection, input validation, and secure file handling.</p>
+            <button class="btn" onclick="alert('Follows Symfony best practices')">Learn More</button>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🎨</div>
+            <h3>Premium Design</h3>
+            <p>Professional certificate template with company branding, QR codes, and custom styling.</p>
+            <button class="btn" onclick="alert('Template: templates/certificate/pdf.html.twig')">Learn More</button>
+        </div>
+    </div>
+
+    <div class="code-section" id="endpoints">
+        <h2>📡 Available Endpoints</h2>
+
+        <div class="endpoint">
+            <span class="endpoint-method method-post">POST</span>
+            <strong>/certificate/{userId}/generate</strong>
+            <br>
+            <small style="color: #666; margin-top: 8px; display: block;">Generate a new certificate for a user (if quiz score ≥ 80%)</small>
+        </div>
+
+        <div class="endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <strong>/certificate/{userId}/download</strong>
+            <br>
+            <small style="color: #666; margin-top: 8px; display: block;">Download certificate PDF file</small>
+        </div>
+
+        <div class="endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <strong>/certificate/{userId}/status</strong>
+            <br>
+            <small style="color: #666; margin-top: 8px; display: block;">Get certificate status as JSON</small>
+        </div>
+
+        <div class="endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <strong>/certificate/verify/{certificateNumber}</strong>
+            <br>
+            <small style="color: #666; margin-top: 8px; display: block;">Public endpoint to verify certificate (e.g. CERT-20260606-42-a1b2c3d4)</small>
+        </div>
+    </div>
+
+    <div class="code-section">
+        <h2>🚀 Quick Start</h2>
+
+        <h3 style="font-size: 16px; margin: 20px 0 10px 0; color: #333;">1. Create a User Progress Record</h3>
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 13px; margin-bottom: 20px;">
+            INSERT INTO user_progress (user_id, quiz_score, passed, created_at, updated_at)<br>
+            VALUES (1, 85, 1, NOW(), NOW());
+        </div>
+
+        <h3 style="font-size: 16px; margin: 20px 0 10px 0; color: #333;">2. Generate Certificate</h3>
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 13px; margin-bottom: 20px;">
+            POST /certificate/1/generate<br>
+            Body: { "userName": "John Doe", "companyName": "AgriTech" }
+        </div>
+
+        <h3 style="font-size: 16px; margin: 20px 0 10px 0; color: #333;">3. Download Certificate</h3>
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 13px; margin-bottom: 20px;">
+            GET /certificate/1/download
+        </div>
+
+    </div>
+
+    <div class="code-section">
+        <h2>📚 Documentation Files</h2>
+        <ul style="color: #666; line-height: 2;">
+            <li><strong>CERTIFICATE_README.md</strong> - Overview and quick start</li>
+            <li><strong>CERTIFICATE_INTEGRATION.md</strong> - Complete integration guide</li>
+            <li><strong>CERTIFICATE_EXAMPLES.php</strong> - Code examples and patterns</li>
+            <li><strong>src/Service/CertificateService.php</strong> - Core service class</li>
+            <li><strong>src/Entity/UserProgress.php</strong> - Database entity</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>🎓 AgriTech Training Platform - Certificate Module</p>
+    </div>
+</div>
+
+{% endblock %}

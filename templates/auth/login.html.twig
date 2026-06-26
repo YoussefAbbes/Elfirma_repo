@@ -1,0 +1,1662 @@
+{% extends 'auth_base.html.twig' %}
+
+{% block title %}Sign In - EL FIRMA{% endblock %}
+
+{% block content %}
+  <!-- Left Side -->
+  <div class="auth-brand">
+    <div class="auth-logo-section">
+      <h2>Welcome Back</h2>
+      <p>Manage your agricultural operations efficiently</p>
+    </div>
+
+    <div class="auth-features">
+      <div class="auth-feature">
+        <i class="bi bi-check-circle"></i>
+        <span>Organize seasonal agricultural work</span>
+      </div>
+      <div class="auth-feature">
+        <i class="bi bi-check-circle"></i>
+        <span>Track production from plot to harvest</span>
+      </div>
+      <div class="auth-feature">
+        <i class="bi bi-check-circle"></i>
+        <span>Sustainable farming practices</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side -->
+  <div class="auth-form-section">
+    <div class="auth-form-header">
+      <h2>Sign In</h2>
+      <p>Access your account</p>
+    </div>
+
+    <!-- Store errors data -->
+    <div id="errors-data" data-errors="{{ (errors ?? {})|json_encode() }}"></div>
+
+    {% if error is defined and error %}
+      <div style="background-color: #ffebee; border: 1px solid #ef5350; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem; color: #d32f2f; display: flex; gap: 0.75rem; align-items: flex-start;">
+        <i class="bi bi-exclamation-circle" style="font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem;"></i>
+        <span>{{ error }}</span>
+      </div>
+    {% endif %}
+
+    <form method="POST" action="{{ path('app_login') }}" class="auth-form" id="loginForm">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="text" id="email" name="email" class="form-control" placeholder="you@example.com" value="{{ app.request.request.get('email', '') }}">
+        <small class="text-muted">Enter your registered email</small>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••">
+        <small class="text-muted">Enter your password</small>
+        <div style="margin-top: 0.55rem; text-align: right;">
+          <a href="{{ path('app_forgot_password') }}" style="font-size: 0.88rem; color: #116530; font-weight: 600; text-decoration: none;">Forgot password?</a>
+        </div>
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" id="remember" name="remember" class="form-check-input">
+        <label class="form-check-label" for="remember">
+          Remember me on this device
+        </label>
+      </div>
+
+      <button type="submit" class="btn-auth"><span>Sign In</span></button>
+
+      <!-- Sign in with Social Networks -->
+      <div class="login-dropdown">
+        <button type="button" class="login-btn" id="loginToggle">
+          <span>Sign in with</span>
+          <span class="arrow">▾</span>
+        </button>
+
+        <div class="login-menu" id="loginMenu">
+          <a href="{{ path('connect_google') }}" class="login-item google">
+            <svg class="login-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Google
+          </a>
+
+          <a href="{{ path('connect_github') }}" class="login-item github">
+            <svg class="login-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" fill="#333"/>
+            </svg>
+            GitHub
+          </a>
+
+          <button type="button" class="login-item face" id="faceLoginTrigger">
+            <i class="bi bi-person-bounding-box"></i>
+            Face Recognition
+          </button>
+
+          <button type="button" class="login-item fingerprint" id="fingerprintLoginTrigger">
+            <i class="bi bi-fingerprint"></i>
+            Fingerprint
+          </button>
+
+         
+        </div>
+      </div>
+
+
+
+
+    </form>
+
+    <div class="form-divider">
+      <span>New to EL FIRMA?</span>
+    </div>
+
+    <div class="auth-footer">
+      <p><a href="{{ path('app_signup') }}">Create a new account</a></p>
+    </div>
+  </div>
+
+  <!-- Fingerprint Login Modal -->
+  <!-- Fingerprint Enrollment Modal -->
+  <div class="face-modal" id="fingerprintEnrollModal" aria-hidden="true">
+    <div class="face-modal-backdrop"></div>
+    <div class="face-modal-card" role="dialog" aria-modal="true" aria-labelledby="fpEnrollTitle">
+      <div class="face-modal-head">
+        <h3 id="fpEnrollTitle" style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="bi bi-fingerprint" style="font-size:1.4rem;color:#116530;"></i>
+          Register Fingerprint
+        </h3>
+        <button type="button" class="face-close-btn" id="fpEnrollClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="face-helper-text">We will scan your finger 3 times to build your fingerprint profile.</p>
+
+      <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 0;">
+        <div id="fpEnrollIcon" style="font-size:6rem;color:#116530;transition:all 0.4s ease;">
+          <i class="bi bi-fingerprint"></i>
+        </div>
+
+        <!-- Step indicators -->
+        <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+          <div id="fpStep1" style="width:36px;height:36px;border-radius:50%;border:2px solid #116530;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:#116530;">1</div>
+          <div id="fpStep2" style="width:36px;height:36px;border-radius:50%;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:#9ca3af;">2</div>
+          <div id="fpStep3" style="width:36px;height:36px;border-radius:50%;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:#9ca3af;">3</div>
+        </div>
+
+        <div class="face-status" id="fpEnrollStatus" style="margin-top:1rem;text-align:center;">
+          Place your finger on the scanner
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:1rem;">
+        <div id="fpEnrollProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#116530,#22c55e);transition:width 0.5s ease;"></div>
+      </div>
+
+      <div class="face-actions" style="justify-content:space-between;">
+        <button type="button" id="fpEnrollSkip" class="face-secondary-btn">Skip Fingerprint</button>
+        <button type="button" id="fpEnrollNext" style="display:none;padding:0.52rem 1.2rem;background:#116530;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;">
+          Capture Next Scan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="face-modal" id="fingerprintLoginModal" aria-hidden="true">
+    <div class="face-modal-backdrop"></div>
+    <div class="face-modal-card" role="dialog" aria-modal="true" aria-labelledby="fpLoginTitle">
+      <div class="face-modal-head">
+        <h3 id="fpLoginTitle" style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="bi bi-fingerprint" style="font-size:1.4rem;color:#116530;"></i>
+          Sign In with Fingerprint
+        </h3>
+        <button type="button" class="face-close-btn" id="fpLoginClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="face-helper-text">Place your finger on the ZKTeco scanner and hold still.</p>
+
+      <!-- Animated fingerprint indicator -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:2rem 0;">
+        <div id="fpLoginIcon" style="font-size:6rem;color:#116530;transition:all 0.4s ease;">
+          <i class="bi bi-fingerprint"></i>
+        </div>
+        <div class="face-status" id="fpLoginStatus" style="margin-top:1rem;text-align:center;">
+          Waiting for finger...
+        </div>
+        <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+          <span id="fpLoginCountdown" style="font-size:0.86rem;color:#6b7280;">30s</span>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:1rem;">
+        <div id="fpLoginProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#116530,#22c55e);transition:width 0.3s ease;"></div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+        <button type="button" id="fpLoginCancel" class="face-secondary-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fingerprint Re-enrollment Modal -->
+  <div class="face-modal" id="fingerprintReenrollModal" aria-hidden="true">
+    <div class="face-modal-backdrop"></div>
+    <div class="face-modal-card" role="dialog" aria-modal="true" aria-labelledby="fpReenrollTitle">
+      <div class="face-modal-head">
+        <h3 id="fpReenrollTitle" style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="bi bi-fingerprint" style="font-size:1.4rem;color:#116530;"></i>
+          Re-enroll Fingerprint
+        </h3>
+        <button type="button" class="face-close-btn" id="fpReenrollClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="face-helper-text">First sign in with email &amp; password, then scan your finger 3 times to update your fingerprint.</p>
+
+      <!-- Login form inside modal -->
+      <div id="fpReenrollLoginSection">
+        <div style="margin-bottom:1rem;">
+          <label style="font-weight:600;color:#183b2a;display:block;margin-bottom:0.4rem;">Email</label>
+          <input type="email" id="fpReenrollEmail" class="form-control" placeholder="you@example.com" style="width:100%;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:1.2rem;">
+          <label style="font-weight:600;color:#183b2a;display:block;margin-bottom:0.4rem;">Password</label>
+          <input type="password" id="fpReenrollPassword" class="form-control" placeholder="••••••" style="width:100%;box-sizing:border-box;">
+        </div>
+        <div id="fpReenrollLoginError" style="color:#dc2626;font-size:0.85rem;margin-bottom:0.8rem;display:none;"></div>
+        <button type="button" id="fpReenrollLoginBtn" style="width:100%;padding:0.75rem;background:#116530;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:1rem;">
+          Sign In &amp; Continue
+        </button>
+      </div>
+
+      <!-- Scan section (shown after login) -->
+      <div id="fpReenrollScanSection" style="display:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:1rem 0;">
+          <div id="fpReenrollIcon" style="font-size:5rem;color:#116530;">
+            <i class="bi bi-fingerprint"></i>
+          </div>
+          <div style="display:flex;gap:0.6rem;margin-top:0.8rem;">
+            <div id="fpRStep1" class="fp-step fp-step-active">1</div>
+            <div id="fpRStep2" class="fp-step">2</div>
+            <div id="fpRStep3" class="fp-step">3</div>
+          </div>
+          <div id="fpReenrollStatus" class="face-status" style="margin-top:0.8rem;text-align:center;">
+            Click "Start Scan" to begin
+          </div>
+        </div>
+        <div style="width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:1rem;">
+          <div id="fpReenrollProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#116530,#22c55e);transition:width 0.5s ease;"></div>
+        </div>
+        <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+          <button type="button" id="fpReenrollCancelScan" class="face-secondary-btn">Cancel</button>
+          <button type="button" id="fpReenrollScanBtn" style="padding:0.52rem 1.2rem;background:#116530;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;">
+            Start Scan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="face-modal" id="loginFaceModal" aria-hidden="true">
+    <div class="face-modal-backdrop"></div>
+    <div class="face-modal-card" role="dialog" aria-modal="true" aria-labelledby="loginFaceTitle">
+      <div class="face-modal-head">
+        <h3 id="loginFaceTitle">Sign In With Face Recognition</h3>
+        <button type="button" class="face-close-btn" id="loginFaceClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="face-helper-text">Live camera is running. Align your face inside the frame.</p>
+      <div class="face-stage">
+        <video id="loginFaceVideo" autoplay playsinline muted></video>
+        <canvas id="loginFaceOverlay"></canvas>
+      </div>
+      <div class="face-status" id="loginFaceStatus">Starting camera...</div>
+      <div class="face-progress-row">
+        <span id="loginFaceIdentity">Waiting for detection</span>
+        <span id="loginFaceCountdown">25s</span>
+      </div>
+    </div>
+  </div>
+
+<style>
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-form-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .auth-form-header,
+  .form-divider,
+  .auth-footer {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .auth-form-header {
+    margin-bottom: 28px;
+  }
+
+  .auth-form-header h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.45rem;
+    color: #183b2a;
+  }
+
+  .auth-form-header p {
+    color: #6b7280;
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .auth-form {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    color: #060606;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control {
+    width: 100%;
+    border-radius: 6px;
+    border: 1.5px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .form-control:focus {
+    border-color: #116530 !important;
+    box-shadow: 0 0 0 3px rgba(17, 101, 48, 0.1) !important;
+    outline: none;
+  }
+
+  .form-control.is-invalid {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+  }
+
+  .form-control.is-invalid:focus {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3) !important;
+  }
+
+  .error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    display: block;
+  }
+
+  small.text-muted {
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 0.3rem;
+    color: #999;
+  }
+
+  .form-check {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-check-input {
+    margin-top: 0.3rem;
+  }
+
+  .login-dropdown {
+    position: relative;
+    margin-top: 1rem;
+    z-index: 60;
+  }
+
+  /* Allow dropdown panel to escape the auth card bounds */
+  .auth-form-section {
+    overflow: visible;
+  }
+
+  .login-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border: 1px solid rgba(17, 101, 48, 0.15);
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbf8 100%);
+    color: #183b2a;
+    padding: 0.95rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 10px 24px rgba(17, 101, 48, 0.08);
+  }
+
+  .login-btn:hover,
+  .login-btn:focus {
+    border-color: rgba(17, 101, 48, 0.35);
+    box-shadow: 0 14px 28px rgba(17, 101, 48, 0.12);
+    outline: none;
+  }
+
+  .login-btn .arrow {
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+  }
+
+  .login-dropdown.open .login-btn .arrow {
+    transform: rotate(180deg);
+  }
+
+  .login-menu {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 0.5rem);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(17, 101, 48, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 18px 36px rgba(10, 20, 15, 0.12);
+    padding: 0.5rem;
+    width: max-content;
+    min-width: 100%;
+    max-width: min(420px, calc(100vw - 2rem));
+    max-height: 340px;
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+  }
+
+  .login-dropdown.open .login-menu {
+    display: block;
+  }
+
+  .login-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    color: #183b2a;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .login-item:hover {
+    background: #f7faf7;
+    transform: translateX(3px);
+    box-shadow: 0 6px 14px rgba(17, 101, 48, 0.06);
+  }
+
+  .login-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    flex-shrink: 0;
+  }
+
+  .login-item.google:hover {
+    background: rgba(66, 133, 244, 0.08);
+  }
+
+  .login-item.github:hover {
+    background: rgba(51, 51, 51, 0.08);
+  }
+
+  .login-item.face {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.96rem;
+  }
+
+  .login-item.face:hover {
+    background: rgba(17, 101, 48, 0.09);
+  }
+
+  .login-item.fingerprint {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.96rem;
+  }
+
+  .login-item.fingerprint:hover {
+    background: rgba(17, 101, 48, 0.09);
+  }
+
+  @keyframes fp-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.12); opacity: 0.75; }
+  }
+
+  @keyframes fp-success {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .fp-scanning { animation: fp-pulse 1.2s ease-in-out infinite; color: #116530 !important; }
+  .fp-success  { animation: fp-success 0.5s ease-out forwards; color: #22c55e !important; }
+  .fp-error    { color: #dc2626 !important; }
+
+  .btn-auth {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 0.95rem 1rem;
+    background: linear-gradient(135deg, #116530 0%, #0f4f27 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 16px 30px rgba(17, 101, 48, 0.24);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-auth:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 36px rgba(17, 101, 48, 0.28);
+  }
+
+  .form-divider {
+    margin-top: 1.5rem;
+    margin-bottom: 0.9rem;
+    text-align: center;
+    color: #6b7280;
+  }
+
+  .form-divider span {
+    position: relative;
+    display: inline-block;
+    padding: 0 0.8rem;
+    font-size: 0.92rem;
+  }
+
+  .auth-footer {
+    text-align: center;
+  }
+
+  .auth-footer a {
+    color: #116530;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .face-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+  }
+
+  .face-modal.active {
+    display: flex;
+  }
+
+  .face-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 16, 14, 0.72);
+    backdrop-filter: blur(4px);
+  }
+
+  .face-modal-card {
+    position: relative;
+    width: min(92vw, 600px);
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid rgba(17, 101, 48, 0.22);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    z-index: 1;
+  }
+
+  .face-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .face-modal-head h3 {
+    margin: 0;
+    color: #183b2a;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .face-close-btn {
+    border: none;
+    background: transparent;
+    color: #52606d;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .face-helper-text {
+    margin: 0.3rem 0 0.8rem;
+    color: #617080;
+    font-size: 0.9rem;
+  }
+
+  .face-stage {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #111;
+    aspect-ratio: 16 / 10;
+  }
+
+  .face-stage video,
+  .face-stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .face-status {
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #183b2a;
+  }
+
+  #loginFaceIdentity {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #22c55e;
+    letter-spacing: 0.5px;
+  }
+
+  .face-progress-row {
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #4a5562;
+    font-size: 0.86rem;
+  }
+
+  /* Welcome Animation Styles */
+  .welcome-popup {
+    background: linear-gradient(135deg, #0f766e 0%, #116530 100%) !important;
+    border-radius: 25px !important;
+    box-shadow: 0 25px 80px rgba(15, 118, 110, 0.4), 0 0 40px rgba(16, 185, 129, 0.2) !important;
+  }
+
+  .welcome-popup .swal2-html-container {
+    padding: 0 !important;
+    height: auto !important;
+  }
+
+  .welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 4rem 3rem;
+    color: white;
+  }
+
+  .welcome-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    animation: slideInDown 0.6s ease-out;
+  }
+
+  .welcome-checkmark {
+    font-size: 4rem;
+    font-weight: 700;
+    color: #10b981;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    animation: checkAnimation 0.6s ease-out;
+  }
+
+  .welcome-text {
+    font-size: 2.8rem;
+    font-weight: 300;
+    letter-spacing: 3px;
+    animation: fadeInScale 0.8s ease-out 0.1s both;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    animation: slideInUp 0.8s ease-out 0.3s both;
+  }
+
+  .user-name {
+    font-size: 2.3rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-lastname {
+    font-size: 2.3rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .elfirma-badge {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-top: 0.8rem;
+    border: 2px solid rgba(16, 185, 129, 0.5);
+    animation: slideInUp 0.8s ease-out 0.5s both, badge-pulse 2s ease-in-out 1.3s infinite;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    color: #a7f3d0;
+  }
+
+  @keyframes checkAnimation {
+    0% {
+      opacity: 0;
+      transform: scale(0) rotate(-45deg);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    50% {
+      transform: scale(1.08);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get errors from the data attribute
+    const errorsData = document.getElementById('errors-data');
+    let formErrors = {};
+
+    if (errorsData) {
+      const errorsJson = errorsData.getAttribute('data-errors');
+      if (errorsJson) {
+        try {
+          formErrors = JSON.parse(errorsJson);
+        } catch(e) {
+          console.error('Error parsing errors:', e);
+        }
+      }
+    }
+
+    // Only apply red styles if there are errors
+    if (Object.keys(formErrors).length > 0) {
+      console.log('Applying error styles for fields:', Object.keys(formErrors));
+
+      for (const [fieldName, errorMsg] of Object.entries(formErrors)) {
+        const field = document.getElementById(fieldName);
+        if (field) {
+          // Add red border
+          field.style.borderColor = '#dc3545';
+          field.style.borderWidth = '2px';
+          field.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.2)';
+
+          // Create error message element
+          const formGroup = field.parentElement;
+          let errorElement = formGroup.querySelector('.error-message');
+
+          if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+          }
+
+          errorElement.textContent = errorMsg;
+          errorElement.style.color = '#dc3545';
+          errorElement.style.fontSize = '0.875rem';
+          errorElement.style.marginTop = '0.5rem';
+          errorElement.style.marginBottom = '0.5rem';
+          errorElement.style.fontWeight = '500';
+          errorElement.style.display = 'block';
+
+          // Insert after field if not already there
+          if (!formGroup.querySelector('.error-message')) {
+            formGroup.insertBefore(errorElement, field.nextElementSibling);
+          }
+        }
+      }
+    }
+  });
+
+  // Smooth form focus animation
+  const inputs = document.querySelectorAll('.form-control');
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.style.transform = 'scale(1.01)';
+      this.parentElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    });
+    input.addEventListener('blur', function() {
+      this.parentElement.style.transform = 'scale(1)';
+    });
+  });
+
+  // Parallax effect on mouse move
+  const formSection = document.querySelector('.auth-form-section');
+  document.addEventListener('mousemove', function(e) {
+    const x = (window.innerWidth / 2 - e.clientX) / 100;
+    const y = (window.innerHeight / 2 - e.clientY) / 100;
+
+    if (formSection) {
+      formSection.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${y}deg)`;
+    }
+  });
+
+  document.addEventListener('mouseleave', function() {
+    if (formSection) {
+      formSection.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+    }
+  });
+
+  const loginDropdown = document.querySelector('.login-dropdown');
+  const loginToggle = document.getElementById('loginToggle');
+  const faceTrigger = document.getElementById('faceLoginTrigger');
+  const faceModal = document.getElementById('loginFaceModal');
+  const faceClose = document.getElementById('loginFaceClose');
+  const faceVideo = document.getElementById('loginFaceVideo');
+  const faceOverlay = document.getElementById('loginFaceOverlay');
+  const faceStatus = document.getElementById('loginFaceStatus');
+  const faceIdentity = document.getElementById('loginFaceIdentity');
+  const faceCountdownEl = document.getElementById('loginFaceCountdown');
+  const faceCtx = faceOverlay ? faceOverlay.getContext('2d') : null;
+
+  let faceStream = null;
+  let faceTimer = null;
+  let faceStartedAt = 0;
+  let recognizedHits = 0;
+  let recognizedUserId = null;
+  let lastRecognizedUserId = null;
+  let isLoggingIn = false; // Flag pour éviter appels multiples
+
+  const faceTimeoutMs = 25000; // 25s timeout for proper detection
+  const requiredConsecutiveHits = 2; // 2 hits for stable recognition
+
+  if (loginDropdown && loginToggle) {
+    loginToggle.addEventListener('click', function(event) {
+      event.stopPropagation();
+      loginDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(event) {
+      if (!loginDropdown.contains(event.target)) {
+        loginDropdown.classList.remove('open');
+      }
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        loginDropdown.classList.remove('open');
+      }
+    });
+  }
+
+  const stopFaceLoginCamera = () => {
+    if (faceTimer) {
+      clearInterval(faceTimer);
+      faceTimer = null;
+    }
+    if (faceStream) {
+      faceStream.getTracks().forEach(track => track.stop());
+      faceStream = null;
+    }
+  };
+
+  const closeFaceModal = () => {
+    stopFaceLoginCamera();
+    if (faceModal) {
+      faceModal.classList.remove('active');
+      faceModal.setAttribute('aria-hidden', 'true');
+    }
+    recognizedHits = 0;
+    recognizedUserId = null;
+  };
+
+  const drawFaceBox = (bbox, color, label) => {
+    if (!faceCtx || !faceOverlay || !faceVideo) return;
+
+    faceOverlay.width = faceVideo.videoWidth || faceOverlay.clientWidth;
+    faceOverlay.height = faceVideo.videoHeight || faceOverlay.clientHeight;
+    faceCtx.clearRect(0, 0, faceOverlay.width, faceOverlay.height);
+
+    if (!bbox) return;
+
+    // Cadre plus gras et visible
+    faceCtx.strokeStyle = color;
+    faceCtx.lineWidth = 8; // Augmenté de 3 à 8 pour cadre bien visible
+    faceCtx.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
+
+    // Texte du nom beaucoup plus gros et gras
+    faceCtx.fillStyle = color;
+    faceCtx.font = 'bold 36px Arial'; // Augmenté de 16px à 36px, plus gras
+    faceCtx.fillText(label, bbox.x, Math.max(36, bbox.y - 12));
+  };
+
+  const grabFrame = () => {
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = faceVideo.videoWidth;
+    tmpCanvas.height = faceVideo.videoHeight;
+    const tmpCtx = tmpCanvas.getContext('2d');
+    tmpCtx.drawImage(faceVideo, 0, 0, tmpCanvas.width, tmpCanvas.height);
+    return tmpCanvas.toDataURL('image/jpeg', 0.76);
+  };
+
+  const updateFaceCountdown = () => {
+    const elapsed = Date.now() - faceStartedAt;
+    const left = Math.max(0, Math.ceil((faceTimeoutMs - elapsed) / 1000));
+    if (faceCountdownEl) faceCountdownEl.textContent = `${left}s`;
+
+    if (elapsed >= faceTimeoutMs) {
+      closeFaceModal();
+      Swal.fire({
+        icon: 'info',
+        title: 'Face detection timed out',
+        text: 'Please use email and password to sign in.',
+        confirmButtonColor: '#116530'
+      });
+    }
+  };
+
+  const loginByRecognizedFace = async (image, firstName = '', lastName = '') => {
+    // Close the face modal first
+    closeFaceModal();
+
+    // Show welcome animation
+    const userName = `${firstName} ${lastName}`.trim() || 'User';
+
+    Swal.fire({
+      html: `
+        <div class="welcome-container">
+          <div class="welcome-animation">
+            <div class="welcome-checkmark">✓</div>
+            <div class="welcome-text">Welcome</div>
+            <div class="user-info">
+              <div class="user-name">${firstName}</div>
+              <div class="user-lastname">${lastName}</div>
+            </div>
+            <div class="elfirma-badge">⭐ EL FIRMA ⭐</div>
+          </div>
+        </div>
+      `,
+      icon: null,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      customClass: {
+        popup: 'welcome-popup'
+      },
+      timer: 5000,
+      timerProgressBar: false,
+      didOpen: async () => {
+        // Animation de checkmark
+        const checkmark = document.querySelector('.welcome-checkmark');
+        if (checkmark) {
+          checkmark.style.animation = 'checkAnimation 0.6s ease-out';
+        }
+
+        // Start the login process IMMEDIATELY (during the sweet display)
+        try {
+          const res = await fetch('{{ path('app_face_id_login') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image })
+          });
+
+          const data = await res.json();
+          if (data.ok && data.redirect) {
+            // Redirect happens during sweet display, no wait after
+            setTimeout(() => {
+              window.location.href = data.redirect;
+            }, 1000); // Small delay to show sweet nicely
+          }
+        } catch (err) {
+          console.error('Login failed:', err);
+        }
+      }
+    });
+  };
+
+  const startFaceLogin = async () => {
+    if (!faceModal || !faceVideo || !faceOverlay) return;
+
+    // Reset login flag
+    isLoggingIn = false;
+
+    try {
+      faceStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 540 } },
+        audio: false
+      });
+      faceVideo.srcObject = faceStream;
+      await faceVideo.play();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Camera access denied',
+        text: 'Please continue with your email and password.',
+        confirmButtonColor: '#116530'
+      });
+      return;
+    }
+
+    faceStartedAt = Date.now();
+    recognizedHits = 0;
+    recognizedUserId = null;
+    faceModal.classList.add('active');
+    faceModal.setAttribute('aria-hidden', 'false');
+    if (faceStatus) faceStatus.textContent = 'Detecting face...';
+    if (faceIdentity) faceIdentity.textContent = 'Waiting for detection';
+
+    faceTimer = setInterval(async () => {
+      if (!faceVideo || faceVideo.readyState < 2) return;
+
+      updateFaceCountdown();
+
+      try {
+        const image = grabFrame();
+        const response = await fetch('{{ path('app_face_id_recognize') }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image })
+        });
+        const data = await response.json();
+
+        if (!data.ok) {
+          drawFaceBox(null, '#ef4444', '');
+          if (faceStatus) faceStatus.textContent = 'Face service unavailable';
+          if (faceIdentity) faceIdentity.textContent = 'Try classic login';
+          recognizedHits = 0;
+          recognizedUserId = null;
+          return;
+        }
+
+        if (!data.faceFound) {
+          drawFaceBox(null, '#f59e0b', '');
+          if (faceStatus) faceStatus.textContent = 'No face detected';
+          if (faceIdentity) faceIdentity.textContent = 'Position your face in frame';
+          recognizedHits = 0;
+          recognizedUserId = null;
+          return;
+        }
+
+        if (data.recognized && data.match) {
+          drawFaceBox(data.bbox, '#22c55e', data.match.fullName || 'Recognized');
+          if (faceStatus) faceStatus.textContent = 'User recognized';
+          if (faceIdentity) {
+            faceIdentity.textContent = `${data.match.firstName || ''} ${data.match.lastName || ''}`.trim();
+          }
+
+          // Check if this is the same user as last frame
+          if (lastRecognizedUserId === data.match.userId) {
+            recognizedHits += 1;
+          } else {
+            // Different user recognized, reset counter
+            recognizedHits = 1;
+            lastRecognizedUserId = data.match.userId;
+          }
+
+          // Require 2 consecutive frames with same user for confirmation
+          if (recognizedHits >= requiredConsecutiveHits && !isLoggingIn) {
+            isLoggingIn = true; // Marquer que le login est en cours
+            closeFaceModal();
+            // Pass the live frame so the server can re-verify the face itself.
+            await loginByRecognizedFace(image, data.match.firstName, data.match.lastName);
+          }
+          return;
+        }
+
+        // No match found
+        drawFaceBox(data.bbox, '#ef4444', 'Unknown user');
+        if (faceStatus) faceStatus.textContent = 'Face not recognized';
+        if (faceIdentity) faceIdentity.textContent = 'Unknown user';
+        recognizedHits = 0;
+        lastRecognizedUserId = null;
+      } catch (err) {
+        recognizedHits = 0;
+        recognizedUserId = null;
+      }
+    }, 240);
+  };
+
+  if (faceTrigger) {
+    faceTrigger.addEventListener('click', async function() {
+      loginDropdown?.classList.remove('open');
+      await startFaceLogin();
+    });
+  }
+
+  if (faceClose) {
+    faceClose.addEventListener('click', function() {
+      closeFaceModal();
+    });
+  }
+
+
+
+</script>
+
+<script>
+  (function () {
+    const showTwoFaErrorAlert = function () {
+      const params = new URLSearchParams(window.location.search);
+      const twoFaError = params.get('twofa_error');
+
+      if (twoFaError !== 'invalid_code') {
+        return;
+      }
+
+      const title = 'Two-Factor Verification Failed';
+      const message = 'Sorry, for security reasons, the code you entered is incorrect or has expired. You have been signed out. Please sign in again.';
+
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: title,
+          text: message,
+          confirmButtonColor: '#116530',
+          confirmButtonText: 'Back to Sign In'
+        }).then(function () {
+          // Remove query string so alert does not reappear on refresh
+          window.history.replaceState({}, document.title, window.location.pathname);
+        });
+      } else {
+        // Fallback if SweetAlert is not loaded
+        alert(message);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showTwoFaErrorAlert, { once: true });
+    } else {
+      showTwoFaErrorAlert();
+    }
+  })();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FINGERPRINT RE-ENROLLMENT
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  const FP_STATUS_URL       = '{{ path("app_fingerprint_status") }}';
+  const FP_START_URL        = '{{ path("app_fingerprint_reenroll_start") }}';
+  const FP_CAPTURE_URL      = '{{ path("app_fingerprint_reenroll_capture") }}';
+  const FP_REENROLL_SAVE    = '{{ path("app_fingerprint_reenroll_save") }}';
+  const LOGIN_URL           = '{{ path("app_login") }}';
+
+  const modal         = document.getElementById('fingerprintReenrollModal');
+  const trigger       = document.getElementById('fingerprintReenrollTrigger');
+  const closeBtn      = document.getElementById('fpReenrollClose');
+  const loginSection  = document.getElementById('fpReenrollLoginSection');
+  const scanSection   = document.getElementById('fpReenrollScanSection');
+  const emailEl       = document.getElementById('fpReenrollEmail');
+  const passwordEl    = document.getElementById('fpReenrollPassword');
+  const loginBtn      = document.getElementById('fpReenrollLoginBtn');
+  const loginErrEl    = document.getElementById('fpReenrollLoginError');
+  const iconEl        = document.getElementById('fpReenrollIcon');
+  const statusEl      = document.getElementById('fpReenrollStatus');
+  const progressEl    = document.getElementById('fpReenrollProgress');
+  const scanBtn       = document.getElementById('fpReenrollScanBtn');
+  const cancelScanBtn = document.getElementById('fpReenrollCancelScan');
+
+  const steps = [
+    document.getElementById('fpRStep1'),
+    document.getElementById('fpRStep2'),
+    document.getElementById('fpRStep3'),
+  ];
+
+  let loggedInUserId  = null;
+  let currentStep     = 0;
+  let captureInFlight = false;
+  let enrolledTpl     = null;
+  let enrolledLen     = 0;
+
+  /* ── helpers ── */
+  function openModal() {
+    if (!modal) return;
+    resetAll();
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    captureInFlight = false;
+  }
+
+  function resetAll() {
+    loggedInUserId  = null;
+    currentStep     = 0;
+    captureInFlight = false;
+    enrolledTpl     = null;
+    enrolledLen     = 0;
+
+    if (loginSection)  { loginSection.style.display  = ''; }
+    if (scanSection)   { scanSection.style.display   = 'none'; }
+    if (emailEl)       emailEl.value    = '';
+    if (passwordEl)    passwordEl.value = '';
+    if (loginErrEl)    { loginErrEl.textContent = ''; loginErrEl.style.display = 'none'; }
+    if (iconEl)        { iconEl.innerHTML = '<i class="bi bi-fingerprint"></i>'; iconEl.style.color = '#116530'; }
+    if (statusEl)      statusEl.textContent = 'Click "Start Scan" to begin';
+    if (progressEl)    progressEl.style.width = '0%';
+    if (scanBtn)       { scanBtn.textContent = 'Start Scan'; scanBtn.disabled = false; }
+    steps.forEach(s => { s.className = 'fp-step'; });
+    if (steps[0]) steps[0].classList.add('fp-step-active');
+  }
+
+  function markStep(idx) {
+    if (steps[idx]) { steps[idx].className = 'fp-step fp-step-done'; steps[idx].textContent = '✓'; }
+    if (idx + 1 < steps.length) {
+      steps[idx + 1].className = 'fp-step fp-step-active';
+    }
+  }
+
+  function setStatus(msg, color) {
+    if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || '#183b2a'; }
+  }
+
+  function setProgress(pct) {
+    if (progressEl) progressEl.style.width = Math.min(100, pct) + '%';
+  }
+
+  /* ── step 1: login ── */
+  if (loginBtn) {
+    loginBtn.addEventListener('click', async function () {
+      const email    = emailEl ? emailEl.value.trim() : '';
+      const password = passwordEl ? passwordEl.value : '';
+
+      if (!email || !password) {
+        if (loginErrEl) { loginErrEl.textContent = 'Email and password are required.'; loginErrEl.style.display = ''; }
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+
+      try {
+        const fd = new FormData();
+        fd.append('email', email);
+        fd.append('password', password);
+
+        const r = await fetch(LOGIN_URL, { method: 'POST', body: fd, redirect: 'manual' });
+
+        // The login endpoint redirects on success. Do not treat HTTP 200 as success
+        // because invalid credentials render the login page with status 200.
+        const isLoginSuccess =
+          r.type === 'opaqueredirect' ||
+          r.redirected ||
+          r.status === 301 ||
+          r.status === 302 ||
+          r.status === 303 ||
+          r.status === 307 ||
+          r.status === 308;
+
+        if (isLoginSuccess) {
+          // Try to get user_id from session via status endpoint
+          const statusR = await fetch(FP_STATUS_URL, { method: 'POST' });
+          const statusD = await statusR.json();
+
+          if (!statusD.ok || !statusD.device_connected) {
+            if (loginErrEl) {
+              loginErrEl.textContent = 'Fingerprint scanner not connected. Start the bridge service first.';
+              loginErrEl.style.display = '';
+            }
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Sign In & Continue';
+            return;
+          }
+
+          // Login succeeded — but we need the user_id from PHP session.
+          // We'll get it by calling a lightweight endpoint that reads the session.
+          // For now, trigger a real form login to establish session, then proceed.
+          // The reenroll/save endpoint uses the PHP session user_id directly.
+          loggedInUserId = true; // flag: logged in
+
+          if (loginSection) loginSection.style.display = 'none';
+          if (scanSection)  scanSection.style.display  = '';
+        } else {
+          if (loginErrEl) {
+            loginErrEl.textContent = 'Invalid email or password.';
+            loginErrEl.style.display = '';
+          }
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Sign In & Continue';
+        }
+      } catch (e) {
+        // Do a real form submit to create session, then show scan UI
+        const realForm = document.createElement('form');
+        realForm.method = 'POST';
+        realForm.action = LOGIN_URL;
+        realForm.style.display = 'none';
+        const ef = document.createElement('input'); ef.type='hidden'; ef.name='email'; ef.value=email;
+        const pf = document.createElement('input'); pf.type='hidden'; pf.name='password'; pf.value=password;
+        realForm.appendChild(ef);
+        realForm.appendChild(pf);
+        document.body.appendChild(realForm);
+
+        // Store intent to reenroll in sessionStorage, then submit
+        sessionStorage.setItem('fp_reenroll_pending', '1');
+        realForm.submit();
+      }
+    });
+  }
+
+  /* ── step 2: scan ── */
+  async function doCapture() {
+    if (captureInFlight) return;
+    captureInFlight = true;
+    if (scanBtn) { scanBtn.disabled = true; }
+
+    if (currentStep === 0) {
+      setStatus('Connecting to scanner...', '#116530');
+      const startR = await fetch(FP_START_URL, { method: 'POST' });
+      const startD = await startR.json();
+      if (!startD.ok) {
+        setStatus('Could not start enrollment: ' + (startD.error || 'Unknown error'), '#dc2626');
+        if (scanBtn) { scanBtn.disabled = false; scanBtn.textContent = 'Retry'; }
+        captureInFlight = false;
+        return;
+      }
+      currentStep = 1;
+    }
+
+    setStatus('Place your finger on the scanner and hold...', '#116530');
+    if (iconEl) { iconEl.innerHTML = '<i class="bi bi-fingerprint fp-scanning"></i>'; }
+
+    try {
+      const r    = await fetch(FP_CAPTURE_URL, { method: 'POST' });
+      const data = await r.json();
+
+      if (!data.ok) {
+        setStatus('Capture failed: ' + (data.message || data.error || 'Try again'), '#dc2626');
+        if (iconEl) { iconEl.innerHTML = '<i class="bi bi-fingerprint fp-error"></i>'; }
+        if (scanBtn) { scanBtn.disabled = false; scanBtn.textContent = 'Retry Scan'; }
+        captureInFlight = false;
+        return;
+      }
+
+      markStep(currentStep - 1);
+      setProgress((currentStep / 3) * 100);
+
+      if (data.done) {
+        enrolledTpl = data.template;
+        enrolledLen = data.template_length || 0;
+        setStatus('All 3 scans captured! Saving...', '#116530');
+        if (iconEl) { iconEl.innerHTML = '<i class="bi bi-fingerprint fp-success"></i>'; }
+        setProgress(100);
+
+        // Save via the reenroll/save endpoint (uses PHP session user_id)
+        try {
+          const saveR = await fetch(FP_REENROLL_SAVE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ template: enrolledTpl, template_length: enrolledLen }),
+          });
+          const saveD = await saveR.json();
+
+          if (saveD.ok) {
+            setTimeout(() => {
+              closeModal();
+              Swal.fire({
+                icon: 'success',
+                title: 'Fingerprint Updated!',
+                text: 'You can now sign in using your fingerprint.',
+                confirmButtonColor: '#116530',
+              });
+            }, 800);
+          } else {
+            setStatus('Save failed: ' + (saveD.error || 'Please try again'), '#dc2626');
+            if (scanBtn) { scanBtn.style.display = 'none'; }
+            captureInFlight = false;
+          }
+        } catch (e) {
+          setStatus('Network error saving fingerprint. Try again.', '#dc2626');
+          captureInFlight = false;
+        }
+      } else {
+        currentStep++;
+        setStatus('Scan ' + (currentStep - 1) + ' of 3 done. Lift finger and place again.', '#116530');
+        if (iconEl) { iconEl.innerHTML = '<i class="bi bi-fingerprint"></i>'; iconEl.style.color = '#116530'; }
+        if (scanBtn) { scanBtn.textContent = 'Capture Scan ' + currentStep; scanBtn.disabled = false; }
+        captureInFlight = false;
+      }
+    } catch (e) {
+      setStatus('Network error. Try again.', '#dc2626');
+      if (scanBtn) { scanBtn.disabled = false; }
+      captureInFlight = false;
+    }
+  }
+
+  /* ── check if returning from a login redirect with reenroll intent ── */
+  if (sessionStorage.getItem('fp_reenroll_pending') === '1') {
+    sessionStorage.removeItem('fp_reenroll_pending');
+    // Check if we have a session (device connected means bridge is up)
+    setTimeout(() => {
+      openModal();
+      // Skip to scan section immediately since user just logged in
+      if (loginSection) loginSection.style.display = 'none';
+      if (scanSection)  scanSection.style.display  = '';
+      loggedInUserId = true;
+    }, 400);
+  }
+
+  /* ── listeners ── */
+  if (trigger)       trigger.addEventListener('click', openModal);
+  if (closeBtn)      closeBtn.addEventListener('click', closeModal);
+  if (cancelScanBtn) cancelScanBtn.addEventListener('click', closeModal);
+  if (scanBtn)       scanBtn.addEventListener('click', doCapture);
+
+  if (modal) {
+    modal.querySelector('.face-modal-backdrop')?.addEventListener('click', closeModal);
+  }
+
+  /* ── fp-step styles (needed on login page too) ── */
+  const fpStyle = document.createElement('style');
+  fpStyle.textContent = `
+    .fp-step {
+      width:36px;height:36px;border-radius:50%;border:2px solid #d1d5db;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:0.85rem;color:#9ca3af;transition:all 0.3s ease;
+    }
+    .fp-step-active { border-color:#116530;color:#116530; }
+    .fp-step-done   { border-color:#22c55e;background:#22c55e;color:#fff; }
+    @keyframes fp-pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.12);opacity:0.75;} }
+    @keyframes fp-success-bounce { 0%{transform:scale(1);} 40%{transform:scale(1.3);} 100%{transform:scale(1);} }
+    .fp-scanning { animation:fp-pulse 1.2s ease-in-out infinite;color:#116530; }
+    .fp-success  { animation:fp-success-bounce 0.5s ease-out forwards;color:#22c55e; }
+    .fp-error    { color:#dc2626; }
+  `;
+  document.head.appendChild(fpStyle);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FINGERPRINT LOGIN
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  const TIMEOUT_MS     = 30000;
+  const POLL_MS        = 500;
+  const FP_STATUS_URL  = '{{ path("app_fingerprint_status") }}';
+  const FP_LOGIN_URL   = '{{ path("app_fingerprint_login") }}';
+
+  const modal       = document.getElementById('fingerprintLoginModal');
+  const iconEl      = document.getElementById('fpLoginIcon');
+  const statusEl    = document.getElementById('fpLoginStatus');
+  const countdownEl = document.getElementById('fpLoginCountdown');
+  const progressEl  = document.getElementById('fpLoginProgress');
+  const trigger     = document.getElementById('fingerprintLoginTrigger');
+  const closeBtn    = document.getElementById('fpLoginClose');
+  const cancelBtn   = document.getElementById('fpLoginCancel');
+
+  let countdownInterval = null;
+  let loginInFlight     = false;
+
+  function openModal() {
+    if (!modal) return;
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    resetUI();
+    startLogin();
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    stopCountdown();
+    loginInFlight = false;
+  }
+
+  function resetUI() {
+    if (iconEl)      { iconEl.className = 'bi bi-fingerprint fp-scanning'; iconEl.style.fontSize = '6rem'; }
+    if (statusEl)    statusEl.textContent = 'Waiting for finger...';
+    if (countdownEl) countdownEl.textContent = '30s';
+    if (progressEl)  progressEl.style.width = '0%';
+  }
+
+  function setSuccess(msg) {
+    if (iconEl)   { iconEl.className = 'bi bi-fingerprint fp-success'; }
+    if (statusEl) statusEl.textContent = msg || 'Fingerprint recognised!';
+    if (progressEl) progressEl.style.width = '100%';
+  }
+
+  function setError(msg) {
+    if (iconEl)   { iconEl.className = 'bi bi-fingerprint fp-error'; }
+    if (statusEl) statusEl.textContent = msg || 'Not recognised.';
+  }
+
+  function stopCountdown() {
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }
+
+  async function startLogin() {
+    loginInFlight = true;
+    const start = Date.now();
+
+    // Countdown ticker
+    countdownInterval = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const left    = Math.max(0, Math.ceil((TIMEOUT_MS - elapsed) / 1000));
+      if (countdownEl) countdownEl.textContent = left + 's';
+      if (progressEl)  progressEl.style.width = Math.min(100, (elapsed / TIMEOUT_MS) * 100) + '%';
+
+      if (elapsed >= TIMEOUT_MS) {
+        stopCountdown();
+        setError('Timed out. Please try again.');
+        loginInFlight = false;
+      }
+    }, POLL_MS);
+
+    // ── Check bridge is reachable ────────────────────────────────────────
+    if (statusEl) statusEl.textContent = 'Connecting to fingerprint scanner...';
+    try {
+      const statusRes = await fetch(FP_STATUS_URL, { method: 'POST' });
+      const statusData = await statusRes.json();
+
+      if (!statusData.ok || !statusData.device_connected) {
+        stopCountdown();
+        setError('Scanner not connected. Start the fingerprint service and plug in the device.');
+        loginInFlight = false;
+        return;
+      }
+    } catch (e) {
+      stopCountdown();
+      setError('Fingerprint service unreachable. Is it running?');
+      loginInFlight = false;
+      return;
+    }
+
+    // ── Send identify request (Java bridge will capture live finger) ─────
+    if (statusEl) statusEl.textContent = 'Place your finger on the scanner...';
+    try {
+      const loginRes  = await fetch(FP_LOGIN_URL, { method: 'POST' });
+      const loginData = await loginRes.json();
+      stopCountdown();
+
+      if (!loginInFlight) return; // was cancelled
+
+      if (loginData.ok) {
+        setSuccess('Fingerprint recognised! Signing you in...');
+        setTimeout(() => {
+          window.location.href = loginData.redirect || '/home';
+        }, 900);
+      } else {
+        setError(loginData.message || 'Fingerprint not recognised. Try again.');
+        loginInFlight = false;
+      }
+    } catch (e) {
+      stopCountdown();
+      setError('Network error during fingerprint login.');
+      loginInFlight = false;
+    }
+  }
+
+  if (trigger)   trigger.addEventListener('click', openModal);
+  if (closeBtn)  closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.querySelector('.face-modal-backdrop')?.addEventListener('click', closeModal);
+  }
+})();
+</script>
+
+{% endblock %}

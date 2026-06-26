@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Edit Parcel - Elfirma</title>
+    <link href="{{ asset('styles/elfirma-theme.css') }}" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Open_Sans:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        body { font-family: 'Open_Sans', sans-serif; background-color: #fbfbe2; color: #1b1d0e; }
+
+        .field-errors ul { margin: 0; padding-left: 0; list-style: none; }
+        .field-errors li { margin-top: 0.25rem; }
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        #map { height: 350px; width: 100%; border-radius: 12px; z-index: 1; }
+        /* ── Form button system ─────────────────────────────────────── */
+        .btn-form {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif;
+            padding: 13px 28px; border-radius: 9999px; cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1),
+                        box-shadow 0.18s ease, background-color 0.15s ease,
+                        border-color 0.15s ease, color 0.15s ease;
+        }
+        .btn-form:hover  { transform: translateY(-2px) scale(1.02); }
+        .btn-form:active { transform: translateY(0) scale(0.97); }
+        .btn-form-primary {
+            background: #0a2200; color: #fff;
+            box-shadow: 0 3px 12px rgba(10,34,0,0.3), 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-form-primary:hover { background: #173901; box-shadow: 0 8px 24px rgba(10,34,0,0.35), 0 2px 6px rgba(0,0,0,0.1); }
+        .btn-form-cancel {
+            background: #fff; color: #4b5563;
+            border-color: #d1d5db;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .btn-form-cancel:hover { border-color: #0a2200; color: #0a2200; box-shadow: 0 5px 14px rgba(10,34,0,0.1); }
+        .btn-form-danger {
+            background: #fff5f5; color: #dc2626;
+            border-color: #fca5a5;
+        }
+        .btn-form-danger:hover { background: #dc2626; color: #fff; border-color: #dc2626; box-shadow: 0 6px 20px rgba(220,38,38,0.3); }
+        /* Small page header buttons */
+        .btn-hd {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-weight: 600; font-size: 13px; font-family: 'Inter', sans-serif;
+            padding: 9px 18px; cursor: pointer;
+            border: 1.5px solid;
+            transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1),
+                        box-shadow 0.18s ease, background-color 0.15s ease,
+                        border-color 0.15s ease, color 0.15s ease;
+        }
+        .btn-hd:hover  { transform: translateY(-2px) scale(1.02); }
+        .btn-hd:active { transform: translateY(0) scale(0.97); }
+        .btn-hd-ghost  { background: #fff; color: #374151; border-color: #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .btn-hd-ghost:hover { border-color: #9ca3af; color: #111827; box-shadow: 0 5px 14px rgba(0,0,0,0.1); }
+        .btn-hd-primary { background: #0a2200; color: #fff; border-color: #0a2200; border-radius: 12px; box-shadow: 0 2px 8px rgba(10,34,0,0.25); }
+        .btn-hd-primary:hover { background: #173901; border-color: #173901; box-shadow: 0 6px 18px rgba(10,34,0,0.3); }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#f5f5dc", "outline-variant": "#c3c9b9", "surface-container-highest": "#e4e4cc",
+                        "on-surface": "#1b1d0e", "surface-container-high": "#eaead1", "on-surface-variant": "#43493d",
+                        "background": "#fbfbe2", "surface": "#fbfbe2", "primary": "#0a2200", "on-primary": "#ffffff",
+                        "secondary": "#934b19", "on-secondary": "#ffffff",
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface">
+    {% include 'elfirma/_admin_sidebar.html.twig' with { 'current_module': 'parcelles-cultures' } %}
+
+    <!-- Main Content -->
+    <main class="md:ml-72 min-h-screen p-4 md:p-6 space-y-8">
+        <header>
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-2">
+                <a href="{{ path('parcelle_index') }}" class="hover:text-primary">Parcels</a>
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                <span class="text-primary font-semibold">Edit</span>
+            </nav>
+            <h2 class="text-4xl font-black text-primary tracking-tighter leading-none mb-2">Edit Parcel</h2>
+            <p class="text-on-surface-variant text-lg">Update parcel: {{ parcelle.nom }}</p>
+        </header>
+
+        <section class="bg-white rounded-xl shadow-sm p-6 lg:p-8 w-full">
+            {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+
+            {% if form_errors(form) %}
+                <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.nom) }}</label>
+                    {{ form_widget(form.nom, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all'}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.nom) }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.localisation) }}</label>
+                    {{ form_widget(form.localisation, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all'}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.localisation) }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.superficie) }}</label>
+                    {{ form_widget(form.superficie, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all'}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.superficie) }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.typeSol) }}</label>
+                    {{ form_widget(form.typeSol, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all'}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.typeSol) }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.statut) }}</label>
+                    {{ form_widget(form.statut, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all'}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.statut) }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">Creation Date</label>
+                    <div class="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface-container-low/50 text-on-surface-variant flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base text-primary">calendar_today</span>
+                        <span class="font-semibold">{{ parcelle.dateCreation ? parcelle.dateCreation|date('d M Y') : 'Not set' }}</span>
+                        <span class="ml-auto text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Read-only</span>
+                    </div>
+                    {{ form_widget(form.dateCreation, {'attr': {'class': 'hidden'}}) }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.latitude) }}</label>
+                    {{ form_widget(form.latitude, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all', 'id': 'parcelle_latitude', 'readonly': true}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.latitude) }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.longitude) }}</label>
+                    {{ form_widget(form.longitude, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all', 'id': 'parcelle_longitude', 'readonly': true}}) }}
+                    <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.longitude) }}</div>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div class="mt-6">
+                <label class="block text-sm font-bold text-on-surface-variant mb-3">
+                    <span class="material-symbols-outlined align-middle mr-1">location_on</span>
+                    Select Location on Map
+                </label>
+                <p class="text-sm text-on-surface-variant mb-3">Click on the map to update the parcel coordinates</p>
+                <div id="map" class="shadow-md border border-outline-variant/30"></div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-on-surface-variant mb-2">{{ form_label(form.imageFile) }}</label>
+                {% if parcelle.image %}
+                    <div class="mb-3">
+                        <img src="{{ path('parcelle_image', {id: parcelle.id}) }}" alt="Current parcel image" class="h-28 w-28 rounded-lg border border-outline-variant/30 object-cover">
+                    </div>
+                {% endif %}
+                {{ form_widget(form.imageFile, {'attr': {'class': 'w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface-container-low file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-semibold file:text-on-primary'}}) }}
+                <p class="mt-2 text-xs text-on-surface-variant">Optional. Upload a new image only if you want to replace the current one.</p>
+                <div class="field-errors text-red-600 text-sm mt-1">{{ form_errors(form.imageFile) }}</div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-6 border-t border-outline-variant/20">
+                <button type="submit" class="btn-form btn-form-primary">
+                    <span class="material-symbols-outlined" style="font-size:20px;">save</span>
+                    Update Parcel
+                </button>
+                <a href="{{ path('parcelle_index') }}" class="btn-form btn-form-cancel">
+                    <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+                    Cancel
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </section>
+    </main>
+
+    <footer class="md:ml-72 flex justify-between items-center px-12 py-8 bg-[#fbfbe2] border-t border-[#c3c9b9]/15">
+        <p class="text-sm tracking-wide text-on-surface-variant">Elfirma © 2026</p>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        document.querySelectorAll('.dropdown > button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const menu = this.nextElementSibling;
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        // Get existing coordinates or default to Tunisia
+        const existingLat = {{ parcelle.latitude ?? 36.8065 }};
+        const existingLng = {{ parcelle.longitude ?? 10.1815 }};
+        const hasExistingCoords = {{ parcelle.latitude is not null and parcelle.longitude is not null ? 'true' : 'false' }};
+
+        const map = L.map('map').setView([existingLat, existingLng], hasExistingCoords ? 14 : 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let marker = null;
+
+        // If existing coordinates, place marker
+        if (hasExistingCoords) {
+            marker = L.marker([existingLat, existingLng], {draggable: true}).addTo(map);
+            marker.bindPopup(`<b>Current Location</b><br>Lat: ${existingLat}<br>Lng: ${existingLng}`);
+
+            marker.on('dragend', function(event) {
+                const pos = event.target.getLatLng();
+                document.getElementById('parcelle_latitude').value = pos.lat.toFixed(6);
+                document.getElementById('parcelle_longitude').value = pos.lng.toFixed(6);
+                marker.setPopupContent(`<b>Updated Location</b><br>Lat: ${pos.lat.toFixed(6)}<br>Lng: ${pos.lng.toFixed(6)}`);
+            });
+        }
+
+        // Click handler to place/move marker
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('parcelle_latitude').value = lat;
+            document.getElementById('parcelle_longitude').value = lng;
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng, {draggable: true}).addTo(map);
+
+                marker.on('dragend', function(event) {
+                    const pos = event.target.getLatLng();
+                    document.getElementById('parcelle_latitude').value = pos.lat.toFixed(6);
+                    document.getElementById('parcelle_longitude').value = pos.lng.toFixed(6);
+                    marker.setPopupContent(`<b>Updated Location</b><br>Lat: ${pos.lat.toFixed(6)}<br>Lng: ${pos.lng.toFixed(6)}`);
+                });
+            }
+
+            marker.bindPopup(`<b>Selected Location</b><br>Lat: ${lat}<br>Lng: ${lng}`).openPopup();
+        });
+    </script>
+{{ include('elfirma/_nav_routes.html.twig') }}
+</body>
+</html>

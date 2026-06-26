@@ -1,0 +1,274 @@
+{# =====================================================================
+   AgriTech Training — EL FIRMA client theme override
+   Included LAST on every training page so these rules win by source order.
+   Strategy: (1) flip the shared CSS variables to the client cream/green/gold
+   palette, (2) patch the hardcoded dark-only pieces (white headings, dark
+   panels, gradient text, tables, buttons). Matches templates/pages/client_*.
+   ===================================================================== #}
+<style>
+    /* 1) Flip the shared training variables to the client light palette */
+    :root {
+        --bg-dark: #fffbeb;
+        --card-bg: #ffffff;
+        --card-border: rgba(22, 101, 52, 0.12);
+        --text-main: #14532d;
+        --text-muted: #5b6b5f;
+        --accent: #166534;
+        --accent-glow: rgba(22, 101, 52, 0.28);
+        --accent-green: #166534;
+        --accent-blue: #166534;
+        --accent-purple: #ca8a04;
+        --success: #166534;
+        --error: #b91c1c;
+        /* client design tokens */
+        --cf-primary: #166534;
+        --cf-secondary: #ca8a04;
+        --cf-amber: #fbbf24;
+        --cf-bg: #fffbeb;
+    }
+
+    /* 2) Page surface + typography to match client_* pages */
+    body {
+        background: var(--cf-bg) !important;
+        background-image:
+            radial-gradient(circle at 12% 16%, rgba(22, 101, 52, 0.06) 0%, transparent 45%),
+            radial-gradient(circle at 88% 8%, rgba(202, 138, 4, 0.07) 0%, transparent 45%) !important;
+        color: var(--text-main) !important;
+        font-family: 'Open Sans', sans-serif !important;
+    }
+    /* clear the fixed EL FIRMA header */
+    main.main { padding-top: 80px; }
+    main.main .container { padding-top: 28px !important; }
+
+    h1, h2, h3, h4 { font-family: 'Marcellus', serif !important; color: #14532d !important; }
+
+    /* Cards / panels -> clean white client cards */
+    .glass-panel, .glass-card {
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid var(--card-border) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 8px 32px rgba(15, 23, 42, 0.10) !important;
+    }
+
+    /* Gradient ("clipped") titles -> green→gold gradient so they stay readable */
+    .lesson-header h1,
+    .content-area > h1 {
+        background: linear-gradient(135deg, #166534, #ca8a04) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+    }
+
+    /* Hardcoded white text inside cards -> dark */
+    .content-area h2, .content-area h3,
+    .benefit-card h3, .highlight-box strong,
+    .accordion-header, .data-table th, .data-table td,
+    .option-btn, .stat-badge .value { color: #14532d !important; }
+
+    .lesson-description, .content-area p, .content-area li,
+    .quiz-section p, .duration, .stat-badge .label,
+    .progress-text .label, .meta-tags .tag { color: var(--text-muted) !important; }
+    .content-area li::before { color: var(--accent) !important; }
+
+    /* Dashboard header panel -> client hero (green→gold) with white text */
+    .header-dashboard {
+        background: linear-gradient(135deg, #052e16 0%, #166534 55%, #ca8a04 100%) !important;
+        border: none !important;
+        box-shadow: 0 12px 40px rgba(22, 101, 52, 0.25) !important;
+    }
+    .header-dashboard .header-content h1,
+    .header-dashboard .header-content h1 * {
+        background: none !important;
+        -webkit-text-fill-color: #ffffff !important;
+        color: #ffffff !important;
+    }
+    .header-dashboard .header-content p { color: rgba(255, 255, 255, 0.85) !important; }
+    .header-dashboard .progress-text .num { color: #ffffff !important; }
+    .header-dashboard .progress-text .label { color: #fde68a !important; }
+
+    /* Tags / badges -> green & gold */
+    .tag, .lesson-badge {
+        background: rgba(22, 101, 52, 0.08) !important;
+        color: #166534 !important;
+        border: 1px solid rgba(22, 101, 52, 0.18) !important;
+    }
+    .tag-accent, .badge-3d {
+        background: rgba(22, 101, 52, 0.12) !important;
+        color: #166534 !important;
+        border: 1px solid rgba(22, 101, 52, 0.30) !important;
+    }
+    .badge-ai {
+        background: rgba(202, 138, 4, 0.14) !important;
+        color: #a16207 !important;
+        border: 1px solid rgba(202, 138, 4, 0.35) !important;
+    }
+    .lesson-number {
+        background: rgba(22, 101, 52, 0.10) !important;
+        color: #166534 !important;
+        border: 1px solid rgba(22, 101, 52, 0.25) !important;
+    }
+    .status-completed .lesson-number {
+        background: rgba(22, 101, 52, 0.16) !important;
+        color: #166534 !important;
+        border-color: rgba(22, 101, 52, 0.40) !important;
+    }
+
+    /* Small interior cards / tables / accordions */
+    .benefit-card {
+        background: #f6f9f5 !important;
+        border: 1px solid var(--card-border) !important;
+    }
+    .benefit-card:hover { background: #eef4ec !important; }
+    .accordion-header { background: rgba(22, 101, 52, 0.06) !important; }
+    .accordion-header:hover { background: rgba(22, 101, 52, 0.10) !important; }
+    .data-table th {
+        background: rgba(22, 101, 52, 0.10) !important;
+        color: #166534 !important;
+    }
+    .data-table tr:hover td { background: rgba(22, 101, 52, 0.05) !important; }
+    .option-btn {
+        background: #ffffff !important;
+        border: 1px solid var(--card-border) !important;
+    }
+    .option-btn:hover { background: rgba(22, 101, 52, 0.06) !important; }
+    .option-btn.correct { background: rgba(22, 101, 52, 0.15) !important; border-color: #166534 !important; }
+    .option-btn.wrong   { background: rgba(185, 28, 28, 0.12) !important; border-color: #b91c1c !important; }
+
+    /* Quiz section / stat badges (dashboard + quiz pages) */
+    .quiz-section {
+        background: linear-gradient(135deg, #f0fdf4, #fffbeb) !important;
+        border: 1px solid var(--card-border) !important;
+    }
+    .quiz-section::after { display: none !important; }
+    .stat-badge {
+        background: rgba(22, 101, 52, 0.05) !important;
+        border: 1px solid var(--card-border) !important;
+    }
+    .stat-badge .value { color: #166534 !important; }
+
+    /* Progress bars -> green */
+    .top-progress-container { background: rgba(22, 101, 52, 0.10) !important; }
+    .top-progress-fill { background: linear-gradient(90deg, #166534, #ca8a04) !important; }
+
+    /* Buttons -> client green / gold gradients */
+    .btn-start, .btn-quiz, .btn-complete, .btn-submit, .btn-dl, .btn-primary {
+        background: linear-gradient(135deg, #166534, #15803d) !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+    .btn-next {
+        background: linear-gradient(135deg, #ca8a04, #a16207) !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+    .btn-quiz { box-shadow: 0 14px 30px -10px rgba(22, 101, 52, 0.50) !important; }
+    .btn-prev {
+        background: #ffffff !important;
+        color: #166534 !important;
+        border: 1px solid rgba(22, 101, 52, 0.30) !important;
+    }
+    .btn-prev:hover { background: rgba(22, 101, 52, 0.06) !important; }
+    .status-completed .btn-start {
+        background: transparent !important;
+        color: #166534 !important;
+        border: 1px solid rgba(22, 101, 52, 0.35) !important;
+    }
+
+    /* Keep the 3D model viewport as a dark stage (best for the WebGL model),
+       but give it a soft client-style frame */
+    .model-container {
+        background: #07120c !important;
+        border: 1px solid var(--card-border) !important;
+        border-radius: 16px !important;
+    }
+    .model-container * { color: #e6f4ea; }
+
+    /* ---- Exam page (quiz/quiz.html.twig) ---- */
+    .question { color: #14532d !important; }
+    .progress-bar-bg { background: rgba(22, 101, 52, 0.10) !important; }
+    .progress-fill { background: linear-gradient(90deg, #166534, #ca8a04) !important; }
+    .timer {
+        background: rgba(202, 138, 4, 0.10) !important;
+        border: 1px solid rgba(202, 138, 4, 0.25) !important;
+        color: #a16207 !important;
+    }
+    .option-label {
+        background: #ffffff !important;
+        border: 1px solid var(--card-border) !important;
+        color: var(--text-muted) !important;
+    }
+    .option-label:hover { background: rgba(22, 101, 52, 0.06) !important; color: #14532d !important; }
+    .option input[type="radio"]:checked + .option-label {
+        background: rgba(22, 101, 52, 0.12) !important;
+        border-color: #166534 !important;
+        color: #14532d !important;
+        box-shadow: inset 0 0 20px rgba(22, 101, 52, 0.12) !important;
+    }
+    .score-display {
+        background: linear-gradient(135deg, #166534, #ca8a04) !important;
+        box-shadow: 0 15px 30px -10px rgba(22, 101, 52, 0.40) !important;
+    }
+    .result-details {
+        background: #f6f9f5 !important;
+        border: 1px solid var(--card-border) !important;
+    }
+    .result-details p { color: var(--text-muted) !important; border-bottom-color: rgba(22, 101, 52, 0.12) !important; }
+    .result-details p strong { color: #14532d !important; }
+
+    /* ---- Lesson hero banner (added) ---- */
+    .lesson-hero {
+        display: block;
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+        border-radius: 16px;
+        margin-top: 24px;
+        border: 1px solid var(--card-border) !important;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+    @media (max-width: 768px) { .lesson-hero { height: 180px; } }
+
+    /* ---- Knowledge check (shared interactive quiz) ---- */
+    .knowledge-check {
+        background: rgba(22, 101, 52, 0.06) !important;
+        border: 1px solid rgba(22, 101, 52, 0.20) !important;
+        border-radius: 16px;
+        padding: 28px;
+        margin: 36px 0;
+    }
+    .knowledge-check h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #166534 !important; }
+    .knowledge-check > p { color: var(--text-muted) !important; margin-bottom: 8px; font-size: 16px; }
+    .knowledge-check .options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+    .knowledge-check .option-btn {
+        padding: 14px 18px; border-radius: 10px; text-align: left; cursor: pointer;
+        font-size: 15px; transition: all 0.2s; width: 100%;
+    }
+    .knowledge-check .option-btn:disabled { cursor: default; }
+    .feedback { margin-top: 16px; font-size: 14px; line-height: 1.6; display: none; padding: 14px 16px; border-radius: 10px; }
+    .feedback.show { display: block; }
+    .feedback.ok { background: rgba(22,101,52,0.10) !important; color: #166534 !important; border: 1px solid rgba(22,101,52,0.30); }
+    .feedback.no { background: rgba(185,28,28,0.08) !important; color: #b91c1c !important; border: 1px solid rgba(185,28,28,0.25); }
+</style>
+
+<script>
+    // Shared knowledge-check handler for training lessons.
+    // Lessons that already define their own checkAnswer (e.g. lesson 3) keep it.
+    window.checkAnswer = window.checkAnswer || function (btn, isCorrect) {
+        var kc = btn.closest('.knowledge-check');
+        if (!kc) { return; }
+        var opts = kc.querySelectorAll('.option-btn');
+        opts.forEach(function (b) { b.disabled = true; });
+        var fb = kc.querySelector('.feedback');
+        if (isCorrect) {
+            btn.classList.add('correct');
+            if (fb) { fb.className = 'feedback show ok'; fb.innerHTML = kc.getAttribute('data-ok') || '<strong>Correct!</strong> Well done.'; }
+        } else {
+            btn.classList.add('wrong');
+            opts.forEach(function (b) { if (b.getAttribute('data-correct') === '1') { b.classList.add('correct'); } });
+            if (fb) { fb.className = 'feedback show no'; fb.innerHTML = kc.getAttribute('data-no') || '<strong>Not quite.</strong> The highlighted answer is correct.'; }
+        }
+    };
+</script>

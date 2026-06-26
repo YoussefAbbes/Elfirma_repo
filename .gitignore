@@ -1,0 +1,92 @@
+
+###> symfony/framework-bundle ###
+# Never commit real secrets, in ANY directory (root app or sub-apps like
+# agritech-training/). Only .env.example and .env.test are tracked.
+.env
+.env.dev
+.env.certificate
+.env.*.local
+.env.local
+.env.local.php
+.env.local.bak
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+# Dependencies / build artifacts that should never be committed
+/node_modules/
+/composer.phar
+# Redownloadable JavaFX SDK jars (the tiny proprietary ZKFingerReader.jar is kept)
+fingerprint/javafx-*.jar
+
+# Local SSL workaround / tooling / logs (machine-specific, keep out of the repo)
+/cacert.pem
+/avast-root.pem
+/avast-root-verified.pem
+/*-avast.cer
+/install_log.txt
+
+# User-generated uploads and generated media (serve from storage, not git)
+/public/uploads/
+/public/generated_videos/
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+# Firebase Admin SDK local credentials
+/config/firebase_credentials.json
+
+# Python virtual environments
+.venv/
+**/.venv/
+venv/
+**/venv/
+
+# Python caches / artifacts
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Screenshots & demo captures (not needed to run the app)
+/client-screenshots/
+/.admin_screens/
+/demo/screenshots/
+
+# Machine-learning model binaries (large; regenerate or download at deploy time)
+*.joblib
+*.onnx
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.pb
+*.tflite
+*.caffemodel
+*.dat
+*.model
+*.weights
+
+# Generated / heavy media anywhere in the tree
+*.mp4
+*.webm
+*.avi
+*.mov
+*.mkv
+
+# Old git history kept locally as a backup after re-init (never push this)
+/.git_old_backup/
+
+# OS / IDE noise
+.DS_Store
+Thumbs.db

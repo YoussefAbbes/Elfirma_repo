@@ -1,0 +1,151 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Certification Exam - SmartFarm Training{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --bg-dark: #0a0f1c;
+        --card-bg: rgba(20, 27, 45, 0.6);
+        --card-border: rgba(255, 255, 255, 0.05);
+        --accent: #10b981;
+        --accent-glow: rgba(16, 185, 129, 0.4);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+    }
+
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+    .container { max-width: 900px; margin: 60px auto; padding: 20px; text-align: center; }
+
+    .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 60px 40px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        animation: fadeUp 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .exam-icon { font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(16,185,129,0.4)); }
+    
+    h1 {
+        font-size: 42px;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #fff, #a7f3d0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    p.description { color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
+
+    .stats-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+
+    .stat-box {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 20px 30px;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 150px;
+    }
+
+    .stat-box .value { font-size: 28px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif; }
+    .stat-box .label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .btn-start {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 18px 40px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+        box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.4);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-start:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.6);
+        filter: brightness(1.1);
+    }
+
+    .btn-disabled {
+        background: rgba(255,255,255,0.1);
+        color: #64748b;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .btn-disabled:hover { transform: none; box-shadow: none; filter: none; }
+
+    .progress-warning {
+        margin-top: 20px;
+        color: #fbbf24;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+</style>
+
+<div class="container">
+    <div class="glass-card">
+        <div class="exam-icon">🏆</div>
+        <h1>SmartFarm Certification Exam</h1>
+        <p class="description">Prove your expertise in precision agriculture. Passing this exam grants you the official SmartFarm Expert Certification, verifiable online.</p>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="value">{{ totalLessons }}</span>
+                <span class="label">Total Topics</span>
+            </div>
+            <div class="stat-box">
+                <span class="value">{{ passingScore }}%</span>
+                <span class="label">Passing Score</span>
+            </div>
+            <div class="stat-box">
+                <span class="value">PDF</span>
+                <span class="label">Digital Cert</span>
+            </div>
+        </div>
+
+        {% if allLessonsCompleted %}
+            <a href="/quiz/start" class="btn-start">Begin Exam Now</a>
+        {% else %}
+            <button class="btn-start btn-disabled" disabled>Exam Locked</button>
+            <div class="progress-warning">
+                ⚠️ You must complete all {{ totalLessons }} lessons first. (Currently {{ completedLessonsCount }}/{{ totalLessons }})
+            </div>
+            <div style="margin-top: 20px;">
+                <a href="/dashboard" style="color: #667eea; text-decoration: none;">Return to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

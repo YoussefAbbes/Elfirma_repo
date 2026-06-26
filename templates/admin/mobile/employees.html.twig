@@ -1,0 +1,126 @@
+{% extends 'baseback.html.twig' %}
+
+{% block title %}Team Members - Elfirma{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-[#fbfbe2] text-[#1b1d0e]">
+    <header class="sticky top-0 z-30 bg-[#fbfbe2]/80 backdrop-blur-xl border-b border-[#e4e4cc] px-6 lg:px-10 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl lg:text-3xl font-black tracking-tight text-[#0a2200]">Team Members</h2>
+            <p class="text-sm text-[#5f6658] mt-1">Keep employee profiles and NFC cards up to date.</p>
+        </div>
+        <nav class="inline-flex gap-1 p-1 rounded-full bg-[#e9ead4] text-sm font-semibold self-start md:self-auto">
+            <a href="{{ path('admin_mobile_employees') }}" class="px-4 py-2 rounded-full bg-[#0a2200] text-white shadow-sm">Employees</a>
+            <a href="{{ path('admin_mobile_tasks') }}" class="px-4 py-2 rounded-full text-[#3e4735] hover:bg-white/60 transition-colors">Tasks</a>
+            <a href="{{ path('admin_mobile_reports') }}" class="px-4 py-2 rounded-full text-[#3e4735] hover:bg-white/60 transition-colors">Reports</a>
+        </nav>
+    </header>
+
+    <section class="px-6 lg:px-10 py-8 space-y-8">
+        {% for message in app.flashes('success') %}
+            <div class="px-4 py-3 rounded-xl border border-green-300 bg-green-100 text-green-800 text-sm font-medium">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="px-4 py-3 rounded-xl border border-red-300 bg-red-100 text-red-800 text-sm font-medium">{{ message }}</div>
+        {% endfor %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <article class="rounded-2xl bg-gradient-to-br from-[#0a2200] to-[#43682b] text-white p-6 shadow-lg relative overflow-hidden">
+                <span class="material-symbols-outlined absolute -bottom-3 -right-2 text-7xl opacity-15">groups</span>
+                <p class="text-xs uppercase tracking-[0.15em] text-white/80">Total Team Members</p>
+                <p class="text-4xl font-black mt-2">{{ employees|length }}</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-[#e4e4cc] p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-[0.15em] text-[#5f6658]">Profiles Ready</p>
+                <p class="text-4xl font-black text-[#15803d] mt-2">{{ profiles_by_mysql_id|length }}</p>
+            </article>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e4e4cc] p-6 lg:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-[#0a2200]">Refresh Team Profiles</h3>
+                <p class="text-sm text-[#5f6658] mt-1">Update all employee profiles so the mobile team list stays accurate.</p>
+            </div>
+            <form method="post" action="{{ path('admin_mobile_employees') }}" class="shrink-0">
+                <input type="hidden" name="action" value="sync_all">
+                <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0a2200] text-white font-semibold hover:bg-[#13340a] transition-colors">
+                    <span class="material-symbols-outlined text-base">sync</span>
+                    Refresh Team
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e4e4cc] overflow-hidden">
+            <div class="px-6 py-5 border-b border-[#eef0e2]">
+                <h3 class="text-lg font-bold text-[#0a2200]">NFC Card Enrollment</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-[#8a8f7e] text-xs uppercase tracking-wider bg-[#fafaf0]">
+                            <th class="px-6 py-3 font-semibold">Employee</th>
+                            <th class="px-6 py-3 font-semibold">Email</th>
+                            <th class="px-6 py-3 font-semibold">Profile Status</th>
+                            <th class="px-6 py-3 font-semibold">NFC Card</th>
+                            <th class="px-6 py-3 font-semibold">Update Card</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#f0f0df]">
+                        {% for employee in employees %}
+                            {% set profile = profiles_by_mysql_id[employee.idU ~ ''] ?? null %}
+                            <tr class="hover:bg-[#fafaf0] transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-3">
+                                        <span class="h-9 w-9 rounded-full bg-[#e6f3df] text-[#2d5f1f] flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                                            {{ employee.prenomU|first }}{{ employee.nomU|first }}
+                                        </span>
+                                        <span class="font-semibold text-[#0a2200]">{{ employee.prenomU }} {{ employee.nomU }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-[#5f6658] whitespace-nowrap">{{ employee.emailU }}</td>
+                                <td class="px-6 py-4">
+                                    {% if profile is not null %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Ready</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if profile is not null and profile.nfc_uid is defined and profile.nfc_uid %}
+                                        <span class="inline-flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-lg bg-[#f0f0df] text-[#3e4735]">
+                                            <span class="material-symbols-outlined text-sm">nfc</span>{{ profile.nfc_uid }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-[#a3a892] text-xs italic">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <form method="post" action="{{ path('admin_mobile_employees') }}" class="flex flex-wrap gap-2 items-center">
+                                        <input type="hidden" name="action" value="enroll_nfc">
+                                        <input type="hidden" name="user_id" value="{{ employee.idU }}">
+                                        <input
+                                            name="nfc_uid"
+                                            type="text"
+                                            required
+                                            placeholder="Enter NFC card code"
+                                            class="w-56 px-3 py-2 border border-[#c3c9b9] rounded-lg bg-[#fafaf0] focus:bg-white focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none transition"
+                                        >
+                                        <button type="submit" class="px-4 py-2 rounded-lg bg-[#43682b] text-white text-xs font-semibold hover:bg-[#365821] transition-colors">Save NFC</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-[#8a8f7e]">
+                                    <span class="material-symbols-outlined text-4xl opacity-40 block mb-2">person_off</span>
+                                    No employees found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

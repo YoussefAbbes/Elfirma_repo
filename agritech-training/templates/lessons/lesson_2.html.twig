@@ -1,0 +1,221 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Lesson 2: Using the Mobile Application{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --bg-dark: #0a0f1c;
+        --card-bg: rgba(20, 27, 45, 0.6);
+        --card-border: rgba(255, 255, 255, 0.05);
+        --accent: #38bdf8; /* Light blue for mobile/app */
+        --accent-glow: rgba(56, 189, 248, 0.4);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+    
+    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+    .top-progress-container {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 4px;
+        background: rgba(255,255,255,0.1);
+        z-index: 1000;
+    }
+    .top-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #38bdf8, #0284c7);
+        width: 22.22%; /* Lesson 2/9 */
+        box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+
+    .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        animation: fadeUp 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .glass-card:nth-child(1) { animation-delay: 0.1s; }
+    .glass-card:nth-child(2) { animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lesson-header h1 {
+        font-size: 36px;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #fff, #bae6fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .meta-tags { display: flex; gap: 15px; margin-bottom: 20px; }
+    .tag {
+        background: rgba(255,255,255,0.05);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        color: var(--text-muted);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .tag-accent {
+        background: rgba(56, 189, 248, 0.15);
+        color: #7dd3fc;
+        border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .content-area h2 { color: #fff; font-size: 24px; margin: 30px 0 15px; }
+    .content-area p { color: var(--text-muted); margin-bottom: 15px; font-size: 16px; }
+    .content-area ul { list-style: none; margin-bottom: 20px; }
+    .content-area li {
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        padding-left: 24px;
+        position: relative;
+    }
+    .content-area li::before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+    }
+
+    .highlight-box {
+        background: linear-gradient(90deg, rgba(56,189,248,0.1), transparent);
+        border-left: 4px solid var(--accent);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+    }
+    .highlight-box strong { color: #fff; }
+
+    /* Mockup placeholder */
+    .app-mockup {
+        background: #0f172a;
+        border: 2px solid #334155;
+        border-radius: 24px;
+        padding: 20px;
+        text-align: center;
+        margin: 30px auto;
+        max-width: 300px;
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        position: relative;
+        overflow: hidden;
+    }
+    .app-mockup::before {
+        content: '';
+        position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+        width: 60px; height: 6px; border-radius: 3px; background: #334155;
+    }
+
+    .navigation { display: flex; justify-content: space-between; gap: 20px; margin-top: 40px; }
+    .btn {
+        padding: 16px 32px; border-radius: 12px; font-weight: 600; text-decoration: none;
+        text-align: center; transition: all 0.3s; cursor: pointer; border: none; font-size: 16px;
+    }
+    .btn-prev { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--card-border); }
+    .btn-prev:hover { background: rgba(255,255,255,0.1); }
+    .btn-complete { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; flex-grow: 1; }
+    .btn-complete:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(56,189,248,0.6); }
+    .btn-next { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .btn-next:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(102,126,234,0.6); }
+
+    @media (max-width: 768px) { .navigation { flex-direction: column; } }
+</style>
+
+<div class="top-progress-container"><div class="top-progress-fill"></div></div>
+
+<div class="container">
+    <div class="glass-card lesson-header">
+        <div class="meta-tags">
+            <span class="tag">⏱️ 20 min read</span>
+            <span class="tag">📈 Level: Beginner</span>
+            <span class="tag tag-accent">📱 Tutorial</span>
+        </div>
+        <h1>Using the Mobile Application</h1>
+        <p style="color: var(--text-muted); font-size: 18px;">Master the SmartFarm dashboard, configure your alerts, and use the camera for AI analysis.</p>
+    </div>
+
+    <div class="glass-card content-area">
+        
+        <div style="display:flex; flex-wrap:wrap; gap:30px; align-items:center;">
+            <div style="flex:1; min-width:300px;">
+                <h2>The Main Dashboard</h2>
+                <p>When you open the app, the main dashboard provides an immediate overview of your farm's health. It aggregates data from all deployed sensors and displays average readings for humidity, temperature, pH, and NPK levels.</p>
+
+                <h2>Configuring Alerts</h2>
+                <p>You don't need to check the app constantly. Set custom thresholds to receive push notifications:</p>
+                <ul>
+                    <li>If soil moisture drops below 25%</li>
+                    <li>If temperature exceeds 35°C</li>
+                    <li>If battery levels on any sensor drop below 15%</li>
+                </ul>
+            </div>
+            
+            <div class="app-mockup">
+                <div>
+                    <span style="font-size: 48px;">📱</span><br><br>
+                    SmartFarm UI<br>Simulation
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <strong>💡 Quick Action:</strong> Use the "Camera" tab in the bottom navigation bar to instantly snap a picture of any suspicious leaf. The AI will analyze it in seconds directly from your phone.
+        </div>
+        
+        <h2>Historical Data Visualization</h2>
+        <p>The "Charts" tab allows you to visualize data trends over time. Comparing your current soil temperature curve against last year's curve can help you accurately predict the best harvesting window.</p>
+    </div>
+
+    <div class="navigation">
+        <a href="/lesson/1" class="btn btn-prev">← Previous</a>
+        <button class="btn btn-complete" onclick="completeLesson(2, this)">
+            <span class="btn-text">✓ Mark as Complete</span>
+        </button>
+        <a href="/lesson/3" class="btn btn-next">Next Lesson →</a>
+    </div>
+</div>
+
+<script>
+    function completeLesson(lessonNumber, btn) {
+        const btnText = btn.querySelector('.btn-text');
+        btnText.innerText = 'Saving...';
+        
+        fetch(`/lesson/complete/${lessonNumber}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                btnText.innerText = 'Completed! 🎉';
+                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                setTimeout(() => window.location.href = `/lesson/${lessonNumber + 1}`, 1000);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                btnText.innerText = 'Error saving';
+            });
+    }
+</script>
+{% endblock %}

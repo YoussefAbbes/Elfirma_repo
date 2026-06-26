@@ -1,0 +1,161 @@
+{% extends 'baseback.html.twig' %}
+
+{% block title %}Work Planner - Elfirma{% endblock %}
+
+{% block body %}
+{% set total = tasks|length %}
+{% set done = tasks|filter(t => (t.status|default('assigned')) == 'done')|length %}
+{% set pending = total - done %}
+
+<div class="min-h-screen bg-[#fbfbe2] text-[#1b1d0e]">
+    <header class="sticky top-0 z-30 bg-[#fbfbe2]/80 backdrop-blur-xl border-b border-[#e4e4cc] px-6 lg:px-10 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl lg:text-3xl font-black tracking-tight text-[#0a2200]">Work Planner</h2>
+            <p class="text-sm text-[#5f6658] mt-1">Create and follow up assignments for your field team.</p>
+        </div>
+        <nav class="inline-flex gap-1 p-1 rounded-full bg-[#e9ead4] text-sm font-semibold self-start md:self-auto">
+            <a href="{{ path('admin_mobile_employees') }}" class="px-4 py-2 rounded-full text-[#3e4735] hover:bg-white/60 transition-colors">Employees</a>
+            <a href="{{ path('admin_mobile_tasks') }}" class="px-4 py-2 rounded-full bg-[#0a2200] text-white shadow-sm">Tasks</a>
+            <a href="{{ path('admin_mobile_reports') }}" class="px-4 py-2 rounded-full text-[#3e4735] hover:bg-white/60 transition-colors">Reports</a>
+        </nav>
+    </header>
+
+    <section class="px-6 lg:px-10 py-8 space-y-8">
+        {% for message in app.flashes('success') %}
+            <div class="px-4 py-3 rounded-xl border border-green-300 bg-green-100 text-green-800 text-sm font-medium">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="px-4 py-3 rounded-xl border border-red-300 bg-red-100 text-red-800 text-sm font-medium">{{ message }}</div>
+        {% endfor %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <article class="rounded-2xl bg-gradient-to-br from-[#0a2200] to-[#43682b] text-white p-6 shadow-lg relative overflow-hidden">
+                <span class="material-symbols-outlined absolute -bottom-3 -right-2 text-7xl opacity-15">checklist</span>
+                <p class="text-xs uppercase tracking-[0.15em] text-white/80">Total Tasks</p>
+                <p class="text-4xl font-black mt-2">{{ total }}</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-[#e4e4cc] p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-[0.15em] text-[#5f6658]">In Progress</p>
+                <p class="text-4xl font-black text-[#b45309] mt-2">{{ pending }}</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-[#e4e4cc] p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-[0.15em] text-[#5f6658]">Completed</p>
+                <p class="text-4xl font-black text-[#15803d] mt-2">{{ done }}</p>
+            </article>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e4e4cc] p-6 lg:p-8">
+            <h3 class="text-lg font-bold text-[#0a2200] mb-5">Create Assignment</h3>
+            <form method="post" action="{{ path('admin_mobile_task_create') }}" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-[#5f6658]">Task title</label>
+                    <input name="title" type="text" required placeholder="e.g. Inspect the northern parcel" class="px-4 py-2.5 border border-[#c3c9b9] rounded-xl bg-[#fafaf0] focus:bg-white focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none transition">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-[#5f6658]">Assign employee</label>
+                    <select name="assignee_id" required class="px-4 py-2.5 border border-[#c3c9b9] rounded-xl bg-[#fafaf0] focus:bg-white focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none transition">
+                        <option value="">Select employee…</option>
+                        {% for employee in employees %}
+                            <option value="{{ employee.idU }}">{{ employee.prenomU }} {{ employee.nomU }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-[#5f6658]">Priority</label>
+                    <select name="priority" class="px-4 py-2.5 border border-[#c3c9b9] rounded-xl bg-[#fafaf0] focus:bg-white focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none transition">
+                        <option value="normal">Normal priority</option>
+                        <option value="high">High priority</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-[#5f6658]">Due date</label>
+                    <input name="due_date" type="date" class="px-4 py-2.5 border border-[#c3c9b9] rounded-xl bg-[#fafaf0] focus:bg-white focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none transition">
+                </div>
+                <div class="flex flex-col gap-1.5 md:col-span-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-[#5f6658]">Description</label>
+                    <textarea name="description" required placeholder="Describe what needs to be done…" rows="3" class="px-4 py-2.5 border border-[#c3c9b9] rounded-xl bg-[#fafaf0] focus:bg-white focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none transition resize-y"></textarea>
+                </div>
+                <button type="submit" class="md:col-span-2 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0a2200] text-white font-semibold hover:bg-[#13340a] transition-colors">
+                    <span class="material-symbols-outlined text-base">add_task</span>
+                    Create Task
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e4e4cc] overflow-hidden">
+            <div class="px-6 py-5 border-b border-[#eef0e2]">
+                <h3 class="text-lg font-bold text-[#0a2200]">Current Tasks</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-[#8a8f7e] text-xs uppercase tracking-wider bg-[#fafaf0]">
+                            <th class="px-6 py-3 font-semibold">Title</th>
+                            <th class="px-6 py-3 font-semibold">Employee</th>
+                            <th class="px-6 py-3 font-semibold">Priority</th>
+                            <th class="px-6 py-3 font-semibold">Status</th>
+                            <th class="px-6 py-3 font-semibold whitespace-nowrap">Due Date</th>
+                            <th class="px-6 py-3 font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#f0f0df]">
+                        {% for task in tasks %}
+                            {% set priority = task.priority|default('normal') %}
+                            {% set status = task.status|default('assigned') %}
+                            <tr class="align-top hover:bg-[#fafaf0] transition-colors">
+                                <td class="px-6 py-4 max-w-xs">
+                                    <div class="font-semibold text-[#0a2200]">{{ task.title|default('Untitled') }}</div>
+                                    <div class="text-[#8a8f7e] text-xs mt-1">{{ task.description|default('') }}</div>
+                                </td>
+                                <td class="px-6 py-4 text-[#3e4735] whitespace-nowrap">{{ task.assigned_employee_name|default('Unknown') }}</td>
+                                <td class="px-6 py-4">
+                                    {% if priority == 'urgent' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Urgent</span>
+                                    {% elseif priority == 'high' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">High</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#e6f3df] text-[#2d5f1f]">Normal</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if status == 'done' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Done</span>
+                                    {% elseif status == 'in_progress' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>In progress</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-[#5f6658] whitespace-nowrap">{{ task.due_date|default('No due date') }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <form method="post" action="{{ path('admin_mobile_task_status', {taskId: task.id}) }}" class="flex items-center gap-2">
+                                            <select name="status" class="px-2.5 py-1.5 border border-[#c3c9b9] rounded-lg bg-white text-xs focus:ring-2 focus:ring-[#43682b]/30 focus:border-[#43682b] outline-none">
+                                                <option value="assigned" {% if status == 'assigned' %}selected{% endif %}>Assigned</option>
+                                                <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In progress</option>
+                                                <option value="done" {% if status == 'done' %}selected{% endif %}>Done</option>
+                                            </select>
+                                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-[#43682b] text-white text-xs font-semibold hover:bg-[#365821] transition-colors">Update</button>
+                                        </form>
+                                        <form method="post" action="{{ path('admin_mobile_task_delete', {taskId: task.id}) }}" onsubmit="return confirm('Delete this task?');">
+                                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-white border border-red-200 text-red-600 text-xs font-semibold hover:bg-red-50 transition-colors">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-[#8a8f7e]">
+                                    <span class="material-symbols-outlined text-4xl opacity-40 block mb-2">task_alt</span>
+                                    No tasks created yet.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Lesson 9: Maintenance and Troubleshooting{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --bg-dark: #0a0f1c;
+        --card-bg: rgba(20, 27, 45, 0.6);
+        --card-border: rgba(255, 255, 255, 0.05);
+        --accent: #f97316; /* Orange for hardware/maintenance */
+        --accent-glow: rgba(249, 115, 22, 0.4);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+    
+    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+    .top-progress-container {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 4px;
+        background: rgba(255,255,255,0.1);
+        z-index: 1000;
+    }
+    .top-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f97316, #ea580c);
+        width: 100%; /* Lesson 9/9 */
+        box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+
+    .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        animation: fadeUp 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .glass-card:nth-child(1) { animation-delay: 0.1s; }
+    .glass-card:nth-child(2) { animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lesson-header h1 {
+        font-size: 36px;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #fff, #fed7aa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .meta-tags { display: flex; gap: 15px; margin-bottom: 20px; }
+    .tag {
+        background: rgba(255,255,255,0.05);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        color: var(--text-muted);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .tag-accent {
+        background: rgba(249, 115, 22, 0.15);
+        color: #fdba74;
+        border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .model-container {
+        width: 100%;
+        height: 600px;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        background: #050810;
+        border: 1px solid var(--card-border);
+        margin: 30px 0;
+        box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+    }
+
+    .model-overlay {
+        position: absolute;
+        top: 20px; left: 20px;
+        pointer-events: none;
+    }
+    .model-title {
+        color: #fff;
+        font-family: 'Outfit', sans-serif;
+        font-size: 24px;
+        font-weight: 600;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .content-area h2 { color: #fff; font-size: 24px; margin: 30px 0 15px; }
+    .content-area p { color: var(--text-muted); margin-bottom: 15px; font-size: 16px; }
+    .content-area ul { list-style: none; margin-bottom: 20px; }
+    .content-area li {
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        padding-left: 24px;
+        position: relative;
+    }
+    .content-area li::before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+    }
+
+    .highlight-box {
+        background: linear-gradient(90deg, rgba(249,115,22,0.1), transparent);
+        border-left: 4px solid var(--accent);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+    }
+    .highlight-box strong { color: #fff; }
+
+    .navigation { display: flex; justify-content: space-between; gap: 20px; margin-top: 40px; }
+    .btn {
+        padding: 16px 32px; border-radius: 12px; font-weight: 600; text-decoration: none;
+        text-align: center; transition: all 0.3s; cursor: pointer; border: none; font-size: 16px;
+    }
+    .btn-prev { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--card-border); }
+    .btn-prev:hover { background: rgba(255,255,255,0.1); }
+    .btn-complete { background: linear-gradient(135deg, #10b981, #059669); color: white; flex-grow: 1; }
+    .btn-complete:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(16,185,129,0.6); }
+
+    @media (max-width: 768px) { .navigation { flex-direction: column; } .model-container { height: 400px; } }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/js/three-sensor-models.js"></script>
+
+<div class="top-progress-container"><div class="top-progress-fill"></div></div>
+
+<div class="container">
+    <div class="glass-card lesson-header">
+        <div class="meta-tags">
+            <span class="tag">⏱️ 15 min read</span>
+            <span class="tag">📈 Level: Beginner</span>
+            <span class="tag tag-accent">🔧 Hardware</span>
+        </div>
+        <h1>Maintenance & Troubleshooting</h1>
+        <p style="color: var(--text-muted); font-size: 18px;">Learn how to keep your SmartFarm sensor network operating at peak accuracy with routine physical maintenance.</p>
+        <img class="lesson-hero" src="{{ asset('images/lessons/lesson9.jpg') }}" alt="Sensor maintenance tools">
+    </div>
+
+    <div class="glass-card content-area">
+        <div id="model-viewer" class="model-container" data-sensor="maintenance">
+            <div class="model-overlay">
+                <div class="model-title">Sensor Calibration</div>
+            </div>
+        </div>
+
+        <h2>Routine Cleaning</h2>
+        <p>Sensors deployed in the field accumulate dirt, mineral deposits, and biofilm over time. This creates a barrier between the sensor electrodes and the soil, skewing the readings.</p>
+        
+        <ul>
+            <li><strong>Monthly:</strong> Wipe down exposed solar panels on the sensor heads to ensure battery charging.</li>
+            <li><strong>End of Season:</strong> Remove sensors from the soil. Clean probes gently with a soft brush and distilled water. Do not use abrasive pads.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <strong>💡 Calibration Rule:</strong> Especially for pH and NPK sensors, recalibration is required every season. Use the standardized buffer solutions provided in your SmartFarm kit, dip the cleaned probe, and run the calibration protocol in the mobile app.
+        </div>
+
+        <h2>Troubleshooting Connectivity</h2>
+        <p>If a sensor drops off the network in the app dashboard:</p>
+        <ul>
+            <li>Check the battery level (if it died during an extended cloudy period).</li>
+            <li>Verify the line-of-sight to the nearest gateway. Crop growth (like tall corn) can sometimes block LoRa signals mid-season.</li>
+            <li>Check for physical damage (e.g., chewed wires by rodents or tractor damage).</li>
+        </ul>
+
+        <h2>Final Exam Readiness</h2>
+        <p>Congratulations! You have completed all the training modules. You are now ready to take the final exam and earn your certification.</p>
+        <div class="knowledge-check"
+             data-ok="<strong>Correct!</strong> Most faults are fixed by checking connections and cleaning before replacing anything."
+             data-no="<strong>Not quite.</strong> Start by checking the connections and cleaning the sensor.">
+            <h3>🧠 Quick Knowledge Check</h3>
+            <p>A sensor suddenly shows strange readings. What is the first thing to do?</p>
+            <div class="options">
+                <button class="option-btn" onclick="checkAnswer(this, false)">A. Throw it away and buy a new one.</button>
+                <button class="option-btn" data-correct="1" onclick="checkAnswer(this, true)">B. Check the connections and gently clean the probe.</button>
+                <button class="option-btn" onclick="checkAnswer(this, false)">C. Ignore it and hope it corrects itself.</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <a href="/training/lesson/8" class="btn btn-prev">← Previous</a>
+        <button id="complete-btn" class="btn btn-complete" onclick="completeLesson(9, this)">
+            <span class="btn-text">✓ Mark Final Lesson Complete & Go to Dashboard</span>
+        </button>
+    </div>
+</div>
+
+<!-- Confetti Canvas -->
+<canvas id="confetti" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999;"></canvas>
+
+<script>
+    function completeLesson(lessonNumber, btn) {
+        const btnText = btn.querySelector('.btn-text');
+        btnText.innerText = 'Saving...';
+        
+        fetch(`/training/lesson/complete/${lessonNumber}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                btnText.innerText = 'All Lessons Completed! 🎉';
+                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                fireConfetti();
+                setTimeout(() => window.location.href = `/training/dashboard`, 2500);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                btnText.innerText = 'Error saving';
+            });
+    }
+
+    function fireConfetti() {
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const colors = ['#48bb78', '#667eea', '#f59e0b', '#a5b4fc', '#ffffff'];
+        
+        for(let i=0; i<150; i++) {
+            particles.push({
+                x: canvas.width/2,
+                y: canvas.height/2 + 100,
+                vx: (Math.random()-0.5) * 25,
+                vy: (Math.random()-1) * 25 - 5,
+                size: Math.random() * 8 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rot: Math.random() * Math.PI
+            });
+        }
+        
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            let active = false;
+            
+            particles.forEach(p => {
+                p.vy += 0.5;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rot += 0.1;
+                
+                if (p.y < canvas.height) active = true;
+                
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                ctx.restore();
+            });
+            
+            if(active) requestAnimationFrame(animate);
+        }
+        animate();
+    }
+</script>
+{% include "training/_theme.html.twig" %}
+{% endblock %}

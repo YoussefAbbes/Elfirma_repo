@@ -1,0 +1,89 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Exam Locked - AgriTech Training{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --bg-dark: #0a0f1c;
+        --card-bg: rgba(20, 27, 45, 0.6);
+        --card-border: rgba(255, 255, 255, 0.05);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+    }
+
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .container { max-width: 600px; margin: 80px auto; padding: 20px; text-align: center; }
+
+    .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 50px 40px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .icon { font-size: 64px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(239,68,68,0.4)); }
+    
+    h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 32px;
+        margin-bottom: 20px;
+        color: #fff;
+    }
+
+    p { color: var(--text-muted); font-size: 16px; margin-bottom: 30px; line-height: 1.6; }
+
+    .progress-bar {
+        background: rgba(255,255,255,0.1);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+
+    .progress-fill {
+        background: linear-gradient(90deg, #f59e0b, #ef4444);
+        height: 100%;
+        width: {{ (completedLessonsCount / totalLessons * 100)|round }}%;
+    }
+
+    .progress-text { font-size: 14px; color: #fbbf24; margin-bottom: 30px; font-weight: 600; }
+
+    .btn-home {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        padding: 14px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    .btn-home:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(102,126,234,0.6); }
+
+</style>
+
+<div class="container">
+    <div class="glass-card">
+        <div class="icon">🔒</div>
+        <h1>Exam Locked</h1>
+        <p>You must complete all lessons before taking the final certification exam. Take your time and make sure you understand all the concepts.</p>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">
+            {{ completedLessonsCount }} out of {{ totalLessons }} lessons completed
+        </div>
+
+        <a href="/dashboard" class="btn-home">Return to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+# This file is auto-generated during the composer install
+# Partial configuration for certificate module
+
+services:
+    # Certificate Service
+    App\Service\CertificateService:
+        arguments:
+            $pdf: '@knp_snappy.pdf'
+            $twig: '@twig'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $params: '@parameter_bag'
+
+    # Repositories
+    App\Repository\UserProgressRepository:
+        tags:
+            - 'doctrine.repository_service'
+
+    # Controllers
+    App\Controller\CertificateController:
+        tags:
+            - 'controller.service_arguments'
+
+# Knp Snappy PDF Configuration
+knp_snappy:
+    pdf:
+        enabled: true
+        binary: '%env(KNP_SNAPPY_PDF_BINARY)%'
+        options:
+            margin-top: 0
+            margin-right: 0
+            margin-bottom: 0
+            margin-left: 0
+            enable-local-file-access: true
+
+# Twig Configuration
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    globals:
+        app_name: 'AgriTech Training Platform'
+        company_name: 'AgriTech Innovation'

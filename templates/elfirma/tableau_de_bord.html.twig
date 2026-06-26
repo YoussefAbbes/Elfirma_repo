@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="{{ asset('styles/elfirma-theme.css') }}" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;family=Open_Sans:wght@400;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f5f5dc",
+                    "outline-variant": "#c3c9b9",
+                    "surface-container-highest": "#e4e4cc",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#a8d389",
+                    "on-surface": "#1b1d0e",
+                    "primary-fixed-dim": "#a8d389",
+                    "surface-container-high": "#eaead1",
+                    "on-primary-fixed-variant": "#2c4f15",
+                    "on-secondary-container": "#753502",
+                    "outline": "#73796c",
+                    "inverse-surface": "#303221",
+                    "on-secondary-fixed": "#321200",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#43682b",
+                    "on-surface-variant": "#43493d",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#1b1d0e",
+                    "background": "#fbfbe2",
+                    "inverse-on-surface": "#f2f2d9",
+                    "surface-bright": "#fbfbe2",
+                    "secondary-fixed-dim": "#ffb68c",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#cc83af",
+                    "on-secondary-fixed-variant": "#753401",
+                    "tertiary-fixed": "#ffd8ec",
+                    "on-tertiary-fixed": "#39042c",
+                    "surface-container": "#efefd7",
+                    "tertiary-container": "#541c43",
+                    "surface-variant": "#e4e4cc",
+                    "surface": "#fbfbe2",
+                    "on-primary-container": "#7ca560",
+                    "on-primary-fixed": "#0a2100",
+                    "secondary-fixed": "#ffdbc9",
+                    "tertiary-fixed-dim": "#fdafde",
+                    "primary-fixed": "#c3efa3",
+                    "tertiary": "#3a052d",
+                    "secondary": "#934b19",
+                    "primary-container": "#173901",
+                    "surface-dim": "#dbdcc3",
+                    "secondary-container": "#fc9f66",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#0a2200",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#6d3259"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Open Sans"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        body {
+            background-color: #fbfbe2;
+            color: #1b1d0e;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fbfbe2; }
+        ::-webkit-scrollbar-thumb { background: #c3c9b9; border-radius: 10px; }
+
+        /* Dashboard polish */
+        .kpi-card { transition: transform .25s ease, box-shadow .25s ease; }
+        .kpi-card:hover { transform: translateY(-4px); }
+        .soft-shadow { box-shadow: 0 18px 40px -22px rgba(10, 34, 0, 0.35); }
+        .chart-bar { transition: filter .2s ease, transform .2s ease; transform-origin: bottom; }
+        .chart-bar:hover { filter: brightness(1.05); transform: scaleY(1.03); }
+    </style>
+</head>
+<body class="font-body selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- SideNavBar -->
+{% include 'elfirma/_admin_sidebar.html.twig' with { 'current_module': 'tableau-de-bord' } %}
+<!-- Main Canvas -->
+<main class="elfirma-admin-content min-h-screen flex flex-col" style="margin-left: 280px;">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 bg-[#fbfbe2]/75 backdrop-blur-xl border-b border-outline-variant/20 flex justify-between items-center w-full px-6 lg:px-10 py-4">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md hidden lg:block">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-full pl-12 pr-6 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none text-on-surface transition" placeholder="Search plots, orders..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/30 hover:bg-surface-container-low transition-colors text-on-surface relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-secondary rounded-full ring-2 ring-[#fbfbe2]"></span>
+</button>
+<button class="p-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/30 hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-11 w-11 rounded-full overflow-hidden border-2 border-primary/15 shadow-sm">
+<img alt="Administrator profile" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDufy07ZUv6j7xar0Gm3UJM3zqB4KlLZCyZFKPoCBJoGKBXKxY0y-s5WFD4VHC_IMYvS1oGlypOOi3bKXtFAXFll80UxsqWyEMDMGIWO-6T7HdtP0BOY9CZ5RiwJWq4k2bvAqDd6GxyUn0hiW1kGmtGS47UF4C_06HerZRAxEyttf-lviRamABow218k2vGXwizZ4cS-XTcKBwXBLXjQjaWn8SlFrZ7Arl_huBjPL06ZV7fRdfVArd2es0T9AE3nybj5WIiIPpcjb1p"/>
+</div>
+</div>
+</header>
+<section class="p-6 lg:p-10 space-y-8 max-w-[1500px] w-full mx-auto">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-secondary"><span class="material-symbols-outlined text-sm">agriculture</span>Farm Overview</span>
+<h2 class="text-4xl lg:text-5xl font-black text-primary tracking-tight font-headline mt-2">Hello, Ahmed.</h2>
+<p class="text-on-surface-variant mt-2 text-lg">Here is the current state of your farm in Béja and Kairouan.</p>
+</div>
+<!-- Contextual Weather Chip -->
+<div class="glass-card px-6 py-4 rounded-3xl flex items-center gap-4 border border-white/40 soft-shadow">
+<div class="bg-secondary/10 p-3 rounded-2xl text-secondary">
+<span class="material-symbols-outlined text-3xl">sunny</span>
+</div>
+<div>
+<p class="text-base font-black text-on-surface">Sidi Bouzid, 28°C</p>
+<p class="text-xs text-on-surface-variant mt-0.5">South Wind • Humidity 12%</p>
+</div>
+</div>
+</div>
+<!-- Bento KPI Grid -->
+{% set trend_up = kpi_sales_trend >= 0 %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Ventes KPI -->
+<div class="kpi-card bg-surface-container-lowest p-7 rounded-3xl border border-outline-variant/15 soft-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<div class="h-11 w-11 rounded-2xl bg-primary/5 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-xs {{ trend_up ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error' }}">
+<span class="material-symbols-outlined text-sm">{{ trend_up ? 'trending_up' : 'trending_down' }}</span>{{ trend_up ? '+' : '' }}{{ kpi_sales_trend }}%
+</span>
+</div>
+<p class="text-on-surface-variant font-label text-xs font-semibold uppercase tracking-widest mt-6">Total Sales</p>
+<h3 class="text-3xl font-black text-primary mt-1.5">{{ kpi_total_sales|number_format(0, '.', ',') }} <span class="text-sm font-normal text-on-surface-variant">DT</span></h3>
+<p class="mt-2 text-sm text-on-surface-variant">vs. last month</p>
+</div>
+<!-- Production KPI -->
+<div class="kpi-card bg-gradient-to-br from-primary-container to-primary p-7 rounded-3xl shadow-xl relative overflow-hidden text-on-primary">
+<div class="absolute -bottom-5 -right-3 opacity-15">
+<span class="material-symbols-outlined text-[7rem] leading-none">eco</span>
+</div>
+<div class="h-11 w-11 rounded-2xl bg-white/15 text-white flex items-center justify-center">
+<span class="material-symbols-outlined">grass</span>
+</div>
+<p class="text-primary-fixed-dim font-label text-xs font-semibold uppercase tracking-widest mt-6">Total Production</p>
+<h3 class="text-3xl font-black mt-1.5">{{ kpi_production_tonnes }} <span class="text-sm font-normal opacity-80">Tonnes</span></h3>
+<p class="mt-2 text-sm opacity-80 truncate">{{ kpi_top_crops }}</p>
+</div>
+<!-- Alertes KPI -->
+<div class="kpi-card bg-surface-container-lowest p-7 rounded-3xl border border-outline-variant/15 soft-shadow group">
+<div class="flex items-center justify-between">
+<div class="h-11 w-11 rounded-2xl bg-error/10 text-error flex items-center justify-center">
+<span class="material-symbols-outlined">notification_important</span>
+</div>
+{% if kpi_critical_alerts > 0 %}<span class="w-2.5 h-2.5 bg-error rounded-full animate-pulse"></span>{% endif %}
+</div>
+<p class="text-on-surface-variant font-label text-xs font-semibold uppercase tracking-widest mt-6">Critical Alerts</p>
+<h3 class="text-3xl font-black mt-1.5 {{ kpi_critical_alerts > 0 ? 'text-error' : 'text-primary' }}">{{ '%02d'|format(kpi_critical_alerts) }}</h3>
+<p class="mt-2 text-sm text-on-surface-variant">{{ kpi_critical_alerts > 0 ? 'Requires immediate action' : 'All systems nominal' }}</p>
+</div>
+<!-- Commandes KPI -->
+<div class="kpi-card bg-gradient-to-br from-secondary-container to-secondary p-7 rounded-3xl shadow-lg text-white relative overflow-hidden">
+<div class="absolute -bottom-5 -right-3 opacity-15">
+<span class="material-symbols-outlined text-[7rem] leading-none">shopping_cart</span>
+</div>
+<div class="h-11 w-11 rounded-2xl bg-white/20 text-white flex items-center justify-center">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<p class="font-label text-xs font-semibold uppercase tracking-widest mt-6 opacity-80">Orders in Progress</p>
+<h3 class="text-3xl font-black mt-1.5">{{ kpi_orders_in_progress }}</h3>
+<p class="mt-2 text-sm font-semibold opacity-90">{{ kpi_orders_pending_amount|number_format(0, '.', ',') }} DT pending</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Charts Section -->
+<div class="lg:col-span-2 space-y-6">
+<div class="bg-surface-container-lowest p-7 rounded-3xl border border-outline-variant/15 soft-shadow">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h4 class="text-2xl font-black text-primary font-headline">Crop Yield</h4>
+<p class="text-sm text-on-surface-variant mt-1">Production volume per month (tonnes)</p>
+</div>
+<div class="flex gap-1 p-1 rounded-full bg-surface-container-high">
+<button class="px-4 py-1.5 rounded-full text-xs font-bold text-on-surface-variant hover:bg-white transition-colors">Weekly</button>
+<button class="px-4 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold shadow-sm">Monthly</button>
+</div>
+</div>
+<!-- Chart Area (real harvest data, last 7 months) -->
+{% set shades = ['bg-primary/30','bg-primary/45','bg-primary/60','bg-primary/75','bg-primary/90','bg-secondary','bg-primary/55'] %}
+<div class="relative h-64">
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="border-t border-dashed border-outline-variant/25"></div>
+<div class="border-t border-dashed border-outline-variant/25"></div>
+<div class="border-t border-dashed border-outline-variant/25"></div>
+<div class="border-t border-dashed border-outline-variant/25"></div>
+</div>
+<div class="relative h-full flex items-end justify-between gap-3 lg:gap-4">
+{% for b in crop_yield %}
+<div class="chart-bar flex-1 {{ shades[loop.index0] ?? 'bg-primary/60' }} rounded-t-xl relative group" style="height: {{ b.pct > 0 ? b.pct : 2 }}%">
+<span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{{ b.value|number_format(0) }} kg</span>
+</div>
+{% endfor %}
+</div>
+</div>
+<div class="flex justify-between mt-4 text-[11px] font-bold text-on-surface-variant/60 uppercase tracking-wide">
+{% for b in crop_yield %}<span class="flex-1 text-center">{{ b.label }}</span>{% endfor %}
+</div>
+</div>
+<!-- Recent Orders Table -->
+<div class="bg-surface-container-lowest p-7 rounded-3xl border border-outline-variant/15 soft-shadow overflow-hidden">
+<div class="flex items-center justify-between mb-6">
+<h4 class="text-xl font-black text-primary font-headline">Recent Orders</h4>
+<a class="text-secondary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all" href="#">
+                                View all <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-on-surface-variant/60 text-xs uppercase tracking-widest border-b border-outline-variant/15">
+<th class="pb-4 font-semibold">Client</th>
+<th class="pb-4 font-semibold">Produit</th>
+<th class="pb-4 font-semibold text-right">Montant</th>
+<th class="pb-4 font-semibold text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+{% set avatar_tones = ['bg-secondary/15 text-secondary', 'bg-primary/10 text-primary', 'bg-surface-container-high text-on-surface-variant'] %}
+{% for order in recent_orders %}
+{% set st = order.statutCommande|default('') %}
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="h-9 w-9 rounded-full flex items-center justify-center font-black text-xs {{ avatar_tones[loop.index0 % 3] }}">{{ order.nomClient|default('?')|slice(0, 2)|upper }}</div>
+<span class="font-bold text-sm">{{ order.nomClient|default('Unknown client') }}</span>
+</div>
+</td>
+<td class="py-4 text-sm text-on-surface-variant">{{ order.produit ? order.produit.nom : '—' }}{% if order.quantite %} ({{ order.quantite }}){% endif %}</td>
+<td class="py-4 text-sm font-black text-right">{{ order.prixTotal|default(0)|number_format(0, '.', ',') }} DT</td>
+<td class="py-4 text-center">
+{% if st == 'Livrée' %}
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>{{ st }}</span>
+{% elseif st == 'Annulée' %}
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-[10px] font-black uppercase"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>{{ st }}</span>
+{% elseif st == 'En cours' or st == 'Confirmée' %}
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-[10px] font-black uppercase"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>{{ st }}</span>
+{% else %}
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>{{ st|default('En attente') }}</span>
+{% endif %}
+</td>
+</tr>
+{% else %}
+<tr><td colspan="4" class="py-10 text-center text-on-surface-variant/60">No orders recorded yet.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Side Panels: Alerts & Tasks -->
+<div class="space-y-6">
+<!-- Recent Alerts -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/15 soft-shadow">
+<h4 class="text-lg font-black text-primary mb-5 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">warning</span>
+                            Field Alerts
+                        </h4>
+{% set prio_styles = {
+    'urgente': {'border': 'border-error', 'text': 'text-error', 'label': 'Urgent'},
+    'haute':   {'border': 'border-secondary', 'text': 'text-secondary', 'label': 'High'},
+    'moyenne': {'border': 'border-primary', 'text': 'text-primary', 'label': 'Medium'},
+    'basse':   {'border': 'border-outline', 'text': 'text-on-surface-variant', 'label': 'Low'}
+} %}
+<div class="space-y-3">
+{% for alert in field_alerts %}
+{% set pv = alert.priorite ? alert.priorite.value : 'moyenne' %}
+{% set s = prio_styles[pv] ?? prio_styles['moyenne'] %}
+<div class="p-4 bg-surface-container-low rounded-2xl border-l-4 {{ s.border }}">
+<p class="text-[11px] font-black {{ s.text }} uppercase tracking-widest">{{ s.label }} • {{ alert.typeM|default('Maintenance') }}</p>
+<p class="text-sm font-semibold mt-1">{{ alert.description|default('—') }}{% if alert.equipement %} <span class="text-on-surface-variant font-normal">({{ alert.equipement.nomEq|default('') }})</span>{% endif %}</p>
+<p class="text-[10px] text-on-surface-variant mt-2 flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span>{{ alert.dateM ? alert.dateM|date('d M Y') : '—' }}</p>
+</div>
+{% else %}
+<div class="p-4 bg-surface-container-low rounded-2xl text-sm text-on-surface-variant text-center">No active maintenance alerts.</div>
+{% endfor %}
+</div>
+</div>
+<!-- Harvest Maturity -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/15 soft-shadow">
+<div class="flex items-center justify-between mb-5">
+<h4 class="text-lg font-black text-primary">Harvest Maturity</h4>
+<div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest">
+<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-secondary rounded-full"></span> Growth</span>
+<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-primary rounded-full"></span> Ready</span>
+</div>
+</div>
+<div class="space-y-5">
+{% for c in harvest_maturity %}
+<div>
+<div class="flex justify-between text-sm font-bold mb-2 gap-2">
+<span class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-secondary text-base">spa</span><span class="truncate">{{ c.nom }}{% if c.variete %} ({{ c.variete }}){% endif %}</span></span>
+<span class="text-primary shrink-0">{{ c.pct }}%</span>
+</div>
+<div class="w-full h-3.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full" style="width: {{ c.pct }}%"></div>
+</div>
+</div>
+{% else %}
+<p class="text-sm text-on-surface-variant text-center py-4">No active crops to track yet.</p>
+{% endfor %}
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-8 mt-auto flex flex-col sm:flex-row gap-3 justify-between items-center px-6 lg:px-12 border-t border-outline-variant/15 bg-[#fbfbe2]">
+<p class="font-body text-sm tracking-wide text-secondary">Elfirma © 2026</p>
+<div class="flex gap-8">
+<a class="text-on-surface-variant hover:text-secondary transition-colors text-sm" href="#">Technical Support</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors text-sm" href="#">Legal Notice</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors text-sm" href="#">Privacy</a>
+</div>
+</footer>
+</main>
+<!-- FAB for mobile focus -->
+<div class="md:hidden fixed bottom-6 right-6 z-50">
+<button class="h-16 w-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+{{ include('elfirma/_nav_routes.html.twig') }}
+<!-- Sidebar Collapse Handler (keeps content in sync with the shared sidebar) -->
+<script>
+    (function() {
+        const sidebar = document.querySelector('.elfirma-premium-sidebar');
+        const mainContent = document.querySelector('.elfirma-admin-content');
+        if (!sidebar || !mainContent) return;
+
+        function updateMargin() {
+            if (window.innerWidth <= 768) { mainContent.style.marginLeft = '0'; return; }
+            mainContent.style.marginLeft = sidebar.classList.contains('collapsed') ? '90px' : '280px';
+        }
+
+        if (localStorage.getItem('sidebar-collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+        }
+        updateMargin();
+
+        new MutationObserver(updateMargin).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+        window.addEventListener('resize', updateMargin);
+    })();
+</script>
+</body></html>

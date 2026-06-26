@@ -1,0 +1,902 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Cart - EL FIRMA{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #2d5016 0%, #1e3a0f 100%); padding: 25px; color: white;">
+                    <h2 style="margin: 0; display: flex; align-items: center; gap: 15px;">
+                        <span class="material-symbols-outlined" style="font-size: 32px;">shopping_cart</span>
+                        My Cart
+                    </h2>
+                </div>
+
+                <div style="padding: 30px;">
+                    {% if items is empty %}
+                        <div style="text-align: center; padding: 50px 20px;">
+                            <span class="material-symbols-outlined" style="font-size: 80px; color: #d1d5db; margin-bottom: 20px;">shopping_cart</span>
+                            <h4 style="color: #6b7280; margin-bottom: 15px;">Your cart is empty</h4>
+                            <p class="text-muted mb-4">Discover our products and add them to your cart</p>
+                            <a href="{{ path('app_pages_home') }}#products" class="btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600;">
+                                View products
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #f3f4f6;">
+                                        <th style="border: none; padding: 20px 15px; color: #374151; font-weight: 700;">Product</th>
+                                        <th style="border: none; padding: 20px 15px; color: #374151; font-weight: 700; text-align: center;">Unit price</th>
+                                        <th style="border: none; padding: 20px 15px; color: #374151; font-weight: 700; text-align: center;">Quantity</th>
+                                        <th style="border: none; padding: 20px 15px; color: #374151; font-weight: 700; text-align: right;">Subtotal</th>
+                                        <th style="border: none; padding: 20px 15px; color: #374151; font-weight: 700; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr style="border-bottom: 1px solid #f3f4f6;" data-product-id="{{ item.produit.idProduit }}">
+                                        <td style="border: none; padding: 20px 15px;">
+                                            <div style="display: flex; align-items: center; gap: 15px;">
+                                                <div style="width: 80px; height: 80px; border-radius: 10px; overflow: hidden; background: linear-gradient(135deg, #2d5016 0%, #1e3a0f 100%);">
+                                                    {% if item.produit.imageFilename %}
+                                                        <img src="{{ asset('uploads/produits/' ~ item.produit.imageFilename) }}" alt="{{ item.produit.nom }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                                            <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.5); font-size: 32px;">package_2</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <h6 style="margin: 0 0 5px 0; color: #2d5016; font-weight: 700;">{{ item.produit.nom }}</h6>
+                                                    <p style="margin: 0; font-size: 14px; color: #6b7280;">{{ item.produit.categorie ? item.produit.categorie.nom : 'Uncategorized' }}</p>
+                                                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #6b7280;">Stock: {{ item.produit.quantiteStock }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="border: none; padding: 20px 15px; text-align: center; vertical-align: middle;">
+                                            <span style="font-size: 18px; font-weight: 700; color: #16a34a;" data-unit-price-tnd="{{ item.produit.prixUnitaire }}">{{ item.produit.prixUnitaire|number_format(2, '.', ' ') }} DT</span>
+                                            {% if tnd_to_eur_rate is not null %}
+                                                <div style="font-size: 12px; color: #0f766e; font-weight: 600; margin-top: 4px;">~ {{ (item.produit.prixUnitaire * tnd_to_eur_rate)|number_format(2, '.', ' ') }} EUR</div>
+                                            {% endif %}
+                                        </td>
+                                        <td style="border: none; padding: 20px 15px; text-align: center; vertical-align: middle;">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                                <button onclick="updateQuantity({{ item.produit.idProduit }}, {{ item.quantite - 1 }})" style="background: #f3f4f6; border: none; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">remove</span>
+                                                </button>
+                                                <span id="qty-{{ item.produit.idProduit }}" style="font-size: 18px; font-weight: 700; min-width: 30px; text-align: center;">{{ item.quantite }}</span>
+                                                <button onclick="updateQuantity({{ item.produit.idProduit }}, {{ item.quantite + 1 }})" style="background: #f3f4f6; border: none; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td style="border: none; padding: 20px 15px; text-align: right; vertical-align: middle;">
+                                            <span id="subtotal-{{ item.produit.idProduit }}" style="font-size: 20px; font-weight: 800; color: #16a34a;" data-subtotal-tnd="{{ item.subtotal }}">{{ item.subtotal|number_format(2, '.', ' ') }} DT</span>
+                                            {% if tnd_to_eur_rate is not null %}
+                                                <div id="subtotal-eur-{{ item.produit.idProduit }}" style="font-size: 12px; color: #0f766e; font-weight: 600; margin-top: 4px;">~ {{ (item.subtotal * tnd_to_eur_rate)|number_format(2, '.', ' ') }} EUR</div>
+                                            {% endif %}
+                                        </td>
+                                        <td style="border: none; padding: 20px 15px; text-align: center; vertical-align: middle;">
+                                            <button onclick="removeFromCart({{ item.produit.idProduit }})" style="background: #ef4444; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="padding: 20px; background: #f9fafb; margin: 20px -30px -30px -30px; border-top: 2px solid #f3f4f6;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <button onclick="clearCart()" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    Empty cart
+                                </button>
+                                <a href="{{ path('app_pages_home') }}#products" style="background: #f3f4f6; color: #374151; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                                    Continue shopping
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if items is not empty %}
+        <div class="col-lg-4">
+            <div style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; position: sticky; top: 20px;">
+                <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 25px; color: white;">
+                    <h4 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                        Order summary
+                    </h4>
+                </div>
+
+                <div style="padding: 30px;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span style="color: #6b7280;">Subtotal:</span>
+                            <span id="cart-subtotal" style="font-weight: 600;">{{ total|number_format(2, '.', ' ') }} DT</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span style="color: #6b7280;">Delivery:</span>
+                            <span style="color: #16a34a; font-weight: 600;">Free</span>
+                        </div>
+                        <hr style="border: none; border-top: 2px solid #f3f4f6; margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 20px; font-weight: 700; color: #2d5016;">Total:</span>
+                            <span id="cart-total" style="font-size: 24px; font-weight: 900; color: #16a34a;">{{ total|number_format(2, '.', ' ') }} DT</span>
+                        </div>
+                        {% if tnd_to_eur_rate is not null %}
+                            <div id="cart-total-eur" style="text-align: right; margin-top: 6px; color: #0f766e; font-size: 13px; font-weight: 700;">~ {{ (total * tnd_to_eur_rate)|number_format(2, '.', ' ') }} EUR</div>
+                        {% endif %}
+                    </div>
+
+                    <a href="{{ path('app_commande_create') }}" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 15px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; text-align: center; display: block; margin-bottom: 15px;">
+                        Proceed to checkout
+                    </a>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="font-size: 12px; color: #6b7280; margin: 0;">
+                            <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">security</span>
+                            Secure payment
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if recommended_products is defined and recommended_products is not empty %}
+            <div style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; margin-top: 20px;">
+                <div style="background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); padding: 20px; color: white;">
+                    <h5 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <span class="material-symbols-outlined">auto_awesome</span>
+                        Recommended for you
+                    </h5>
+                    <p style="margin: 6px 0 0 0; font-size: 12px; opacity: 0.9;">Based on products frequently bought together.</p>
+                </div>
+                <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                    {% for product in recommended_products|slice(0, 5) %}
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #ecfeff; background: #f0fdfa; border-radius: 10px; padding: 10px;">
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 700; color: #134e4a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ product.nom }}</div>
+                                <div style="font-size: 12px; color: #0f766e;">{{ product.prixUnitaire|number_format(2, '.', ' ') }} DT</div>
+                            </div>
+                            <button type="button" onclick="addRecommendedToCart({{ product.idProduit }})" style="background: #0d9488; color: white; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;">
+                                Add
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="{{ asset('assets/js/gesture_assistant.js') }}?v=3"></script>
+<script>
+const tndToEurRate = {{ tnd_to_eur_rate is not null ? tnd_to_eur_rate|number_format(6, '.', '') : 'null' }};
+
+async function updateQuantity(productId, newQuantity) {
+    if (newQuantity < 0) return;
+    
+    try {
+        const response = await fetch('/api/panier/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantite: newQuantity
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            if (newQuantity === 0) {
+                location.reload();
+            } else {
+                // Mettre à jour l'affichage
+                document.getElementById('qty-' + productId).textContent = newQuantity;
+                
+                // Calculer le nouveau sous-total
+                const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+                const unitPriceEl = row.querySelector('[data-unit-price-tnd]');
+                const price = parseFloat(unitPriceEl.dataset.unitPriceTnd || '0');
+                const newSubtotal = price * newQuantity;
+                
+                const subtotalEl = document.getElementById('subtotal-' + productId);
+                subtotalEl.dataset.subtotalTnd = newSubtotal.toFixed(2);
+                subtotalEl.textContent = `${newSubtotal.toFixed(2)} DT`;
+
+                if (tndToEurRate !== null) {
+                    const subtotalEurEl = document.getElementById('subtotal-eur-' + productId);
+                    if (subtotalEurEl) {
+                        subtotalEurEl.textContent = `~ ${(newSubtotal * tndToEurRate).toFixed(2)} EUR`;
+                    }
+                }
+                
+                // Recalculer le total
+                calculateTotal();
+            }
+        } else {
+            alert(result.error || 'Error while updating');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error while updating the cart');
+    }
+}
+
+async function removeFromCart(productId) {
+    if (!confirm('Are you sure you want to remove this product from the cart?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/panier/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            location.reload();
+        } else {
+            alert(result.error || 'Error while deleting');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error while removing the product');
+    }
+}
+
+async function clearCart(skipConfirm = false) {
+    if (!skipConfirm && !confirm('Are you sure you want to empty your cart?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/panier/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            location.reload();
+        } else {
+            alert(result.error || 'Error while emptying the cart');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error while emptying the cart');
+    }
+}
+
+function calculateTotal() {
+    let total = 0;
+    const subtotalElements = document.querySelectorAll('[id^="subtotal-"]');
+    
+    subtotalElements.forEach(element => {
+        const subtotal = parseFloat(element.dataset.subtotalTnd || '0');
+        total += subtotal;
+    });
+    
+    document.getElementById('cart-subtotal').textContent = `${total.toFixed(2)} DT`;
+    document.getElementById('cart-total').textContent = `${total.toFixed(2)} DT`;
+
+    if (tndToEurRate !== null) {
+        const totalEurEl = document.getElementById('cart-total-eur');
+        if (totalEurEl) {
+            totalEurEl.textContent = `~ ${(total * tndToEurRate).toFixed(2)} EUR`;
+        }
+    }
+}
+
+async function addRecommendedToCart(productId) {
+    try {
+        const response = await fetch('/api/panier/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantite: 1
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            location.reload();
+            return;
+        }
+
+        alert(result.error || 'Impossible d\'ajouter ce produit');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error while adding to cart');
+    }
+}
+
+function initVoiceCartAssistant() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const synth = window.speechSynthesis;
+    const hasVoice = !!SpeechRecognition && !!synth;
+    let isListening = false;
+    let isRecognitionStarting = false;
+    let networkRetryCount = 0;
+    let manualStop = false;
+    let restartOnEnd = false;
+    let textFallbackArmed = false;
+
+    const voiceBtn = document.createElement('button');
+    voiceBtn.type = 'button';
+    voiceBtn.id = 'voice-cart-fab';
+    voiceBtn.style.cssText = `
+        position: fixed;
+        left: 20px;
+        bottom: 24px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: none;
+        background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+        color: #ffffff;
+        z-index: 1200;
+        box-shadow: 0 12px 24px rgba(15, 118, 110, 0.35);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    voiceBtn.innerHTML = '<span class="material-symbols-outlined">mic</span>';
+    document.body.appendChild(voiceBtn);
+
+    const voiceStatus = document.createElement('div');
+    voiceStatus.id = 'voice-cart-status';
+    voiceStatus.style.cssText = `
+        position: fixed;
+        left: 20px;
+        bottom: 92px;
+        z-index: 1200;
+        max-width: 320px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: rgba(15,23,42,.9);
+        color: #fff;
+        font-size: 13px;
+        line-height: 1.35;
+        display: none;
+    `;
+    document.body.appendChild(voiceStatus);
+
+    function showVoiceStatus(message, isError = false, withSpeech = false) {
+        voiceStatus.textContent = message;
+        voiceStatus.style.display = 'block';
+        voiceStatus.style.background = isError ? 'rgba(185,28,28,.95)' : 'rgba(15,23,42,.9)';
+        if (withSpeech) {
+            speak(message);
+        }
+        setTimeout(() => {
+            voiceStatus.style.display = 'none';
+        }, 3200);
+    }
+
+    function openVoiceFallbackPrompt() {
+        const typed = window.prompt('Voice recognition unavailable. Type a cart command. Example: read cart');
+        if (typeof typed === 'string' && typed.trim() !== '') {
+            handleVoiceCommand(typed.trim());
+        }
+    }
+
+    function speak(message) {
+        if (!synth) return;
+        synth.cancel();
+        const utt = new SpeechSynthesisUtterance(message);
+        utt.lang = 'fr-FR';
+        utt.rate = 1;
+        synth.speak(utt);
+    }
+
+    function normalizeText(value) {
+        return (value || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function extractSpokenNumber(text) {
+        const normalized = normalizeText(text);
+        const digitMatch = normalized.match(/\b(\d{1,4})\b/);
+        if (digitMatch) {
+            return Number(digitMatch[1]);
+        }
+
+        const wordMap = {
+            zero: 0,
+            un: 1,
+            une: 1,
+            deux: 2,
+            trois: 3,
+            quatre: 4,
+            cinq: 5,
+            six: 6,
+            sept: 7,
+            huit: 8,
+            neuf: 9,
+            dix: 10,
+        };
+
+        for (const [word, number] of Object.entries(wordMap)) {
+            if (new RegExp(`\\b${word}\\b`, 'i').test(normalized)) {
+                return number;
+            }
+        }
+
+        return null;
+    }
+
+    function findCartRowFromText(text) {
+        const rows = Array.from(document.querySelectorAll('tr[data-product-id]'));
+        if (rows.length === 0) {
+            return null;
+        }
+
+        if (rows.length === 1) {
+            return rows[0];
+        }
+
+        const normalized = normalizeText(text);
+        const matched = rows.find((row) => {
+            const name = normalizeText(row.querySelector('h6')?.textContent || '');
+            return name !== '' && normalized.includes(name);
+        });
+
+        return matched || rows[0];
+    }
+
+    function hasAnyToken(text, tokens) {
+        const normalized = normalizeText(text);
+        return tokens.some((token) => normalized.includes(token));
+    }
+
+    function tryExecuteLocalCartCommand(rawText) {
+        const text = normalizeText(rawText);
+        if (text === '') {
+            return false;
+        }
+
+        const wantsClearCart =
+            (hasAnyToken(text, ['vider', 'vide', 'supprimer tout', 'effacer']) && hasAnyToken(text, ['panier']))
+            || hasAnyToken(text, ['panier vide']);
+
+        if (wantsClearCart) {
+            clearCart(true);
+            showVoiceStatus('Cart emptied.', false, true);
+            return true;
+        }
+
+        const wantsCheckout =
+            (hasAnyToken(text, ['passer', 'ouvre', 'ouvrir', 'aller']) && hasAnyToken(text, ['command', 'checkout']))
+            || hasAnyToken(text, ['passer la commande', 'passer commande', 'je passe commande', 'commander']);
+
+        if (wantsCheckout) {
+            window.location.href = '{{ path('app_commande_create') }}';
+            return true;
+        }
+
+        const wantsSetQty = hasAnyToken(text, ['quantite', 'mettre', 'fixer', 'regler', 'change']);
+        if (wantsSetQty) {
+            const qty = extractSpokenNumber(text);
+            const row = findCartRowFromText(text);
+            if (qty !== null && row) {
+                const productId = Number(row.dataset.productId || 0);
+                if (productId > 0) {
+                    updateQuantity(productId, Math.max(0, qty));
+                    showVoiceStatus(`Quantity set to ${qty}.`, false, true);
+                    return true;
+                }
+            }
+        }
+
+        if (hasAnyToken(text, ['augment', 'augmente', 'plus', 'incremente', 'zid'])) {
+            const row = findCartRowFromText(text);
+            if (row) {
+                const productId = Number(row.dataset.productId || 0);
+                const currentQty = Number(row.querySelector('[id^="qty-"]')?.textContent || 0);
+                if (productId > 0) {
+                    updateQuantity(productId, Math.max(0, currentQty + 1));
+                    showVoiceStatus('Quantity increased.', false, true);
+                    return true;
+                }
+            }
+        }
+
+        if (hasAnyToken(text, ['diminu', 'diminue', 'reduire', 'moins', 'decremente', 'na9es', 'naqes'])) {
+            const row = findCartRowFromText(text);
+            if (row) {
+                const productId = Number(row.dataset.productId || 0);
+                const currentQty = Number(row.querySelector('[id^="qty-"]')?.textContent || 0);
+                if (productId > 0) {
+                    updateQuantity(productId, Math.max(0, currentQty - 1));
+                    showVoiceStatus('Quantity decreased.', false, true);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function findRowByName(needle) {
+        const target = normalize(needle);
+        if (!target) return null;
+
+        const rows = Array.from(document.querySelectorAll('tr[data-product-id]'));
+        return rows.find((row) => {
+            const name = normalize(row.querySelector('h6')?.textContent || '');
+            return name.includes(target);
+        }) || null;
+    }
+
+    function readCartSummary() {
+        const rows = Array.from(document.querySelectorAll('tr[data-product-id]'));
+        if (rows.length === 0) {
+            speak('Your cart is empty.');
+            return;
+        }
+
+        const names = rows.slice(0, 5).map((row) => row.querySelector('h6')?.textContent?.trim()).filter(Boolean);
+        const total = document.getElementById('cart-total')?.textContent?.trim() || '';
+        speak(`Your cart contains ${rows.length} products. ${names.join(', ')}. Total ${total}.`);
+    }
+
+    function executeVoiceActions(actions) {
+        if (!Array.isArray(actions)) {
+            return;
+        }
+
+        actions.forEach((action) => {
+            if (!action || typeof action !== 'object') {
+                return;
+            }
+
+            if (action.type === 'read_cart_summary') {
+                readCartSummary();
+                return;
+            }
+
+            if (action.type === 'update_cart_quantity_delta') {
+                const productId = Number(action.product_id || 0);
+                const delta = Number(action.delta || 0);
+                const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+                if (!row) {
+                    return;
+                }
+                const currentQty = parseInt(row.querySelector('[id^="qty-"]')?.textContent || '0', 10);
+                updateQuantity(productId, Math.max(0, currentQty + delta));
+                return;
+            }
+
+            if (action.type === 'update_cart_quantity_set') {
+                const productId = Number(action.product_id || 0);
+                const quantity = Math.max(0, Number(action.quantity || 0));
+                if (productId > 0) {
+                    updateQuantity(productId, quantity);
+                }
+                return;
+            }
+
+            if (action.type === 'remove_from_cart') {
+                const productId = Number(action.product_id || 0);
+                if (productId > 0) {
+                    removeFromCart(productId);
+                }
+                return;
+            }
+
+            if (action.type === 'clear_cart') {
+                clearCart(true);
+                return;
+            }
+
+            if (action.type === 'navigate') {
+                const url = String(action.url || '');
+                if (url !== '') {
+                    window.location.href = url;
+                }
+            }
+        });
+    }
+
+    async function handleVoiceCommand(rawText) {
+        if (tryExecuteLocalCartCommand(rawText)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('{{ path('app_api_ai_voice_command') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    context: 'cart',
+                    transcript: rawText,
+                }),
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                showVoiceStatus(data.speak || 'Voice processing error.', true, true);
+                return;
+            }
+
+            executeVoiceActions(data.actions || []);
+            if (typeof data.speak === 'string' && data.speak !== '') {
+                speak(data.speak);
+            }
+        } catch (_error) {
+            showVoiceStatus('Voice service temporarily unavailable during voice command.', true, true);
+        }
+    }
+
+    if (!hasVoice) {
+        voiceBtn.style.opacity = '0.65';
+        voiceBtn.title = 'Voice assistant not supported on this browser';
+        voiceBtn.addEventListener('click', function () {
+            showVoiceStatus('Voice recognition is not supported by this browser.', true);
+        });
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'fr-FR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    function startRecognitionSafely(quiet = false) {
+        if (isListening || isRecognitionStarting) {
+            return;
+        }
+
+        try {
+            isRecognitionStarting = true;
+            recognition.start();
+            restartOnEnd = false;
+            voiceBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            if (!quiet) {
+                showVoiceStatus('Listening... say your cart command.', false, false);
+            }
+        } catch (_error) {
+            isRecognitionStarting = false;
+            showVoiceStatus('Unable to start the microphone.', true);
+        }
+    }
+
+    recognition.onstart = function () {
+        isRecognitionStarting = false;
+        isListening = true;
+    };
+
+    recognition.onresult = function (event) {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (!result.isFinal) {
+                continue;
+            }
+
+            const transcript = result?.[0]?.transcript || '';
+            if (transcript) {
+                networkRetryCount = 0;
+                textFallbackArmed = false;
+                manualStop = true;
+                restartOnEnd = false;
+                handleVoiceCommand(transcript);
+            }
+        }
+    };
+
+    recognition.onerror = function (event) {
+        const code = event?.error || 'unknown';
+        isRecognitionStarting = false;
+        isListening = false;
+
+        if (code === 'not-allowed' || code === 'service-not-allowed') {
+            restartOnEnd = false;
+            showVoiceStatus('Microphone permission denied. Allow microphone access for this site.', true);
+            return;
+        }
+
+        if (code === 'audio-capture') {
+            restartOnEnd = false;
+            showVoiceStatus('No microphone detected or accessible.', true);
+            return;
+        }
+
+        if (code === 'network') {
+            if (networkRetryCount < 1) {
+                networkRetryCount++;
+                showVoiceStatus('Browser voice service unavailable. Retrying...', true, false);
+                setTimeout(() => {
+                    startRecognitionSafely(true);
+                }, 550);
+
+                return;
+            }
+
+            restartOnEnd = false;
+            textFallbackArmed = true;
+            showVoiceStatus('Browser voice service unavailable. Click the mic again to use text mode.', true, false);
+            return;
+        }
+
+        if (code === 'no-speech') {
+            showVoiceStatus('No speech detected. Speak right after clicking the microphone.', true, false);
+            return;
+        }
+
+        if (code !== 'aborted') {
+            showVoiceStatus('Voice error: ' + code, true);
+        }
+    };
+
+    recognition.onend = function () {
+        isRecognitionStarting = false;
+        isListening = false;
+        voiceBtn.style.background = 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)';
+    };
+
+    async function ensureMicroPermission() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            return true;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach((t) => t.stop());
+
+            return true;
+        } catch (_error) {
+            showVoiceStatus('Microphone not authorized. Enable browser microphone access.', true);
+
+            return false;
+        }
+    }
+
+    voiceBtn.addEventListener('click', async function () {
+        if (textFallbackArmed) {
+            textFallbackArmed = false;
+            openVoiceFallbackPrompt();
+
+            return;
+        }
+
+        if (isListening || isRecognitionStarting) {
+            manualStop = true;
+            restartOnEnd = false;
+            isRecognitionStarting = false;
+            recognition.stop();
+            isListening = false;
+            showVoiceStatus('Ecoute arretee.', false, false);
+
+            return;
+        }
+
+        const allowed = await ensureMicroPermission();
+        if (!allowed) {
+            return;
+        }
+
+        networkRetryCount = 0;
+        manualStop = false;
+        restartOnEnd = false;
+        textFallbackArmed = false;
+        synth.cancel();
+        startRecognitionSafely();
+    });
+
+    showVoiceStatus('Cart voice assistant active.', false, true);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initVoiceCartAssistant();
+
+    if (window.GestureAssistant) {
+        window.GestureAssistant.create({
+            id: 'cart',
+            autoSpeak: true,
+            onGesture: async function (gesture) {
+                const row = document.querySelector('tr[data-product-id]');
+                const productId = Number(row?.dataset?.productId || 0);
+
+                // Debug log for gesture received in cart context
+                try { console.log('[Gesture][cart] detected gesture:', gesture); } catch (_e) {}
+
+                // Action locale immédiate: si poing (main fermée) vide le panier
+                if (gesture === 'fist' || gesture === 'poing') {
+                    // clearCart est défini dans ce template et gère l'UI et l'appel serveur
+                    try {
+                        clearCart(true);
+                        // On notifie l'utilisateur immédiatement
+                        return 'Cart emptied.';
+                    } catch (_e) {
+                        // si erreur locale, on continue et laisse le serveur gérer
+                    }
+                }
+
+                try {
+                    const response = await fetch('{{ path('app_api_ai_gesture_command') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ context: 'cart', gesture: gesture, product_id: productId })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok || !data.ok) {
+                        return data.speak || 'Gesture command not recognized.';
+                    }
+
+                    const actions = Array.isArray(data.actions) ? data.actions : [];
+                    for (const action of actions) {
+                        if (!action || typeof action !== 'object') continue;
+
+                        if (action.type === 'read_cart_summary') {
+                            const total = document.getElementById('cart-total')?.textContent?.trim() || '0 DT';
+                            return `Total actuel ${total}.`;
+                        }
+
+                        if (action.type === 'update_cart_quantity_delta') {
+                            const id = Number(action.product_id || 0);
+                            const rowItem = document.querySelector(`tr[data-product-id="${id}"]`);
+                            if (!rowItem) continue;
+                            const currentQty = Number(rowItem.querySelector('[id^="qty-"]')?.textContent || 0);
+                            updateQuantity(id, Math.max(0, currentQty + Number(action.delta || 0)));
+                        }
+
+                        if (action.type === 'clear_cart') {
+                            clearCart(true);
+                        }
+
+                        if (action.type === 'navigate') {
+                            const url = String(action.url || '');
+                            if (url !== '') {
+                                window.location.href = url;
+                            }
+                        }
+                    }
+
+                    return typeof data.speak === 'string' ? data.speak : 'Gesture command executed.';
+                } catch (_error) {
+                    return 'Gesture service temporarily unavailable.';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

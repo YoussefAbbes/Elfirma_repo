@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+  <!-- Bootstrap CSS -->
+  <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <!-- AOS Animations -->
+  <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Marcellus:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+
+  <title>User Profile — EL FIRMA</title>
+  <style>
+    :root {
+      --primary: #116530;
+      --primary-dark: #0c4a23;
+      --primary-mid: #1a7a3c;
+      --accent: #5e9c3d;
+      --accent-light: #7dba55;
+      --light-bg: #f0f5eb;
+      --card-bg: #ffffff;
+      --text-dark: #1a2d1f;
+      --text-gray: #5a6b5e;
+      --border: #dce8d4;
+      --glass: rgba(255,255,255,0.92);
+      --shadow-green: rgba(17,101,48,0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: var(--light-bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar-custom {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      box-shadow: 0 2px 16px var(--shadow-green);
+      padding: 0.85rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .navbar-brand-text {
+      color: white;
+      font-family: 'Marcellus', serif;
+      font-size: 1.6rem;
+      text-decoration: none;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .navbar-brand-text .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-back {
+      color: white;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-back:hover {
+      background: rgba(255,255,255,0.28);
+      transform: translateX(-3px);
+      color: white;
+    }
+
+    /* ── HERO ── */
+    .profile-hero {
+      position: relative;
+      height: 340px;
+      overflow: hidden;
+    }
+    .profile-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url("{{ asset('assets/img/hero_2.jpg') }}");
+      background-size: cover;
+      background-position: center 40%;
+      transform: scale(1.08);
+      transition: transform 8s ease;
+    }
+    .profile-hero-bg.loaded { transform: scale(1); }
+    .profile-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(12,74,35,0.82) 0%,
+        rgba(17,101,48,0.68) 45%,
+        rgba(94,156,61,0.45) 100%
+      );
+    }
+    .profile-hero-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%);
+    }
+
+    /* Floating leaves decoration */
+    .leaf-float {
+      position: absolute;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+    .leaf-float svg { fill: white; }
+    .leaf-1 { top: 15%; left: 5%; animation: floatLeaf 7s ease-in-out infinite; }
+    .leaf-2 { top: 60%; left: 12%; animation: floatLeaf 9s ease-in-out infinite 1.5s; }
+    .leaf-3 { top: 20%; right: 8%; animation: floatLeaf 8s ease-in-out infinite 3s; }
+    .leaf-4 { top: 65%; right: 15%; animation: floatLeaf 6s ease-in-out infinite 0.8s; }
+    @keyframes floatLeaf {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-12px) rotate(5deg); }
+      66% { transform: translateY(6px) rotate(-4deg); }
+    }
+
+    /* Hero text */
+    .hero-text {
+      position: relative;
+      z-index: 2;
+      padding: 3.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 0.6rem;
+    }
+    .hero-title {
+      font-family: 'Marcellus', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: white;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+      line-height: 1.2;
+      text-align: center;
+    }
+    .hero-subtitle {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ── PROFILE CARD (floating over hero) ── */
+    .profile-card-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: -90px;
+      padding: 0 1rem;
+      position: relative;
+      z-index: 10;
+    }
+    .profile-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(12,74,35,0.22), 0 4px 20px rgba(0,0,0,0.08);
+      padding: 2.5rem 3rem;
+      width: 100%;
+      max-width: 860px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent-light), var(--primary));
+      background-size: 200% auto;
+      animation: shimmerBar 3s linear infinite;
+    }
+    @keyframes shimmerBar {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .avatar-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+    .profile-avatar {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid white;
+      box-shadow: 0 8px 28px var(--shadow-green), 0 0 0 3px var(--accent);
+      display: block;
+      background: white;
+    }
+    .avatar-icon {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border: 5px solid white;
+      box-shadow: 0 8px 28px var(--shadow-green), 0 0 0 3px var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .avatar-icon .material-symbols-outlined { font-size: 4.5rem; color: var(--primary); }
+    .avatar-online-dot {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      background: #22c55e;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.25); }
+      50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); }
+    }
+
+    .profile-name {
+      font-family: 'Marcellus', serif;
+      font-size: 2rem;
+      color: var(--text-dark);
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+    .profile-email-sub {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.4rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+    .role-badge::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent);
+      border-radius: inherit;
+    }
+    .role-employee { background: linear-gradient(135deg, #1a7a3c, #116530); color: white; box-shadow: 0 4px 14px rgba(17,101,48,0.35); }
+    .role-client { background: linear-gradient(135deg, #e65100, #bf360c); color: white; box-shadow: 0 4px 14px rgba(230,81,0,0.35); }
+    .role-admin { background: linear-gradient(135deg, #6a1b9a, #4a148c); color: white; box-shadow: 0 4px 14px rgba(106,27,154,0.35); }
+    .role-default { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 4px 14px var(--shadow-green); }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      text-align: center;
+      min-width: 80px;
+    }
+    .stat-number {
+      font-family: 'Marcellus', serif;
+      font-size: 1.8rem;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-gray);
+    }
+    .stat-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    /* ── INFO CARDS GRID ── */
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-heading-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--shadow-green);
+      flex-shrink: 0;
+    }
+    .section-heading-icon .material-symbols-outlined { font-size: 1.4rem; color: white; }
+    .section-heading h3 {
+      font-family: 'Marcellus', serif;
+      font-size: 1.35rem;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .section-heading p {
+      font-size: 0.82rem;
+      color: var(--text-gray);
+      margin: 0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.4rem 1.6rem;
+      transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--primary), var(--accent));
+      border-radius: 4px 0 0 4px;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.35s ease;
+    }
+    .info-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px var(--shadow-green);
+      border-color: var(--accent);
+    }
+    .info-card:hover::before { transform: scaleY(1); }
+    .info-card-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .info-card-icon .material-symbols-outlined { font-size: 1.4rem; color: var(--primary); }
+    .info-card .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-gray);
+      margin-bottom: 0.4rem;
+    }
+    .info-card .value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      word-break: break-word;
+    }
+
+    /* ── COMPLAINTS SECTION ── */
+    .complaints-section { margin-bottom: 4rem; }
+
+    .complaint-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .complaint-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(17,101,48,0.03), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .complaint-card:hover {
+      transform: translateX(4px);
+      box-shadow: 0 8px 24px var(--shadow-green);
+      border-color: var(--accent);
+    }
+    .complaint-card:hover::after { opacity: 1; }
+
+    .complaint-type-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px var(--shadow-green);
+    }
+    .complaint-type-icon .material-symbols-outlined { font-size: 1.5rem; color: white; }
+
+    .complaint-body { flex: 1; min-width: 0; }
+    .complaint-type-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #e8f5e9, #d0edda);
+      color: var(--primary);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 0.2rem 0.7rem;
+      border-radius: 50px;
+      margin-bottom: 0.4rem;
+    }
+    .complaint-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .complaint-desc {
+      font-size: 0.85rem;
+      color: var(--text-gray);
+      margin-bottom: 0.6rem;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .complaint-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .complaint-date {
+      font-size: 0.78rem;
+      color: var(--text-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .complaint-date .material-symbols-outlined { font-size: 0.95rem; }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.85rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-pending { background: #fff8e1; color: #f59e0b; border: 1px solid #fde68a; }
+    .badge-reviewed { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .badge-default { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+
+    .complaint-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .btn-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.22s;
+      background: transparent;
+    }
+    .btn-action .material-symbols-outlined { font-size: 1.1rem; }
+    .btn-edit { color: var(--primary); }
+    .btn-edit:hover { background: #e8f5e9; color: var(--primary-dark); transform: scale(1.1); }
+    .btn-delete { color: #ef4444; }
+    .btn-delete:hover { background: #fee2e2; color: #dc2626; transform: scale(1.1); }
+
+    /* Empty state */
+    .empty-state {
+      background: var(--card-bg);
+      border: 2px dashed var(--border);
+      border-radius: 20px;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .empty-state-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    .empty-state-icon .material-symbols-outlined { font-size: 2.5rem; color: var(--primary); }
+    .empty-state h5 { font-family: 'Marcellus', serif; font-size: 1.3rem; color: var(--text-dark); margin-bottom: 0.5rem; }
+    .empty-state p { color: var(--text-gray); font-size: 0.9rem; }
+
+    /* ── MODALS ── */
+    .modal-content {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    }
+    .modal-header-green {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 1.5rem 2rem;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header-red {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      padding: 1.5rem 2rem;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header-title {
+      font-family: 'Marcellus', serif;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .modal-body-pad { padding: 2rem; }
+
+    .form-group { margin-bottom: 1.5rem; }
+    .form-label-custom {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+    .form-control-custom {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'Open Sans', sans-serif;
+      background: #fafcf8;
+      color: var(--text-dark);
+      transition: all 0.2s;
+      outline: none;
+      resize: vertical;
+    }
+    .form-control-custom:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(17,101,48,0.12);
+      background: white;
+    }
+    .form-hint { font-size: 0.78rem; color: var(--text-gray); margin-top: 0.3rem; }
+    .error-msg { font-size: 0.8rem; color: #ef4444; margin-top: 0.3rem; display: none; }
+
+    .btn-modal-cancel {
+      background: #f1f5f0;
+      color: var(--text-dark);
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-modal-cancel:hover { background: #e4ebe0; }
+    .btn-modal-save {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-modal-save:hover { box-shadow: 0 6px 18px var(--shadow-green); transform: translateY(-2px); }
+    .btn-modal-delete {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-modal-delete:hover { box-shadow: 0 6px 18px rgba(239,68,68,0.4); transform: translateY(-2px); }
+
+    .delete-warning-box {
+      background: #fff1f1;
+      border: 1.5px solid #fecaca;
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-start;
+    }
+    .delete-warning-box .material-symbols-outlined { color: #ef4444; font-size: 2rem; flex-shrink: 0; }
+
+    /* Toast notification */
+    .toast-container-custom {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+    }
+    .toast-custom {
+      background: white;
+      border-radius: 14px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      min-width: 280px;
+      border-left: 4px solid var(--primary);
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast-custom.show { transform: translateX(0); }
+    .toast-custom.error { border-color: #ef4444; }
+    .toast-icon { font-size: 1.4rem; }
+    .toast-success .toast-icon { color: var(--primary); }
+    .toast-error .toast-icon { color: #ef4444; }
+    .toast-text { font-weight: 600; font-size: 0.9rem; color: var(--text-dark); }
+
+    /* Scroll top btn */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--shadow-green);
+      transition: all 0.3s;
+      opacity: 0;
+      pointer-events: none;
+      border: none;
+      z-index: 100;
+    }
+    .scroll-top-btn.visible { opacity: 1; pointer-events: auto; }
+    .scroll-top-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px var(--shadow-green); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .profile-hero { height: 260px; }
+      .profile-card { padding: 2rem 1.5rem; }
+      .profile-name { font-size: 1.5rem; }
+      .stats-row { gap: 1.5rem; }
+      .stat-divider { display: none; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+      .complaint-card { flex-direction: column; }
+      .complaint-actions { flex-direction: row; align-self: flex-end; }
+    }
+    @media (max-width: 480px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .profile-card-wrap { margin-top: -70px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar-custom d-flex justify-content-between align-items-center">
+  <a href="/home" class="navbar-brand-text">
+    <div class="logo-icon">
+      <span class="material-symbols-outlined" style="color:white; font-size:1.2rem;">eco</span>
+    </div>
+    EL FIRMA
+  </a>
+  <button class="btn-back" onclick="window.history.back()">
+    <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
+    Back
+  </button>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="profile-hero">
+  <div class="profile-hero-bg" id="heroBg"></div>
+  <div class="profile-hero-overlay"></div>
+  <div class="profile-hero-pattern"></div>
+
+  <!-- Floating leaf decorations -->
+  <div class="leaf-float leaf-1">
+    <svg width="40" height="40" viewBox="0 0 100 100"><path d="M50 10 C80 10, 90 40, 50 90 C10 40, 20 10, 50 10Z"/></svg>
+  </div>
+  <div class="leaf-float leaf-2">
+    <svg width="30" height="30" viewBox="0 0 100 100"><path d="M50 10 C80 10, 90 40, 50 90 C10 40, 20 10, 50 10Z"/></svg>
+  </div>
+  <div class="leaf-float leaf-3">
+    <svg width="50" height="50" viewBox="0 0 100 100"><path d="M50 10 C80 10, 90 40, 50 90 C10 40, 20 10, 50 10Z"/></svg>
+  </div>
+  <div class="leaf-float leaf-4">
+    <svg width="35" height="35" viewBox="0 0 100 100"><path d="M50 10 C80 10, 90 40, 50 90 C10 40, 20 10, 50 10Z"/></svg>
+  </div>
+
+  <div class="hero-text">
+    <div class="hero-eyebrow">EL FIRMA Agricultural Platform</div>
+    <h1 class="hero-title">My Profile</h1>
+    <p class="hero-subtitle">Manage your account and activity</p>
+  </div>
+</div>
+
+<!-- ── PROFILE CARD ── -->
+<div class="profile-card-wrap">
+  <div class="profile-card" data-aos="fade-up" data-aos-duration="700">
+
+    <!-- Avatar -->
+    <div class="avatar-wrap mx-auto mb-1" style="display:inline-block;">
+      {% set photo = user.imageU %}
+      {% if photo is null or photo == '' or photo == 'default.JPG' %}
+        <div class="avatar-icon">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+      {% elseif photo starts with 'uploads/' %}
+        <img src="{{ asset(photo) }}" class="profile-avatar" alt="{{ user.prenomU }}">
+      {% else %}
+        <img src="{{ asset('uploads/users/' ~ photo) }}" class="profile-avatar" alt="{{ user.prenomU }}">
+      {% endif %}
+      <div class="avatar-online-dot" title="Active"></div>
+    </div>
+
+    <!-- Name & Role -->
+    <h2 class="profile-name mt-2">{{ user.prenomU }} {{ user.nomU }}</h2>
+    <p class="profile-email-sub">{{ user.emailU }}</p>
+
+    {% if user.roleU == 'employee' %}
+      <span class="role-badge role-employee">
+        <span class="material-symbols-outlined" style="font-size:1rem;">badge</span>
+        Employee
+      </span>
+    {% elseif user.roleU == 'client' %}
+      <span class="role-badge role-client">
+        <span class="material-symbols-outlined" style="font-size:1rem;">person</span>
+        Client
+      </span>
+    {% elseif user.roleU == 'admin' %}
+      <span class="role-badge role-admin">
+        <span class="material-symbols-outlined" style="font-size:1rem;">shield_person</span>
+        Administrator
+      </span>
+    {% else %}
+      <span class="role-badge role-default">
+        <span class="material-symbols-outlined" style="font-size:1rem;">badge</span>
+        {{ user.roleU|capitalize }}
+      </span>
+    {% endif %}
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number">{{ complaints|length }}</div>
+        <div class="stat-label">Complaints</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        {% set pending = 0 %}
+        {% for c in complaints %}{% if c.getStatutU() == 'pending' %}{% set pending = pending + 1 %}{% endif %}{% endfor %}
+        <div class="stat-number">{{ pending }}</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">
+          {% if user.dateCreationU %}
+            {{ ("now"|date("Y")) - (user.dateCreationU|date("Y")) }}y
+          {% else %}—{% endif %}
+        </div>
+        <div class="stat-label">Member</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="main-content">
+
+  <!-- Account Information -->
+  <div data-aos="fade-up" data-aos-delay="100" style="margin-bottom:2.5rem;">
+    <div class="section-heading">
+      <div class="section-heading-icon">
+        <span class="material-symbols-outlined">manage_accounts</span>
+      </div>
+      <div>
+        <h3>Account Information</h3>
+        <p>Your personal details and membership info</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" data-aos="fade-up" data-aos-delay="120">
+        <div class="info-card-icon">
+          <span class="material-symbols-outlined">mail</span>
+        </div>
+        <div class="label">Email Address</div>
+        <div class="value">{{ user.emailU }}</div>
+      </div>
+
+      <div class="info-card" data-aos="fade-up" data-aos-delay="160">
+        <div class="info-card-icon">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="label">First Name</div>
+        <div class="value">{{ user.prenomU }}</div>
+      </div>
+
+      <div class="info-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="info-card-icon">
+          <span class="material-symbols-outlined">person_outline</span>
+        </div>
+        <div class="label">Last Name</div>
+        <div class="value">{{ user.nomU }}</div>
+      </div>
+
+      <div class="info-card" data-aos="fade-up" data-aos-delay="240">
+        <div class="info-card-icon">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </div>
+        <div class="label">Member Since</div>
+        <div class="value">
+          {% if user.dateCreationU %}
+            {{ user.dateCreationU|date('M d, Y') }}
+          {% else %}
+            Not available
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="info-card" data-aos="fade-up" data-aos-delay="280">
+        <div class="info-card-icon">
+          <span class="material-symbols-outlined">admin_panel_settings</span>
+        </div>
+        <div class="label">Account Role</div>
+        <div class="value" style="text-transform:capitalize;">{{ user.roleU }}</div>
+      </div>
+
+      <div class="info-card" data-aos="fade-up" data-aos-delay="320">
+        <div class="info-card-icon">
+          <span class="material-symbols-outlined">verified_user</span>
+        </div>
+        <div class="label">Account Status</div>
+        <div class="value" style="display:flex;align-items:center;gap:0.5rem;">
+          <span style="width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;"></span>
+          Active
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complaints Section -->
+  <div class="complaints-section" data-aos="fade-up" data-aos-delay="150">
+    <div class="section-heading">
+      <div class="section-heading-icon">
+        <span class="material-symbols-outlined">chat_bubble</span>
+      </div>
+      <div>
+        <h3>My Complaints</h3>
+        <p>{{ complaints|length }} complaint{% if complaints|length != 1 %}s{% endif %} submitted</p>
+      </div>
+    </div>
+
+    {% if complaints|length > 0 %}
+      {% for complaint in complaints %}
+      <div class="complaint-card" data-aos="fade-left" data-aos-delay="{{ loop.index * 60 }}" data-complaint-id="{{ complaint.getIdrU() }}">
+
+        <div class="complaint-type-icon">
+          {% set icon = 'flag' %}
+          {% if complaint.getTypeReclamationU() == 'Product Issue' %}{% set icon = 'inventory_2' %}
+          {% elseif complaint.getTypeReclamationU() == 'Service Issue' %}{% set icon = 'build' %}
+          {% elseif complaint.getTypeReclamationU() == 'Delivery Problem' %}{% set icon = 'local_shipping' %}
+          {% elseif complaint.getTypeReclamationU() == 'Quality Concern' %}{% set icon = 'star_rate' %}
+          {% endif %}
+          <span class="material-symbols-outlined">{{ icon }}</span>
+        </div>
+
+        <div class="complaint-body">
+          <span class="complaint-type-tag">{{ complaint.getTypeReclamationU() }}</span>
+          <div class="complaint-title">{{ complaint.getTitreU() }}</div>
+          <div class="complaint-desc">{{ complaint.getDescriptionU() }}</div>
+          <div class="complaint-meta">
+            <span class="complaint-date">
+              <span class="material-symbols-outlined">schedule</span>
+              {% if complaint.getDateReclamationU() %}
+                {{ complaint.getDateReclamationU()|date('d M, Y') }}
+              {% else %}
+                N/A
+              {% endif %}
+            </span>
+            {% if complaint.getStatutU() == 'pending' %}
+              <span class="badge-status badge-pending">
+                <span class="material-symbols-outlined" style="font-size:0.85rem;">hourglass_empty</span>
+                Pending
+              </span>
+            {% elseif complaint.getStatutU() == 'reviewed' %}
+              <span class="badge-status badge-reviewed">
+                <span class="material-symbols-outlined" style="font-size:0.85rem;">check_circle</span>
+                Reviewed
+              </span>
+            {% else %}
+              <span class="badge-status badge-default">
+                <span class="material-symbols-outlined" style="font-size:0.85rem;">info</span>
+                {{ complaint.getStatutU()|capitalize }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="complaint-actions">
+          <button class="btn-action btn-edit edit-complaint-btn"
+            data-complaint-id="{{ complaint.getIdrU() }}"
+            data-complaint-type="{{ complaint.getTypeReclamationU() }}"
+            data-complaint-title="{{ complaint.getTitreU() }}"
+            data-complaint-description="{{ complaint.getDescriptionU() }}"
+            title="Edit complaint">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button class="btn-action btn-delete delete-complaint-btn"
+            data-complaint-id="{{ complaint.getIdrU() }}"
+            title="Delete complaint">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty-state" data-aos="zoom-in" data-aos-delay="200">
+        <div class="empty-state-icon">
+          <span class="material-symbols-outlined">inbox</span>
+        </div>
+        <h5>No Complaints Yet</h5>
+        <p>You haven't submitted any complaints. Everything looks good!</p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- ── EDIT COMPLAINT MODAL ── -->
+<div class="modal fade" id="editComplaintModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header-green">
+        <div class="modal-header-title">
+          <span class="material-symbols-outlined">edit_note</span>
+          Edit Complaint
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body-pad">
+        <form id="editComplaintForm">
+          <input type="hidden" id="editComplaintId" name="complaint_id">
+
+          <div class="form-group">
+            <label class="form-label-custom">
+              <span class="material-symbols-outlined" style="font-size:1rem;">category</span>
+              Complaint Type
+            </label>
+            <select id="editComplaintType" name="type" class="form-control-custom" required>
+              <option value="Product Issue">Product Issue</option>
+              <option value="Service Issue">Service Issue</option>
+              <option value="Delivery Problem">Delivery Problem</option>
+              <option value="Quality Concern">Quality Concern</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="error-msg" id="editComplaintTypeError"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label-custom">
+              <span class="material-symbols-outlined" style="font-size:1rem;">title</span>
+              Title
+            </label>
+            <input type="text" id="editComplaintTitle" name="titre" class="form-control-custom" placeholder="Complaint title" maxlength="100" required>
+            <div class="form-hint">Max. 100 characters</div>
+            <div class="error-msg" id="editComplaintTitleError"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label-custom">
+              <span class="material-symbols-outlined" style="font-size:1rem;">description</span>
+              Description
+            </label>
+            <textarea id="editComplaintDescription" name="description" rows="4" class="form-control-custom" placeholder="Describe your complaint in detail..." maxlength="500" required></textarea>
+            <div class="form-hint">Max. 500 characters</div>
+            <div class="error-msg" id="editComplaintDescriptionError"></div>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; padding-top:1rem; border-top:1px solid var(--border);">
+            <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-modal-save" style="flex:1; justify-content:center;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">save</span>
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE COMPLAINT MODAL ── -->
+<div class="modal fade" id="deleteComplaintModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header-red">
+        <div class="modal-header-title">
+          <span class="material-symbols-outlined">delete_forever</span>
+          Delete Complaint
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body-pad">
+        <div class="delete-warning-box">
+          <span class="material-symbols-outlined">warning</span>
+          <div>
+            <strong style="display:block; margin-bottom:0.4rem; color:var(--text-dark);">This action cannot be undone</strong>
+            <p style="margin:0; font-size:0.875rem; color:var(--text-gray);">The complaint will be permanently removed from your profile and our records.</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="confirmDeleteComplaintBtn" class="btn-modal-delete" style="flex:1; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+            Delete Complaint
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container-custom">
+  <div class="toast-custom" id="toastMsg">
+    <span class="material-symbols-outlined toast-icon" id="toastIcon">check_circle</span>
+    <span class="toast-text" id="toastText">Action completed</span>
+  </div>
+</div>
+
+<!-- Scroll-to-top button -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <span class="material-symbols-outlined" style="font-size:1.2rem;">keyboard_arrow_up</span>
+</button>
+
+<script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
+<script>
+  AOS.init({ once: true, easing: 'ease-out-cubic', duration: 650 });
+
+  // Hero background Ken Burns
+  const heroBg = document.getElementById('heroBg');
+  setTimeout(() => heroBg.classList.add('loaded'), 100);
+
+  // Scroll top button
+  const scrollBtn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', () => {
+    scrollBtn.classList.toggle('visible', window.scrollY > 300);
+  });
+
+  // Toast helper
+  function showToast(msg, isError = false) {
+    const toast = document.getElementById('toastMsg');
+    const icon  = document.getElementById('toastIcon');
+    const text  = document.getElementById('toastText');
+    toast.className = 'toast-custom' + (isError ? ' error' : '');
+    icon.className = 'material-symbols-outlined toast-icon';
+    icon.textContent = isError ? 'error' : 'check_circle';
+    icon.style.color = isError ? '#ef4444' : 'var(--primary)';
+    text.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // Modals
+  let currentEditId   = null;
+  let currentDeleteId = null;
+  const editModal   = new bootstrap.Modal(document.getElementById('editComplaintModal'));
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteComplaintModal'));
+
+  // Edit
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.edit-complaint-btn');
+    if (!btn) return;
+    currentEditId = btn.dataset.complaintId;
+    document.getElementById('editComplaintId').value          = btn.dataset.complaintId;
+    document.getElementById('editComplaintType').value        = btn.dataset.complaintType;
+    document.getElementById('editComplaintTitle').value       = btn.dataset.complaintTitle;
+    document.getElementById('editComplaintDescription').value = btn.dataset.complaintDescription;
+    document.querySelectorAll('.error-msg').forEach(el => { el.textContent = ''; el.style.display = 'none'; });
+    editModal.show();
+  });
+
+  // Delete
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.delete-complaint-btn');
+    if (!btn) return;
+    currentDeleteId = btn.dataset.complaintId;
+    deleteModal.show();
+  });
+
+  // Edit submit
+  document.getElementById('editComplaintForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    document.querySelectorAll('.error-msg').forEach(el => { el.textContent = ''; el.style.display = 'none'; });
+
+    const fd = new FormData();
+    fd.append('complaint_id', currentEditId);
+    fd.append('type',         document.getElementById('editComplaintType').value);
+    fd.append('titre',        document.getElementById('editComplaintTitle').value);
+    fd.append('description',  document.getElementById('editComplaintDescription').value);
+
+    try {
+      const res  = await fetch('{{ path("elfirma_update_complaint") }}', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        editModal.hide();
+        showToast('Complaint updated successfully!');
+        setTimeout(() => location.reload(), 900);
+      } else if (data.errors) {
+        for (const [field, msg] of Object.entries(data.errors)) {
+          const el = document.getElementById('editComplaint' + field.charAt(0).toUpperCase() + field.slice(1) + 'Error');
+          if (el) { el.textContent = msg; el.style.display = 'block'; }
+        }
+      }
+    } catch { showToast('An error occurred. Please try again.', true); }
+  });
+
+  // Delete confirm
+  document.getElementById('confirmDeleteComplaintBtn').addEventListener('click', async () => {
+    const fd = new FormData();
+    fd.append('complaint_id', currentDeleteId);
+    try {
+      const res  = await fetch('{{ path("elfirma_delete_complaint") }}', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        deleteModal.hide();
+        showToast('Complaint deleted successfully!');
+        setTimeout(() => location.reload(), 900);
+      } else {
+        showToast('Error deleting complaint.', true);
+      }
+    } catch { showToast('An error occurred. Please try again.', true); }
+  });
+</script>
+
+</body>
+</html>

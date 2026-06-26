@@ -1,0 +1,94 @@
+{% extends 'baseback.html.twig' %}
+
+{% block title %}Team Reports - Elfirma{% endblock %}
+
+{% block body %}
+{% set total = reports|length %}
+{% set reviewed = reports|filter(r => (r.status|default('new')) == 'reviewed')|length %}
+{% set fresh = total - reviewed %}
+
+<div class="min-h-screen bg-[#fbfbe2] text-[#1b1d0e]">
+    <header class="sticky top-0 z-30 bg-[#fbfbe2]/80 backdrop-blur-xl border-b border-[#e4e4cc] px-6 lg:px-10 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-2xl lg:text-3xl font-black tracking-tight text-[#0a2200]">Team Reports</h2>
+            <p class="text-sm text-[#5f6658] mt-1">Review updates submitted by the field team.</p>
+        </div>
+        <nav class="inline-flex gap-1 p-1 rounded-full bg-[#e9ead4] text-sm font-semibold self-start md:self-auto">
+            <a href="{{ path('admin_mobile_employees') }}" class="px-4 py-2 rounded-full text-[#3e4735] hover:bg-white/60 transition-colors">Employees</a>
+            <a href="{{ path('admin_mobile_tasks') }}" class="px-4 py-2 rounded-full text-[#3e4735] hover:bg-white/60 transition-colors">Tasks</a>
+            <a href="{{ path('admin_mobile_reports') }}" class="px-4 py-2 rounded-full bg-[#0a2200] text-white shadow-sm">Reports</a>
+        </nav>
+    </header>
+
+    <section class="px-6 lg:px-10 py-8 space-y-8">
+        {% for message in app.flashes('success') %}
+            <div class="px-4 py-3 rounded-xl border border-green-300 bg-green-100 text-green-800 text-sm font-medium">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="px-4 py-3 rounded-xl border border-red-300 bg-red-100 text-red-800 text-sm font-medium">{{ message }}</div>
+        {% endfor %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <article class="rounded-2xl bg-gradient-to-br from-[#0a2200] to-[#43682b] text-white p-6 shadow-lg relative overflow-hidden">
+                <span class="material-symbols-outlined absolute -bottom-3 -right-2 text-7xl opacity-15">description</span>
+                <p class="text-xs uppercase tracking-[0.15em] text-white/80">Total Reports</p>
+                <p class="text-4xl font-black mt-2">{{ total }}</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-[#e4e4cc] p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-[0.15em] text-[#5f6658]">New</p>
+                <p class="text-4xl font-black text-[#1d4ed8] mt-2">{{ fresh }}</p>
+            </article>
+            <article class="rounded-2xl bg-white border border-[#e4e4cc] p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-[0.15em] text-[#5f6658]">Reviewed</p>
+                <p class="text-4xl font-black text-[#15803d] mt-2">{{ reviewed }}</p>
+            </article>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e4e4cc] overflow-hidden">
+            <div class="px-6 py-5 border-b border-[#eef0e2]">
+                <h3 class="text-lg font-bold text-[#0a2200]">Recent Reports</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-[#8a8f7e] text-xs uppercase tracking-wider bg-[#fafaf0]">
+                            <th class="px-6 py-3 font-semibold">Employee</th>
+                            <th class="px-6 py-3 font-semibold">Title</th>
+                            <th class="px-6 py-3 font-semibold">Description</th>
+                            <th class="px-6 py-3 font-semibold">Status</th>
+                            <th class="px-6 py-3 font-semibold whitespace-nowrap">Reported At</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#f0f0df]">
+                        {% for report in reports %}
+                            {% set status = report.status|default('new') %}
+                            <tr class="align-top hover:bg-[#fafaf0] transition-colors">
+                                <td class="px-6 py-4 font-semibold text-[#0a2200] whitespace-nowrap">{{ report.employee_name|default(report.reported_by_name|default('Team Member')) }}</td>
+                                <td class="px-6 py-4 text-[#3e4735]">{{ report.title|default(report.type|default('Report')) }}</td>
+                                <td class="px-6 py-4 text-[#5f6658] max-w-md">{{ report.description|default(report.message|default('-')) }}</td>
+                                <td class="px-6 py-4">
+                                    {% if status == 'reviewed' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Reviewed</span>
+                                    {% elseif status == 'resolved' or status == 'closed' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>{{ status|capitalize }}</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>New</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-[#5f6658] whitespace-nowrap">{{ report.reported_at|default(report.created_at|default('-')) }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-[#8a8f7e]">
+                                    <span class="material-symbols-outlined text-4xl opacity-40 block mb-2">inbox</span>
+                                    No reports available yet.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

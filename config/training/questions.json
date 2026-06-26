@@ -1,0 +1,184 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "question": "What is precision agriculture?",
+      "options": ["Traditional farming methods", "Using data and technology to optimize farming", "Growing crops in urban areas", "Selling organic produce"],
+      "correct": "Using data and technology to optimize farming"
+    },
+    {
+      "id": "q2",
+      "question": "What does a soil humidity sensor measure?",
+      "options": ["Temperature", "Moisture content in soil", "pH level", "Nutrient concentration"],
+      "correct": "Moisture content in soil"
+    },
+    {
+      "id": "q3",
+      "question": "At what humidity level should you typically irrigate?",
+      "options": ["80-90%", "50-60%", "20-30%", "10-15%"],
+      "correct": "20-30%"
+    },
+    {
+      "id": "q4",
+      "question": "What is the optimal soil pH for most crops?",
+      "options": ["3.0-4.0", "5.5-7.5", "9.0-10.0", "Below 2.0"],
+      "correct": "5.5-7.5"
+    },
+    {
+      "id": "q5",
+      "question": "What does NPK stand for?",
+      "options": ["Nitrogen, Phosphorus, Potassium", "Nitrogen, Phosphate, Kalium", "Natural Plant Nutrients", "Nitrogen, Potassium, Phosphorus"],
+      "correct": "Nitrogen, Phosphorus, Potassium"
+    },
+    {
+      "id": "q6",
+      "question": "Which nutrient promotes plant growth and green foliage?",
+      "options": ["Phosphorus", "Potassium", "Nitrogen", "Calcium"],
+      "correct": "Nitrogen"
+    },
+    {
+      "id": "q7",
+      "question": "What is the primary purpose of a temperature sensor?",
+      "options": ["Measure humidity", "Monitor soil temperature", "Detect diseases", "Count insects"],
+      "correct": "Monitor soil temperature"
+    },
+    {
+      "id": "q8",
+      "question": "Soil acidic when pH is below:",
+      "options": ["7.0", "5.0", "8.0", "6.5"],
+      "correct": "7.0"
+    },
+    {
+      "id": "q9",
+      "question": "How often should sensors be calibrated?",
+      "options": ["Every year", "Every month", "Every 6 months", "Never"],
+      "correct": "Every month"
+    },
+    {
+      "id": "q10",
+      "question": "What is alkaline soil?",
+      "options": ["Soil with pH below 7", "Soil with pH above 7", "Soil with high moisture", "Soil with organic matter"],
+      "correct": "Soil with pH above 7"
+    },
+    {
+      "id": "q11",
+      "question": "Which AI feature uses smartphone camera?",
+      "options": ["Temperature monitoring", "Plant disease detection", "Nutrient analysis", "Weather prediction"],
+      "correct": "Plant disease detection"
+    },
+    {
+      "id": "q12",
+      "question": "What information does a confidence score provide?",
+      "options": ["Soil fertility", "AI accuracy of diagnosis", "Plant height", "Water usage"],
+      "correct": "AI accuracy of diagnosis"
+    },
+    {
+      "id": "q13",
+      "question": "When should you clean humidity sensors?",
+      "options": ["Never", "After rain", "Before each use", "When readings seem incorrect"],
+      "correct": "When readings seem incorrect"
+    },
+    {
+      "id": "q14",
+      "question": "What happens with excess nitrogen in soil?",
+      "options": ["Enhanced root development", "Excessive foliage with weak stems", "Better drought resistance", "Increased disease resistance"],
+      "correct": "Excessive foliage with weak stems"
+    },
+    {
+      "id": "q15",
+      "question": "Which element is important for root development?",
+      "options": ["Nitrogen", "Phosphorus", "Potassium", "Iron"],
+      "correct": "Phosphorus"
+    },
+    {
+      "id": "q16",
+      "question": "What does the mobile dashboard display?",
+      "options": ["Stock market data", "Real-time farm sensors data", "Weather forecasts only", "News feed"],
+      "correct": "Real-time farm sensors data"
+    },
+    {
+      "id": "q17",
+      "question": "How should you capture plant images for disease detection?",
+      "options": ["From any angle", "Clear, well-lit close-ups of affected areas", "Only at night", "From far away"],
+      "correct": "Clear, well-lit close-ups of affected areas"
+    },
+    {
+      "id": "q18",
+      "question": "What sensor is most critical for irrigation scheduling?",
+      "options": ["Temperature sensor", "pH sensor", "Humidity sensor", "All equally"],
+      "correct": "Humidity sensor"
+    },
+    {
+      "id": "q19",
+      "question": "Which condition indicates soil alkalinity?",
+      "options": ["pH 5.5", "pH 6.8", "pH 8.2", "pH 4.5"],
+      "correct": "pH 8.2"
+    },
+    {
+      "id": "q20",
+      "question": "What is a sensor error message usually caused by?",
+      "options": ["Solar flares", "Poor calibration or malfunction", "Rain", "User error only"],
+      "correct": "Poor calibration or malfunction"
+    },
+    {
+      "id": "q21",
+      "question": "How does temperature affect nutrient availability?",
+      "options": ["No effect", "Warmer soil increases nutrient availability", "Cold soil is better", "Only affects water"],
+      "correct": "Warmer soil increases nutrient availability"
+    },
+    {
+      "id": "q22",
+      "question": "What is the first step in troubleshooting a faulty sensor?",
+      "options": ["Replace immediately", "Check connections and clean sensor", "Update software", "Ignore it"],
+      "correct": "Check connections and clean sensor"
+    },
+    {
+      "id": "q23",
+      "question": "Which AI recommendation is most data-driven?",
+      "options": ["Random suggestions", "Based on sensor data and farm history", "Based on weather only", "Manager's intuition"],
+      "correct": "Based on sensor data and farm history"
+    },
+    {
+      "id": "q24",
+      "question": "What causes sensor drift?",
+      "options": ["Wind", "Lack of calibration and contamination", "Sunlight", "User interface"],
+      "correct": "Lack of calibration and contamination"
+    },
+    {
+      "id": "q25",
+      "question": "How often should you check sensor readings?",
+      "options": ["Never", "Weekly minimum", "When you remember", "Only when problems occur"],
+      "correct": "Weekly minimum"
+    },
+    {
+      "id": "q26",
+      "question": "What does potassium primarily support?",
+      "options": ["Leaf color", "Disease resistance and drought tolerance", "Root length", "Flowering only"],
+      "correct": "Disease resistance and drought tolerance"
+    },
+    {
+      "id": "q27",
+      "question": "Which sensor helps prevent over-watering?",
+      "options": ["Temperature", "Humidity/Moisture", "pH", "Light"],
+      "correct": "Humidity/Moisture"
+    },
+    {
+      "id": "q28",
+      "question": "What is the main benefit of using IoT sensors?",
+      "options": ["Looks professional", "Real-time monitoring and instant alerts", "Reduces cost only", "No benefits"],
+      "correct": "Real-time monitoring and instant alerts"
+    },
+    {
+      "id": "q29",
+      "question": "How should you respond to a disease alert?",
+      "options": ["Ignore it", "Check affected plants and follow AI recommendations", "Panic", "Do nothing"],
+      "correct": "Check affected plants and follow AI recommendations"
+    },
+    {
+      "id": "q30",
+      "question": "What is best practice for sensor placement?",
+      "options": ["Anywhere in the field", "Root zone at plant height in representative areas", "On top of soil", "In direct sunlight only"],
+      "correct": "Root zone at plant height in representative areas"
+    }
+  ]
+}

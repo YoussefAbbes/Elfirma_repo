@@ -1,0 +1,1323 @@
+{% extends 'auth_base.html.twig' %}
+
+{% block title %}Create Account - EL FIRMA{% endblock %}
+
+{% block content %}
+  <!-- Left Side -->
+  <div class="auth-brand">
+    <div class="auth-logo-section">
+      <h2>Start Your Journey</h2>
+      <p>Join thousands of farmers managing their operations</p>
+    </div>
+
+    <div class="auth-features">
+      <div class="auth-feature">
+        <i class="bi bi-check-circle"></i>
+        <span>Complete farm management tools</span>
+      </div>
+      <div class="auth-feature">
+        <i class="bi bi-check-circle"></i>
+        <span>Real-time monitoring & analytics</span>
+      </div>
+      <div class="auth-feature">
+        <i class="bi bi-check-circle"></i>
+        <span>Trusted by farmers worldwide</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side -->
+  <div class="auth-form-section">
+    <div class="auth-form-header">
+      <h2>Create Account</h2>
+      <p>Join EL FIRMA today</p>
+    </div>
+
+    <!-- Store errors data -->
+    <div id="errors-data" data-errors="{{ errors is defined ? errors|json_encode() : '{}' }}"></div>
+
+    {% if error is defined and error %}
+      <div style="background-color: #ffebee; border: 1px solid #ef5350; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem; color: #d32f2f; display: flex; gap: 0.75rem; align-items: flex-start;">
+        <i class="bi bi-exclamation-circle" style="font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem;"></i>
+        <span>{{ error }}</span>
+      </div>
+    {% endif %}
+
+    <form method="POST" action="{{ path('app_signup') }}" class="auth-form" id="signupForm" enctype="multipart/form-data">
+      <!-- Photo Upload -->
+      <div class="form-group photo-upload-group">
+        <p class="photo-label-text">Add profile photo</p>
+        <div class="photo-preview-container">
+          <div class="photo-preview-circle" id="photoPreview">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <label for="photo" class="photo-upload-label" title="Click to select a photo">
+            <i class="bi bi-cloud-upload-fill"></i>
+          </label>
+          <input type="file" id="photo" name="photo" class="d-none" accept="image/*">
+        </div>
+      </div>
+
+      <!-- Last Name -->
+      <div class="form-group">
+        <label for="nom">Last Name</label>
+        <input type="text" id="nom" name="nom" class="form-control" placeholder="Dupont" value="{{ app.request.request.get('nom', '') }}" maxlength="10">
+        <small class="text-muted">Max. 10 characters</small>
+      </div>
+
+      <!-- First Name -->
+      <div class="form-group">
+        <label for="prenom">First Name</label>
+        <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Jean" value="{{ app.request.request.get('prenom', '') }}" maxlength="10">
+        <small class="text-muted">Max. 10 characters</small>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="text" id="email" name="email" class="form-control" placeholder="you@example.com" value="{{ app.request.request.get('email', '') }}">
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-input-wrap">
+          <input type="password" id="password" name="password" class="form-control password-control" placeholder="••••••" maxlength="6">
+          <button type="button" id="togglePasswordBtn" class="password-eye-btn" aria-label="Show password" title="Show / hide">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        <small class="text-muted">Between 4 and 6 characters</small>
+
+        <div class="password-tools">
+          <button type="button" id="suggestPasswordBtn" class="suggest-password-btn">
+            <i class="bi bi-stars"></i>
+            <span>Generate strong password</span>
+          </button>
+          <div id="passwordSuggestionStatus" class="password-suggestion-status"></div>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••" maxlength="6">
+        <small class="text-muted">Must match password</small>
+      </div>
+
+      <!-- Role -->
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" class="form-control">
+          <option value="">Select a role</option>
+          <option value="employee" {% if app.request.request.get('role') == 'employee' %}selected{% endif %}>Employee</option>
+          <option value="client" {% if app.request.request.get('role') == 'client' %}selected{% endif %}>Client</option>
+        </select>
+      </div>
+
+      <input type="hidden" id="face_embeddings_json" name="face_embeddings_json" value="">
+      <input type="hidden" id="fingerprint_registered" name="fingerprint_registered" value="0">
+
+      <button type="submit" class="btn-auth"><span>Create Account</span></button>
+    </form>
+
+    <div class="form-divider">
+      <span>Already have an account?</span>
+    </div>
+
+    <div class="auth-footer">
+      <p><a href="{{ path('app_login') }}">Sign in here</a></p>
+    </div>
+  </div>
+
+  <!-- ── Fingerprint Enrollment Modal ──────────────────────────────────── -->
+  <div class="face-modal" id="signupFingerprintModal" aria-hidden="true">
+    <div class="face-modal-backdrop"></div>
+    <div class="face-modal-card" role="dialog" aria-modal="true" aria-labelledby="fpSignupTitle">
+      <div class="face-modal-head">
+        <h3 id="fpSignupTitle" style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="bi bi-fingerprint" style="font-size:1.4rem;color:#116530;"></i>
+          Register Fingerprint
+        </h3>
+        <button type="button" class="face-close-btn" id="fpSignupClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="face-helper-text">We will scan your finger 3 times to build your fingerprint profile. Place your finger on the ZKTeco scanner when prompted.</p>
+
+      <!-- Fingerprint icon + step indicators -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 0;">
+        <div id="fpSignupIcon" style="font-size:6rem;color:#116530;transition:all 0.4s ease;">
+          <i class="bi bi-fingerprint"></i>
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+          <div id="fpSignupStep1" class="fp-step fp-step-active">1</div>
+          <div id="fpSignupStep2" class="fp-step">2</div>
+          <div id="fpSignupStep3" class="fp-step">3</div>
+        </div>
+        <div class="face-status" id="fpSignupStatus" style="margin-top:1rem;text-align:center;">
+          Click "Start Scan" to begin
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:1rem;">
+        <div id="fpSignupProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#116530,#22c55e);transition:width 0.5s ease;"></div>
+      </div>
+
+      <div class="face-actions" style="justify-content:space-between;">
+        <button type="button" id="fpSignupSkip" class="face-secondary-btn">Skip Fingerprint</button>
+        <button type="button" id="fpSignupScanBtn" style="padding:0.52rem 1.2rem;background:#116530;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;">
+          Start Scan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="face-modal" id="signupFaceModal" aria-hidden="true">
+    <div class="face-modal-backdrop"></div>
+    <div class="face-modal-card" role="dialog" aria-modal="true" aria-labelledby="signupFaceTitle">
+      <div class="face-modal-head">
+        <h3 id="signupFaceTitle">Face Enrollment</h3>
+        <button type="button" class="face-close-btn" id="signupFaceClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="face-helper-text">Look directly at the camera. Keep your face inside the frame.</p>
+      <div class="face-stage">
+        <video id="signupFaceVideo" autoplay playsinline muted></video>
+        <canvas id="signupFaceOverlay"></canvas>
+      </div>
+      <div class="face-status" id="signupFaceStatus">Starting camera...</div>
+      <div class="face-progress-row">
+        <span id="signupFaceSamples">0 / 8 samples</span>
+        <span id="signupFaceCountdown">30s</span>
+      </div>
+      <div class="face-actions">
+        <button type="button" class="face-secondary-btn" id="signupFaceSkip">Skip Face ID</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Errors data for JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get errors from the data attribute
+      const errorsData = document.getElementById('errors-data');
+      let formErrors = {};
+
+      if (errorsData) {
+        const errorsJson = errorsData.getAttribute('data-errors');
+        if (errorsJson) {
+          try {
+            formErrors = JSON.parse(errorsJson);
+          } catch(e) {
+            console.error('Error parsing errors:', e);
+          }
+        }
+      }
+
+      // Only apply red styles if there are errors (after submit with validation errors)
+      if (Object.keys(formErrors).length > 0) {
+        console.log('Applying error styles for fields:', Object.keys(formErrors));
+
+        for (const [fieldName, errorMsg] of Object.entries(formErrors)) {
+          const field = document.getElementById(fieldName);
+          if (field) {
+            // Add red border
+            field.style.borderColor = '#dc3545';
+            field.style.borderWidth = '2px';
+            field.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.2)';
+
+            // Create error message element
+            const formGroup = field.parentElement;
+            let errorElement = formGroup.querySelector('.error-message');
+
+            if (!errorElement) {
+              errorElement = document.createElement('div');
+              errorElement.className = 'error-message';
+            }
+
+            errorElement.textContent = errorMsg;
+            errorElement.style.color = '#dc3545';
+            errorElement.style.fontSize = '0.875rem';
+            errorElement.style.marginTop = '0.5rem';
+            errorElement.style.marginBottom = '0.5rem';
+            errorElement.style.fontWeight = '500';
+            errorElement.style.display = 'block';
+
+            // Insert after field if not already there
+            if (!formGroup.querySelector('.error-message')) {
+              formGroup.insertBefore(errorElement, field.nextElementSibling);
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+<style>
+  .photo-upload-group {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding: 1.5rem 0;
+  }
+
+  .photo-label-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #060606;
+    margin-bottom: 1rem;
+  }
+
+  .photo-preview-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .photo-preview-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #116530 0%, #0d4c23 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    color: white;
+    border: 4px solid #e0e0e0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px rgba(17, 101, 48, 0.2);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .photo-preview-circle i {
+    transition: all 0.3s ease;
+  }
+
+  .photo-preview-container:hover .photo-preview-circle {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(17, 101, 48, 0.35);
+  }
+
+  .photo-upload-label {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #116530 0%, #0d4c23 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 1.4rem;
+    border: 3px solid white;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 12px rgba(17, 101, 48, 0.3);
+  }
+
+  .photo-upload-label:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 18px rgba(17, 101, 48, 0.4);
+    background: linear-gradient(135deg, #0d4c23 0%, #116530 100%);
+  }
+
+  .photo-upload-label:active {
+    transform: scale(0.95);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    color: #060606;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control {
+    width: 100%;
+    border-radius: 6px;
+    border: 1.5px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .password-input-wrap {
+    position: relative;
+  }
+
+  .password-control {
+    padding-right: 3rem;
+  }
+
+  .password-eye-btn {
+    position: absolute;
+    right: 0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid rgba(17, 101, 48, 0.2);
+    background: #ffffff;
+    color: #116530;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .password-eye-btn:hover {
+    background: #f3faf5;
+    border-color: rgba(17, 101, 48, 0.35);
+  }
+
+  .password-tools {
+    margin-top: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+
+  .suggest-password-btn {
+    border: 1px solid rgba(17, 101, 48, 0.25);
+    background: linear-gradient(135deg, #116530 0%, #0d4c23 100%);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(17, 101, 48, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+
+  .suggest-password-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(17, 101, 48, 0.28);
+  }
+
+  .suggest-password-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .password-suggestion-status {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #52606d;
+    min-height: 1rem;
+  }
+
+  .password-suggestion-status.success {
+    color: #116530;
+  }
+
+  .password-suggestion-status.error {
+    color: #b42318;
+  }
+
+  .form-control:focus {
+    border-color: #116530 !important;
+    box-shadow: 0 0 0 3px rgba(17, 101, 48, 0.1) !important;
+    outline: none;
+  }
+
+  .form-control.is-invalid {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+  }
+
+  .form-control.is-invalid:focus {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3) !important;
+  }
+
+  .error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    display: block;
+  }
+
+  small.text-muted {
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 0.3rem;
+    color: #999;
+  }
+
+  .face-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+  }
+
+  .face-modal.active {
+    display: flex;
+  }
+
+  .face-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 16, 14, 0.72);
+    backdrop-filter: blur(4px);
+  }
+
+  .face-modal-card {
+    position: relative;
+    width: min(92vw, 600px);
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid rgba(17, 101, 48, 0.22);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    z-index: 1;
+  }
+
+  .face-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .face-modal-head h3 {
+    margin: 0;
+    color: #183b2a;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .face-close-btn {
+    border: none;
+    background: transparent;
+    color: #52606d;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .face-helper-text {
+    margin: 0.3rem 0 0.8rem;
+    color: #617080;
+    font-size: 0.9rem;
+  }
+
+  .face-stage {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #111;
+    aspect-ratio: 16 / 10;
+  }
+
+  .face-stage video,
+  .face-stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .face-status {
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #183b2a;
+  }
+
+  .face-progress-row {
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #4a5562;
+    font-size: 0.86rem;
+  }
+
+  .face-actions {
+    margin-top: 0.8rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .face-secondary-btn {
+    border: 1px solid rgba(17, 101, 48, 0.35);
+    background: #fff;
+    color: #116530;
+    padding: 0.52rem 0.9rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  // Safe wrapper: calls askFingerprintEnrollment if defined, else submits directly
+  function triggerFingerprintOrSubmit() {
+    if (typeof window.askFingerprintEnrollment === 'function') {
+      window.askFingerprintEnrollment();
+    } else {
+      // Fingerprint script not loaded yet — submit form directly
+      var f = document.getElementById('signupForm');
+      if (f) f.submit();
+    }
+  }
+
+  // Photo preview
+  const photoInput = document.getElementById('photo');
+  const photoPreview = document.getElementById('photoPreview');
+
+  if (photoInput && photoPreview) {
+    photoInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          photoPreview.style.backgroundImage = `url(${event.target.result})`;
+          photoPreview.style.backgroundColor = 'transparent';
+          const icon = photoPreview.querySelector('i');
+          if (icon) icon.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Smooth form focus animation
+  const inputs = document.querySelectorAll('.form-control');
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.style.transform = 'scale(1.01)';
+      this.parentElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    });
+    input.addEventListener('blur', function() {
+      this.parentElement.style.transform = 'scale(1)';
+    });
+  });
+
+  // Parallax effect on mouse move
+  const formSection = document.querySelector('.auth-form-section');
+  document.addEventListener('mousemove', function(e) {
+    const x = (window.innerWidth / 2 - e.clientX) / 100;
+    const y = (window.innerHeight / 2 - e.clientY) / 100;
+
+    if (formSection) {
+      formSection.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${y}deg)`;
+    }
+  });
+
+  document.addEventListener('mouseleave', function() {
+    if (formSection) {
+      formSection.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+    }
+  });
+
+  const signupForm = document.getElementById('signupForm');
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirm_password');
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  const suggestPasswordBtn = document.getElementById('suggestPasswordBtn');
+  const passwordSuggestionStatus = document.getElementById('passwordSuggestionStatus');
+  const faceInput = document.getElementById('face_embeddings_json');
+  const faceModal = document.getElementById('signupFaceModal');
+  const faceClose = document.getElementById('signupFaceClose');
+  const faceSkip = document.getElementById('signupFaceSkip');
+  const faceVideo = document.getElementById('signupFaceVideo');
+  const faceOverlay = document.getElementById('signupFaceOverlay');
+  const faceStatus = document.getElementById('signupFaceStatus');
+  const faceSamplesEl = document.getElementById('signupFaceSamples');
+  const faceCountdownEl = document.getElementById('signupFaceCountdown');
+
+  const faceCtx = faceOverlay ? faceOverlay.getContext('2d') : null;
+  const targetSamples = 8;
+  const timeoutMs = 30000;
+  const detectionIntervalMs = 180;
+  let enrolling = false;
+  let enrollmentDone = false;
+  let completionInProgress = false;
+  let frameTimer = null;
+  let detectInFlight = false;
+  let stream = null;
+  let startTime = 0;
+  let collectedEmbeddings = [];
+  let isSubmitting = false;
+
+  const validateSignupClient = () => {
+    const email = document.getElementById('email')?.value?.trim() || '';
+    const password = document.getElementById('password')?.value || '';
+    const confirm = document.getElementById('confirm_password')?.value || '';
+    const prenom = document.getElementById('prenom')?.value?.trim() || '';
+    const nom = document.getElementById('nom')?.value?.trim() || '';
+    const role = document.getElementById('role')?.value || '';
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
+    if (password.length < 4 || password.length > 6 || confirm !== password) return false;
+    if (!prenom || !nom) return false;
+    if (!role) return false;
+    return true;
+  };
+
+  if (togglePasswordBtn && passwordInput) {
+    togglePasswordBtn.addEventListener('click', function() {
+      const show = passwordInput.type === 'password';
+      passwordInput.type = show ? 'text' : 'password';
+      if (confirmPasswordInput) {
+        confirmPasswordInput.type = show ? 'text' : 'password';
+      }
+      this.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+      this.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+  }
+
+  if (suggestPasswordBtn && passwordInput) {
+    suggestPasswordBtn.addEventListener('click', async function() {
+      this.disabled = true;
+      if (passwordSuggestionStatus) {
+        passwordSuggestionStatus.classList.remove('success', 'error');
+        passwordSuggestionStatus.textContent = 'Generating secure password...';
+      }
+
+      try {
+        const res = await fetch('{{ path('app_api_password_suggest') }}', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data || data.success !== true || typeof data.password !== 'string') {
+          throw new Error('Invalid password suggestion response');
+        }
+
+        passwordInput.value = data.password;
+        if (confirmPasswordInput) {
+          confirmPasswordInput.value = data.password;
+        }
+
+        if (passwordSuggestionStatus) {
+          passwordSuggestionStatus.classList.remove('error');
+          passwordSuggestionStatus.classList.add('success');
+          passwordSuggestionStatus.textContent = `Strong password generated (${data.source || 'api'})`;
+        }
+      } catch (e) {
+        if (passwordSuggestionStatus) {
+          passwordSuggestionStatus.classList.remove('success');
+          passwordSuggestionStatus.classList.add('error');
+          passwordSuggestionStatus.textContent = 'Unable to generate now. Please retry.';
+        }
+      } finally {
+        this.disabled = false;
+      }
+    });
+  }
+
+  const stopEnrollmentCamera = () => {
+    if (frameTimer) {
+      clearInterval(frameTimer);
+      frameTimer = null;
+    }
+    enrolling = false;
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+  };
+
+  const closeEnrollmentModal = () => {
+    stopEnrollmentCamera();
+    if (faceModal) {
+      faceModal.classList.remove('active');
+      faceModal.setAttribute('aria-hidden', 'true');
+    }
+  };
+
+  const drawBox = (bbox, color, label) => {
+    if (!faceCtx || !faceOverlay || !faceVideo) return;
+
+    faceOverlay.width = faceVideo.videoWidth || faceOverlay.clientWidth;
+    faceOverlay.height = faceVideo.videoHeight || faceOverlay.clientHeight;
+    faceCtx.clearRect(0, 0, faceOverlay.width, faceOverlay.height);
+
+    if (!bbox) return;
+
+    faceCtx.strokeStyle = color;
+    faceCtx.lineWidth = 3;
+    faceCtx.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
+    faceCtx.fillStyle = color;
+    faceCtx.font = '600 16px Open Sans';
+    faceCtx.fillText(label, bbox.x, Math.max(18, bbox.y - 8));
+  };
+
+  const captureFrameDataUrl = () => {
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = faceVideo.videoWidth;
+    tmpCanvas.height = faceVideo.videoHeight;
+    const tmpCtx = tmpCanvas.getContext('2d');
+    tmpCtx.drawImage(faceVideo, 0, 0, tmpCanvas.width, tmpCanvas.height);
+    return tmpCanvas.toDataURL('image/jpeg', 0.6);
+  };
+
+  const updateCountdown = () => {
+    const elapsed = Date.now() - startTime;
+    const left = Math.max(0, Math.ceil((timeoutMs - elapsed) / 1000));
+    if (faceCountdownEl) faceCountdownEl.textContent = `${left}s`;
+
+    if (elapsed >= timeoutMs) {
+      closeEnrollmentModal();
+      Swal.fire({
+        icon: 'info',
+        title: 'Face enrollment timed out',
+        text: 'We will continue signup without Face ID. You can add it later.',
+        confirmButtonColor: '#116530',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        if (!isSubmitting) {
+          triggerFingerprintOrSubmit();
+        }
+      });
+    }
+  };
+
+  const completeEnrollment = () => {
+    // Prevent multiple completions
+    if (completionInProgress) {
+      return;
+    }
+    completionInProgress = true;
+
+    // Stop the camera and timer FIRST
+    stopEnrollmentCamera();
+
+    // Close the modal
+    closeEnrollmentModal();
+
+    // Show success message and submit form
+    Swal.fire({
+      icon: 'success',
+      title: 'Face saved',
+      text: 'Face ID is ready for your next sign-in.',
+      timer: 2000,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      willClose: () => {
+        if (!isSubmitting) {
+          triggerFingerprintOrSubmit();
+        }
+      }
+    });
+  };
+
+  const startEnrollment = async () => {
+    if (!faceModal || !faceVideo || !faceOverlay || !signupForm) return;
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 360 } },
+        audio: false
+      });
+      faceVideo.srcObject = stream;
+      await faceVideo.play();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Camera access denied',
+        text: 'Signup will continue without Face ID.',
+        confirmButtonColor: '#116530',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        if (!isSubmitting) {
+          triggerFingerprintOrSubmit();
+        }
+      });
+      return;
+    }
+
+    // Start face enrollment
+    collectedEmbeddings = [];
+    enrolling = true;
+    detectInFlight = false;
+    startTime = Date.now();
+    faceModal.classList.add('active');
+    faceModal.setAttribute('aria-hidden', 'false');
+    if (faceStatus) faceStatus.textContent = 'Detecting face...';
+    if (faceSamplesEl) faceSamplesEl.textContent = `0 / ${targetSamples} samples`;
+
+    frameTimer = setInterval(async () => {
+      // Stop immediately if not enrolling anymore
+      if (!enrolling || faceVideo.readyState < 2) return;
+      if (detectInFlight) return;
+
+      updateCountdown();
+
+      try {
+        detectInFlight = true;
+        const image = captureFrameDataUrl();
+        const response = await fetch('{{ path('app_face_id_detect') }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image })
+        });
+        const data = await response.json();
+
+        if (!data.ok) {
+          drawBox(null, '#ef4444', '');
+          if (faceStatus) faceStatus.textContent = 'Face service unavailable...';
+          return;
+        }
+
+        if (!data.faceFound || !data.embedding) {
+          drawBox(null, '#f59e0b', '');
+          if (faceStatus) faceStatus.textContent = 'No face detected. Center your face.';
+          return;
+        }
+
+        drawBox(data.bbox, '#16a34a', 'Face detected');
+        if (faceStatus) faceStatus.textContent = 'Good position. Collecting samples...';
+
+        if (collectedEmbeddings.length < targetSamples) {
+          collectedEmbeddings.push(data.embedding);
+          if (faceSamplesEl) faceSamplesEl.textContent = `${collectedEmbeddings.length} / ${targetSamples} samples`;
+        }
+
+        // Check if we have enough samples
+        if (collectedEmbeddings.length >= targetSamples) {
+          // Check if completion is already in progress
+          if (completionInProgress) {
+            return;
+          }
+
+          // Stop enrollment immediately to prevent duplicate submissions
+          stopEnrollmentCamera();
+
+          // Save embeddings
+          faceInput.value = JSON.stringify(collectedEmbeddings);
+
+          // Complete enrollment (shows alert and submits)
+          completeEnrollment();
+        }
+      } catch (err) {
+        if (enrolling && faceStatus) {
+          faceStatus.textContent = 'Network issue during face detection.';
+        }
+      } finally {
+        detectInFlight = false;
+      }
+    }, detectionIntervalMs);
+  };
+
+  if (signupForm) {
+    signupForm.addEventListener('submit', async function(event) {
+      // Allow if fingerprint flow already took over (sets __fingerprintSubmitAllowed)
+      if (window.__fingerprintSubmitAllowed) {
+        window.__fingerprintSubmitAllowed = false;
+        return;
+      }
+
+      // If already submitting or enrollment is done, allow form submission
+      if (enrollmentDone || isSubmitting) {
+        return;
+      }
+
+      // Validate form fields
+      if (!validateSignupClient()) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const result = await Swal.fire({
+        title: 'Would you save your face for login with it later?',
+        text: 'You can skip this step and still create your account.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, save my face',
+        cancelButtonText: 'No, continue signup',
+        confirmButtonColor: '#116530',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      });
+
+      if (!result.isConfirmed) {
+        // Skip face enrollment — mark done so form guard won't re-trigger
+        enrollmentDone = true;
+        triggerFingerprintOrSubmit();
+        return;
+      }
+
+      // Start face enrollment
+      await startEnrollment();
+    });
+  }
+
+  if (faceClose) {
+    faceClose.addEventListener('click', () => {
+      closeEnrollmentModal();
+      enrollmentDone = true;
+      // After closing face modal, ask about fingerprint
+      if (!isSubmitting) {
+        triggerFingerprintOrSubmit();
+      }
+    });
+  }
+
+  if (faceSkip) {
+    faceSkip.addEventListener('click', () => {
+      closeEnrollmentModal();
+      enrollmentDone = true;
+      // After skipping face ID, ask about fingerprint
+      triggerFingerprintOrSubmit();
+    });
+  }
+</script>
+
+<style>
+  .fp-step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #9ca3af;
+    transition: all 0.3s ease;
+  }
+  .fp-step-active {
+    border-color: #116530;
+    color: #116530;
+  }
+  .fp-step-done {
+    border-color: #22c55e;
+    background: #22c55e;
+    color: #fff;
+  }
+  @keyframes fp-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.12); opacity: 0.75; }
+  }
+  @keyframes fp-success-bounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .fp-scanning { animation: fp-pulse 1.2s ease-in-out infinite; color: #116530; }
+  .fp-success  { animation: fp-success-bounce 0.5s ease-out forwards; color: #22c55e; }
+  .fp-error    { color: #dc2626; }
+</style>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FINGERPRINT ENROLLMENT — SIGNUP
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Endpoints ──────────────────────────────────────────────────────── */
+  const FP_STATUS_URL  = '{{ path("app_fingerprint_status") }}';
+  const FP_START_URL   = '{{ path("app_fingerprint_enroll_start") }}';
+  const FP_CAPTURE_URL = '{{ path("app_fingerprint_enroll_capture") }}';
+  const FP_SAVE_URL    = '{{ path("app_fingerprint_enroll_save") }}';
+
+  /* ── DOM refs ───────────────────────────────────────────────────────── */
+  const fpModal      = document.getElementById('signupFingerprintModal');
+  const fpIcon       = document.getElementById('fpSignupIcon');
+  const fpStatus     = document.getElementById('fpSignupStatus');
+  const fpProgress   = document.getElementById('fpSignupProgress');
+  const fpScanBtn    = document.getElementById('fpSignupScanBtn');
+  const fpSkipBtn    = document.getElementById('fpSignupSkip');
+  const fpCloseBtn   = document.getElementById('fpSignupClose');
+  const fpRegInput   = document.getElementById('fingerprint_registered');
+  const theForm      = document.getElementById('signupForm');
+
+  const steps        = [
+    document.getElementById('fpSignupStep1'),
+    document.getElementById('fpSignupStep2'),
+    document.getElementById('fpSignupStep3'),
+  ];
+
+  /* ── State ──────────────────────────────────────────────────────────── */
+  let currentStep    = 0;   // 0 = not started, 1/2/3 = captures
+  let enrolledTemplate = null;
+  let enrolledLength   = 0;
+  let captureInFlight  = false;
+  let pendingUserId    = 0;   // filled after form submit, before save
+
+  /* ── Helpers ────────────────────────────────────────────────────────── */
+  function openFpModal() {
+    if (!fpModal) return;
+    fpModal.classList.add('active');
+    fpModal.setAttribute('aria-hidden', 'false');
+    resetFpUI();
+  }
+
+  function closeFpModal() {
+    if (!fpModal) return;
+    fpModal.classList.remove('active');
+    fpModal.setAttribute('aria-hidden', 'true');
+    captureInFlight = false;
+  }
+
+  function resetFpUI() {
+    currentStep = 0;
+    enrolledTemplate = null;
+    enrolledLength   = 0;
+    captureInFlight  = false;
+    setFpStatus('Click "Start Scan" to begin', '#183b2a');
+    setFpProgress(0);
+    if (fpIcon) { fpIcon.innerHTML = '<i class="bi bi-fingerprint"></i>'; fpIcon.style.color = '#116530'; fpIcon.className = ''; }
+    if (fpScanBtn) { fpScanBtn.textContent = 'Start Scan'; fpScanBtn.disabled = false; }
+    steps.forEach((s, i) => {
+      s.className = 'fp-step';
+    });
+    steps[0].classList.add('fp-step-active');
+  }
+
+  function setFpStatus(msg, color) {
+    if (fpStatus) { fpStatus.textContent = msg; fpStatus.style.color = color || '#183b2a'; }
+  }
+
+  function setFpProgress(pct) {
+    if (fpProgress) fpProgress.style.width = Math.min(100, pct) + '%';
+  }
+
+  function markStepDone(idx) {
+    if (steps[idx]) { steps[idx].className = 'fp-step fp-step-done'; steps[idx].textContent = '✓'; }
+    if (idx + 1 < steps.length) { steps[idx + 1].classList.add('fp-step-active'); steps[idx + 1].style.borderColor = '#116530'; steps[idx + 1].style.color = '#116530'; }
+  }
+
+  /* ── Check device is reachable ──────────────────────────────────────── */
+  async function checkDevice() {
+    try {
+      const r = await fetch(FP_STATUS_URL, { method: 'POST' });
+      const d = await r.json();
+      return d.ok === true && d.device_connected === true;
+    } catch { return false; }
+  }
+
+  /* ── One capture call ───────────────────────────────────────────────── */
+  async function doCapture() {
+    if (captureInFlight) return;
+    captureInFlight = true;
+    fpScanBtn.disabled = true;
+
+    if (currentStep === 0) {
+      // First: start enrollment session
+      setFpStatus('Connecting to scanner...', '#116530');
+      const alive = await checkDevice();
+      if (!alive) {
+        setFpStatus('Scanner not found. Start the fingerprint service.', '#dc2626');
+        if (fpIcon) { fpIcon.innerHTML = '<i class="bi bi-fingerprint fp-error"></i>'; }
+        fpScanBtn.disabled = false;
+        captureInFlight = false;
+        return;
+      }
+      await fetch(FP_START_URL, { method: 'POST' });
+      currentStep = 1;
+    }
+
+    setFpStatus('Place your finger on the scanner and hold still...', '#116530');
+    if (fpIcon) { fpIcon.innerHTML = '<i class="bi bi-fingerprint fp-scanning"></i>'; fpIcon.style.color = '#116530'; }
+
+    try {
+      const r    = await fetch(FP_CAPTURE_URL, { method: 'POST' });
+      const data = await r.json();
+
+      if (!data.ok) {
+        setFpStatus('Capture failed: ' + (data.message || 'Try again'), '#dc2626');
+        if (fpIcon) { fpIcon.innerHTML = '<i class="bi bi-fingerprint fp-error"></i>'; }
+        fpScanBtn.textContent = 'Retry Scan';
+        fpScanBtn.disabled = false;
+        captureInFlight = false;
+        return;
+      }
+
+      // Mark step done
+      markStepDone(currentStep - 1);
+      setFpProgress((currentStep / 3) * 100);
+
+      if (data.done) {
+        // All 3 scans done — template ready
+        enrolledTemplate = data.template;
+        enrolledLength   = data.template_length || 0;
+
+        setFpStatus('Fingerprint enrolled! Completing signup...', '#116530');
+        if (fpIcon) { fpIcon.innerHTML = '<i class="bi bi-fingerprint fp-success"></i>'; }
+        setFpProgress(100);
+        fpScanBtn.style.display = 'none';
+
+        // Wait briefly then finish signup
+        setTimeout(() => {
+          closeFpModal();
+          finaliseSignup(true);
+        }, 1000);
+      } else {
+        currentStep++;
+        setFpStatus('Scan ' + (currentStep - 1) + ' of 3 captured. Lift and place finger again.', '#116530');
+        if (fpIcon) { fpIcon.innerHTML = '<i class="bi bi-fingerprint"></i>'; fpIcon.style.color = '#116530'; }
+        fpScanBtn.textContent = 'Capture Scan ' + currentStep;
+        fpScanBtn.disabled = false;
+        captureInFlight = false;
+      }
+    } catch (e) {
+      setFpStatus('Network error during capture. Try again.', '#dc2626');
+      fpScanBtn.disabled = false;
+      captureInFlight = false;
+    }
+  }
+
+  /* ── Finalise signup: submits form, then saves fingerprint ─────────── */
+  let finaliseInProgress = false;
+  function finaliseSignup(withFingerprint) {
+    if (finaliseInProgress) return;
+    finaliseInProgress = true;
+
+    if (!theForm) {
+      finaliseInProgress = false;
+      return;
+    }
+
+    if (withFingerprint && enrolledTemplate) {
+      // We need the user ID that will be created — so we submit the form
+      // via fetch to get the new user ID back, then save the fingerprint.
+      // Since the existing flow just does signupForm.submit() which redirects,
+      // we instead submit via fetch expecting JSON when fingerprint is pending.
+      submitFormWithFingerprintSave();
+    } else {
+      // No fingerprint — just submit normally
+      if (fpRegInput) fpRegInput.value = '0';
+      window.__fingerprintSubmitAllowed = true;
+      theForm.submit();
+    }
+  }
+
+  async function submitFormWithFingerprintSave() {
+    if (!theForm) {
+      finaliseInProgress = false;
+      return;
+    }
+
+    // Add a flag so the server knows to return JSON with user_id
+    const formData = new FormData(theForm);
+    formData.set('fingerprint_pending', '1');
+
+    try {
+      const r    = await fetch('{{ path("app_signup") }}', { method: 'POST', body: formData });
+      const ct   = r.headers.get('content-type') || '';
+
+      if (ct.includes('application/json')) {
+        const data = await r.json();
+        if (data.success && data.user_id) {
+          // Save fingerprint
+          const saveR = await fetch(FP_SAVE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              template: enrolledTemplate,
+              template_length: enrolledLength,
+              user_id: data.user_id,
+            }),
+          });
+          const saveD = await saveR.json().catch(() => ({ ok: false }));
+
+          if (!saveR.ok || !saveD.ok) {
+            console.error('Fingerprint save failed after signup:', saveD);
+          }
+
+          // Now redirect to home
+          window.location.href = data.redirect || '/home';
+        } else {
+          // Error creating user
+          window.location.href = data.redirect || '/signup';
+        }
+      } else {
+        // Server returned a redirect (HTML) — fingerprint won't be saved this way
+        // Fall back to normal submit
+        if (fpRegInput) fpRegInput.value = '0';
+        window.__fingerprintSubmitAllowed = true;
+        theForm.submit();
+      }
+    } catch (e) {
+      // Network failure — fall back to normal submit
+      if (fpRegInput) fpRegInput.value = '0';
+      window.__fingerprintSubmitAllowed = true;
+      theForm.submit();
+    }
+  }
+
+  /* ── Public helper called by face-ID flow ──────────────────────────── */
+  window.askFingerprintEnrollment = function () {
+    // Small delay so any previous SweetAlert fully closes before we open a new one
+    setTimeout(async function () {
+      const result = await Swal.fire({
+        title: 'Register your fingerprint?',
+        text: 'You can use your ZKTeco fingerprint scanner to sign in later.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, register fingerprint',
+        cancelButtonText: 'No, skip',
+        confirmButtonColor: '#116530',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      if (result.isConfirmed) {
+        // Small delay so Swal backdrop fully disappears before modal opens
+        setTimeout(function () {
+          openFpModal();
+        }, 150);
+      } else {
+        finaliseSignup(false);
+      }
+    }, 300);
+  };
+
+  /* ── Button listeners ───────────────────────────────────────────────── */
+  if (fpScanBtn)  fpScanBtn.addEventListener('click', doCapture);
+
+  if (fpSkipBtn) {
+    fpSkipBtn.addEventListener('click', () => {
+      closeFpModal();
+      finaliseSignup(false);
+    });
+  }
+
+  if (fpCloseBtn) {
+    fpCloseBtn.addEventListener('click', () => {
+      closeFpModal();
+      finaliseSignup(false);
+    });
+  }
+
+  if (fpModal) {
+    fpModal.querySelector('.face-modal-backdrop')?.addEventListener('click', () => {
+      closeFpModal();
+      finaliseSignup(false);
+    });
+  }
+})();
+</script>
+{% endblock %}
