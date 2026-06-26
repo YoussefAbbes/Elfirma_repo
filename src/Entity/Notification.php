@@ -24,7 +24,7 @@ class Notification
     private \DateTimeImmutable $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id_u', nullable: false)]
     private ?Utilisateur $user = null;
 
     public function getId(): ?int
