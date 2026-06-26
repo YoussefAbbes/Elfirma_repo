@@ -82,12 +82,12 @@
       <div class="form-group">
         <label for="password">Password</label>
         <div class="password-input-wrap">
-          <input type="password" id="password" name="password" class="form-control password-control" placeholder="••••••" maxlength="6">
+          <input type="password" id="password" name="password" class="form-control password-control" placeholder="••••••" minlength="8" maxlength="72">
           <button type="button" id="togglePasswordBtn" class="password-eye-btn" aria-label="Show password" title="Show / hide">
             <i class="bi bi-eye"></i>
           </button>
         </div>
-        <small class="text-muted">Between 4 and 6 characters</small>
+        <small class="text-muted">At least 8 characters</small>
 
         <div class="password-tools">
           <button type="button" id="suggestPasswordBtn" class="suggest-password-btn">
@@ -101,7 +101,7 @@
       <!-- Confirm Password -->
       <div class="form-group">
         <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••" maxlength="6">
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••" minlength="8" maxlength="72">
         <small class="text-muted">Must match password</small>
       </div>
 
@@ -671,7 +671,7 @@
     const role = document.getElementById('role')?.value || '';
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
-    if (password.length < 4 || password.length > 6 || confirm !== password) return false;
+    if (password.length < 8 || password.length > 72 || confirm !== password) return false;
     if (!prenom || !nom) return false;
     if (!role) return false;
     return true;

@@ -14,7 +14,7 @@ final class ApiPasswordController extends AbstractController
     #[Route('/api/password/suggest', name: 'app_api_password_suggest', methods: ['GET'])]
     public function suggest(HttpClientInterface $httpClient): JsonResponse
     {
-        $targetLength = random_int(4, 6);
+        $targetLength = random_int(12, 16);
         $fallbackPassword = $this->generateLocalPassword($targetLength);
 
         try {
@@ -57,7 +57,7 @@ final class ApiPasswordController extends AbstractController
     {
         $length = strlen($password);
 
-        if ($length < 4 || $length > 6) {
+        if ($length < 8 || $length > 72) {
             return false;
         }
 
