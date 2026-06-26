@@ -5,11 +5,15 @@ in, the back office (`/elfirma`, `/admin`) and all interactions (cart, checkout,
 ratings) require authentication.
 
 ## 1. Requirements
-- PHP 8.1+ with the usual Symfony extensions (`ctype`, `iconv`, `pdo_mysql`, and
-  ideally `intl`).
+- PHP 8.2 with the usual Symfony extensions (`ctype`, `iconv`, `pdo_mysql`,
+  `gd`, and ideally `intl`).
 - MySQL/MariaDB.
 - Composer.
 - (Optional, for AI/face/fingerprint features) the Python sidecar services — see §6.
+
+For Railway/Railpack, make sure the build uses PHP 8.2 rather than the latest
+auto-selected version. This repository now pins Composer to PHP 8.2 and declares
+`ext-gd`, which matches the supported dependency set.
 
 ## 2. Get the code & dependencies
 ```bash
