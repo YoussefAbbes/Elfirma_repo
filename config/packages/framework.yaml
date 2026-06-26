@@ -5,6 +5,12 @@ framework:
     http_method_override: false
     handle_all_throwables: true
 
+    # The app is served behind Railway's edge proxy (HTTPS terminated there).
+    # Trust the immediate proxy so Symfony honors X-Forwarded-* and generates
+    # correct https:// URLs (OAuth redirect_uri, asset URLs, etc.).
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:

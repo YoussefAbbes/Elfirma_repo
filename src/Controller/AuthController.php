@@ -657,13 +657,13 @@ final class AuthController extends AbstractController
     #[Route("/connect/google", name: "connect_google")]
     public function connectGoogle(ClientRegistry $clientRegistry)
     {
-        $clientId = (string) ($_ENV["GOOGLE_CLIENT_ID"] ?? "");
-        $clientSecret = (string) ($_ENV["GOOGLE_CLIENT_SECRET"] ?? "");
+        $clientId = $this->readEnv("GOOGLE_CLIENT_ID");
+        $clientSecret = $this->readEnv("GOOGLE_CLIENT_SECRET");
 
         if (!$this->isOauthClientConfigured($clientId, $clientSecret)) {
             return $this->render("auth/login.html.twig", [
                 "error" =>
-                    "Google OAuth not configured. Add valid GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.local, then configure the redirect URI http://localhost:8000/connect/google/check in Google Cloud Console.",
+                    "Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, then add the redirect URI <your-domain>/connect/google/check in Google Cloud Console.",
             ]);
         }
 
@@ -724,8 +724,8 @@ final class AuthController extends AbstractController
     #[Route("/connect/github", name: "connect_github")]
     public function connectGithub(ClientRegistry $clientRegistry)
     {
-        $clientId = (string) ($_ENV["GITHUB_CLIENT_ID"] ?? "");
-        $clientSecret = (string) ($_ENV["GITHUB_CLIENT_SECRET"] ?? "");
+        $clientId = $this->readEnv("GITHUB_CLIENT_ID");
+        $clientSecret = $this->readEnv("GITHUB_CLIENT_SECRET");
 
         if (!$this->isOauthClientConfigured($clientId, $clientSecret)) {
             return $this->render("auth/login.html.twig", [
@@ -1123,6 +1123,18 @@ final class AuthController extends AbstractController
         } else {
             $mailer->send($email);
         }
+    }
+
+    /**
+     * Read an environment variable robustly. Railway/FrankenPHP expose real
+     * environment variables that are not always populated into $_ENV (that
+     * depends on PHP's variables_order), so fall back to $_SERVER and getenv().
+     */
+    private function readEnv(string $name): string
+    {
+        $value = $_ENV[$name] ?? $_SERVER[$name] ?? getenv($name);
+
+        return is_string($value) ? trim($value) : "";
     }
 
     private function isOauthClientConfigured(
