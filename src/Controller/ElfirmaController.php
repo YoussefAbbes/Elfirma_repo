@@ -237,6 +237,9 @@ final class ElfirmaController extends AbstractController
                 'modules' => self::MODULES,
             ]);
         }
+        // The Users module is admin-only and additionally gated by 2FA. The
+        // SessionAuthSubscriber already keeps clients/anonymous users out of the
+        // back-office; this enforces the stricter admin + 2FA requirement.
         if ($module === 'utilisateurs') {
             $session = $request->getSession();
             if ($session->get('user_role') !== 'admin') {
@@ -248,22 +251,6 @@ final class ElfirmaController extends AbstractController
                 return $this->redirectToRoute('app_admin_panel_2fa');
             }
         }
-
-        if ($module === 'utilisateurs') {
-    $session = $request->getSession();
-    if ($session->get('user_role') !== 'admin' || !AdminTwoFactorController::hasValidAdminTwoFactor($request)) {
-        $session->invalidate();
-        return $this->redirectToRoute('app_login');
-    }
-}
-
-        if ($module === 'utilisateurs') {
-    $session = $request->getSession();
-    if ($session->get('user_role') !== 'admin' || !AdminTwoFactorController::hasValidAdminTwoFactor($request)) {
-        $session->invalidate();
-        return $this->redirectToRoute('app_login');
-    }
-}
 
         $moduleMeta = self::MODULES[$module];
 
