@@ -1,0 +1,18 @@
+{
+    "@symfony\/stimulus-bundle\/controllers.js": "\/assets\/@symfony\/stimulus-bundle\/controllers-6780e43d2e392585ebf393958a44baf8.js",
+    "@symfony\/stimulus-bundle\/loader.js": "\/assets\/@symfony\/stimulus-bundle\/loader-20ecc10cbbb74d097d458e14577bcd99.js",
+    "@symfony\/ux-chartjs\/controller.js": "\/assets\/@symfony\/ux-chartjs\/controller-19c9e1e5a885d2c138b7f9f40b8e560a.js",
+    "@symfony\/ux-turbo\/turbo_controller.js": "\/assets\/@symfony\/ux-turbo\/turbo_controller-6c50a8e6e6ca21c94e8fd8573c988499.js",
+    "@symfony\/ux-turbo\/turbo_stream_controller.js": "\/assets\/@symfony\/ux-turbo\/turbo_stream_controller-5b12aec697c4d43c0ee9eb1d80721198.js",
+    "app.js": "\/assets\/app-8e03e6dbe2f283051f848709251e9c4e.js",
+    "bootstrap.js": "\/assets\/bootstrap-a5fe192373da05affeff9903da91b160.js",
+    "controllers\/csrf_protection_controller.js": "\/assets\/controllers\/csrf_protection_controller-c6c89f1b2597e0dbd9935986a3aea0e8.js",
+    "controllers\/hello_controller.js": "\/assets\/controllers\/hello_controller-55882fcad241d2bea50276ea485583bc.js",
+    "controllers\/irrigation_dashboard_controller.js": "\/assets\/controllers\/irrigation_dashboard_controller-877e9e8cd0e98eab233e4d57550dcff6.js",
+    "firmalogo.png": "\/assets\/firmalogo-858e070f05fe17f433451cbcaf5313a2.png",
+    "stimulus_bootstrap.js": "\/assets\/stimulus_bootstrap-7d6354d3e22b86483b44e32a99d2c73c.js",
+    "styles\/app.css": "\/assets\/styles\/app-713d9828d7058036a44786836080554c.css",
+    "vendor\/@hotwired\/stimulus\/stimulus.index.js": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-4b8ccd71e6b1c4ddba22853d5a50a26c.js",
+    "vendor\/@hotwired\/turbo\/turbo.index.js": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-a53d794fa85309d61a95703410716017.js",
+    "vendor\/chart.js\/chart.js.index.js": "\/assets\/vendor\/chart.js\/chart.js.index-d3a4cd32499b49a07abf29cf42de1161.js"
+}

@@ -38,7 +38,8 @@ fingerprint/javafx-*.jar
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###
-/public/assets/
+# /public/assets/ is committed so static front-end files ship to the
+# Railway container (the runtime build does not recompile assets).
 /assets/vendor/
 ###< symfony/asset-mapper ###
 

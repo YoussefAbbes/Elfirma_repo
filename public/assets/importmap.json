@@ -1,0 +1,58 @@
+{
+    "app": {
+        "path": "\/assets\/app-8e03e6dbe2f283051f848709251e9c4e.js",
+        "type": "js"
+    },
+    "\/assets\/bootstrap.js": {
+        "path": "\/assets\/bootstrap-a5fe192373da05affeff9903da91b160.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/stimulus-bundle\/controllers.js": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/controllers-6780e43d2e392585ebf393958a44baf8.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-chartjs\/controller.js": {
+        "path": "\/assets\/@symfony\/ux-chartjs\/controller-19c9e1e5a885d2c138b7f9f40b8e560a.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/ux-turbo\/turbo_controller.js": {
+        "path": "\/assets\/@symfony\/ux-turbo\/turbo_controller-6c50a8e6e6ca21c94e8fd8573c988499.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/hello_controller.js": {
+        "path": "\/assets\/controllers\/hello_controller-55882fcad241d2bea50276ea485583bc.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/irrigation_dashboard_controller.js": {
+        "path": "\/assets\/controllers\/irrigation_dashboard_controller-877e9e8cd0e98eab233e4d57550dcff6.js",
+        "type": "js"
+    },
+    "\/assets\/controllers\/csrf_protection_controller.js": {
+        "path": "\/assets\/controllers\/csrf_protection_controller-c6c89f1b2597e0dbd9935986a3aea0e8.js",
+        "type": "js"
+    },
+    "\/assets\/styles\/app.css": {
+        "path": "\/assets\/styles\/app-713d9828d7058036a44786836080554c.css",
+        "type": "css"
+    },
+    "@hotwired\/stimulus": {
+        "path": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-4b8ccd71e6b1c4ddba22853d5a50a26c.js",
+        "type": "js"
+    },
+    "@symfony\/stimulus-bundle": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/loader-20ecc10cbbb74d097d458e14577bcd99.js",
+        "type": "js"
+    },
+    "@hotwired\/turbo": {
+        "path": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-a53d794fa85309d61a95703410716017.js",
+        "type": "js"
+    },
+    "chart.js": {
+        "path": "\/assets\/vendor\/chart.js\/chart.js.index-d3a4cd32499b49a07abf29cf42de1161.js",
+        "type": "js"
+    },
+    "@symfony\/ux-chartjs": {
+        "path": "\/assets\/@symfony\/ux-chartjs\/controller-19c9e1e5a885d2c138b7f9f40b8e560a.js",
+        "type": "js"
+    }
+}
