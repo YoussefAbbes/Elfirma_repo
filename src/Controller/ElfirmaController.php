@@ -73,7 +73,7 @@ final class ElfirmaController extends AbstractController
         ],
     ];
 
-    #[Route('/', name: 'app_home', methods: ['GET'])]
+    #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
     public function home(): Response
     {
         return $this->redirectToRoute('elfirma_page', ['module' => 'tableau-de-bord']);
