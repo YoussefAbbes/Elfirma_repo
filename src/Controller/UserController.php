@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
@@ -47,8 +48,13 @@ if ($session->get('user_role') !== 'admin' || !AdminTwoFactorController::hasVali
             $adminCount++;
         }
 
-        // Build a public profile URL for QR code scanning.
-      $profileUrl = 'http://172.20.10.5:8000/elfirma/user/' . $user->getIdU() . '/profile';
+        // Build a public profile URL for QR code scanning. Prefer the configured
+        // public base URL (so codes scanned on external phones resolve to the real
+        // domain); otherwise derive an absolute URL from the current request.
+        $publicBaseUrl = rtrim((string) ($_ENV['APP_PUBLIC_BASE_URL'] ?? ''), '/');
+        $profileUrl = $publicBaseUrl !== ''
+            ? $publicBaseUrl . $this->generateUrl('elfirma_user_profile', ['id' => $user->getIdU()])
+            : $this->generateUrl('elfirma_user_profile', ['id' => $user->getIdU()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $user->qrCode = $this->generateQrCode($profileUrl);
     }

@@ -13,9 +13,20 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SupplierAnalyticsController extends AbstractController
 {
-    private const FASTAPI_URL = 'http://localhost:8002/analyze';
+    /** Default AI service base URL; override in any environment via AI_FASTAPI_BASE_URL. */
+    private const FASTAPI_DEFAULT_BASE_URL = 'http://localhost:8002';
 
     public function __construct(private HttpClientInterface $http) {}
+
+    private function fastApiUrl(string $path): string
+    {
+        $base = rtrim(
+            (string) ($_ENV['AI_FASTAPI_BASE_URL'] ?? self::FASTAPI_DEFAULT_BASE_URL),
+            '/',
+        );
+
+        return $base . $path;
+    }
 
     #[Route('/elfirma/supplier-analytics', name: 'supplier_analytics', methods: ['GET'])]
     public function index(EntityManagerInterface $em): Response
@@ -61,7 +72,7 @@ class SupplierAnalyticsController extends AbstractController
         }
 
         try {
-            $response = $this->http->request('POST', self::FASTAPI_URL, [
+            $response = $this->http->request('POST', $this->fastApiUrl('/analyze'), [
                 'json'    => $payload,
                 'timeout' => 15,
             ]);

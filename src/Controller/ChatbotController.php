@@ -12,9 +12,20 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ChatbotController extends AbstractController
 {
-    private const FASTAPI_URL = 'http://localhost:8002/chat';
+    /** Default AI service base URL; override in any environment via AI_FASTAPI_BASE_URL. */
+    private const FASTAPI_DEFAULT_BASE_URL = 'http://localhost:8002';
 
     public function __construct(private HttpClientInterface $http) {}
+
+    private function fastApiUrl(string $path): string
+    {
+        $base = rtrim(
+            (string) ($_ENV['AI_FASTAPI_BASE_URL'] ?? self::FASTAPI_DEFAULT_BASE_URL),
+            '/',
+        );
+
+        return $base . $path;
+    }
 
     #[Route('/chatbot/message', name: 'chatbot_message', methods: ['POST'])]
     public function message(Request $request): JsonResponse
@@ -28,7 +39,7 @@ class ChatbotController extends AbstractController
 
         try {
             // Forward message to Python FastAPI
-            $response = $this->http->request('POST', self::FASTAPI_URL, [
+            $response = $this->http->request('POST', $this->fastApiUrl('/chat'), [
                 'json'    => ['message' => $message],
                 'timeout' => 10,
             ]);
