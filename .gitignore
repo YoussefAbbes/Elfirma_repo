@@ -9,6 +9,7 @@
 .env.local
 .env.local.php
 .env.local.bak
+.env.railway
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
