@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
+  <link href="{{ asset('images/firmalogo.png') }}" rel="icon" type="image/png">
+
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <link href="{{ asset('styles/elfirma-theme.css') }}" rel="stylesheet"/>
@@ -1168,12 +1170,15 @@
             openModal('editModal');
         }
         
-        const productFiltersForm = document.getElementById('productFiltersForm');
-        const productSearchInput = document.getElementById('searchInput');
-        const productCategoryFilter = document.getElementById('categoryFilter');
-        const productStatusFilter = document.getElementById('statusFilter');
-        const productSortSelect = document.getElementById('sortSelect');
-        let productFilterTimer = null;
+        // NOTE: var (not const/let) so re-running this inline script after a
+        // Turbo Drive body swap does not throw "Identifier already declared",
+        // which previously aborted the whole script and left openModal undefined.
+        var productFiltersForm = document.getElementById('productFiltersForm');
+        var productSearchInput = document.getElementById('searchInput');
+        var productCategoryFilter = document.getElementById('categoryFilter');
+        var productStatusFilter = document.getElementById('statusFilter');
+        var productSortSelect = document.getElementById('sortSelect');
+        var productFilterTimer = null;
 
         if (productSearchInput && productFiltersForm) {
             productSearchInput.addEventListener('input', function () {
