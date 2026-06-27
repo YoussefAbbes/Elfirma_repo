@@ -596,11 +596,11 @@ final class AuthController extends AbstractController
             if ($recaptchaResponse === "") {
                 return $this->render("auth/recaptcha.html.twig", [
                     "error" => "Please confirm you are not a robot",
-                    "recaptcha_site_key" => $_ENV["RECAPTCHA_SITE_KEY"],
+                    "recaptcha_site_key" => $this->readEnv("RECAPTCHA_SITE_KEY"),
                 ]);
             }
 
-            $secret = (string) ($_ENV["RECAPTCHA_SECRET_KEY"] ?? "");
+            $secret = $this->readEnv("RECAPTCHA_SECRET_KEY");
 
             $verifyRaw = @file_get_contents(
                 "https://www.google.com/recaptcha/api/siteverify?secret=" .
@@ -619,7 +619,7 @@ final class AuthController extends AbstractController
             ) {
                 return $this->render("auth/recaptcha.html.twig", [
                     "error" => "reCAPTCHA failed",
-                    "recaptcha_site_key" => $_ENV["RECAPTCHA_SITE_KEY"],
+                    "recaptcha_site_key" => $this->readEnv("RECAPTCHA_SITE_KEY"),
                 ]);
             }
 
