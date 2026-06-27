@@ -650,7 +650,7 @@ final class AuthController extends AbstractController
         }
 
         return $this->render("auth/recaptcha.html.twig", [
-            "recaptcha_site_key" => $_ENV["RECAPTCHA_SITE_KEY"],
+            "recaptcha_site_key" => $this->readEnv("RECAPTCHA_SITE_KEY"),
             "error" => null,
         ]);
     }
