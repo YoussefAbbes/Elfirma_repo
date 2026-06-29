@@ -34,6 +34,11 @@ class FaceIdClient
         return $this->request('recognize', ['image' => $imageBase64]);
     }
 
+    public function enroll(array $payload): array
+    {
+        return $this->request('enroll', $payload);
+    }
+
     private function request(string $endpoint, array $data): array
     {
         try {

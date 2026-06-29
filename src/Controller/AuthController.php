@@ -18,7 +18,6 @@ use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 use App\Service\FaceIdClient;
-use App\Service\FaceEncodingStore;
 
 final class AuthController extends AbstractController
 {
@@ -794,7 +793,7 @@ final class AuthController extends AbstractController
     public function signup(
         Request $request,
         EntityManagerInterface $em,
-        FaceEncodingStore $faceEncodingStore,
+        FaceIdClient $faceIdClient,
     ): Response {
         if ($request->isMethod("POST")) {
             $email = trim($request->request->get("email", ""));
@@ -863,14 +862,28 @@ final class AuthController extends AbstractController
                 ) {
                     $decodedEmbeddings = json_decode($faceEmbeddingsRaw, true);
                     if (is_array($decodedEmbeddings)) {
-                        $faceFile = $faceEncodingStore->saveUserEmbeddings(
-                            $user,
-                            $decodedEmbeddings,
-                        );
-                        if ($faceFile !== null) {
-                            $user->setPhotoFace($faceFile);
+                        $enrollResult = $faceIdClient->enroll([
+                            'user_id' => $user->getIdU(),
+                            'email' => $user->getEmailU(),
+                            'first_name' => $user->getPrenomU(),
+                            'last_name' => $user->getNomU(),
+                            'full_name' => trim($user->getPrenomU() . ' ' . $user->getNomU()),
+                            'embeddings' => $decodedEmbeddings,
+                        ]);
+
+                        if (!($enrollResult['ok'] ?? false)) {
+                            $em->remove($user);
                             $em->flush();
+
+                            return $this->render("auth/signup.html.twig", [
+                                "errors" => [
+                                    "face" => "Face enrollment failed: " . (string) ($enrollResult['error'] ?? 'unknown error'),
+                                ],
+                            ]);
                         }
+
+                        $user->setPhotoFace((string) ($enrollResult['filename'] ?? ('user_' . $user->getIdU() . '.json')));
+                        $em->flush();
                     }
                 }
 

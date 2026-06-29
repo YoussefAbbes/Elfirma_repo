@@ -134,6 +134,55 @@ class FaceEngine:
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
+    def enroll(self, payload: Dict) -> Dict:
+        """Persist user embeddings in the service storage directory."""
+        try:
+            user_id = int(payload.get("user_id") or 0)
+            embeddings = payload.get("embeddings")
+
+            if user_id <= 0:
+                return {"ok": False, "error": "Missing or invalid user_id"}
+            if not isinstance(embeddings, list) or not embeddings:
+                return {"ok": False, "error": "Missing embeddings"}
+
+            for embedding in embeddings:
+                if not isinstance(embedding, list) or not embedding:
+                    return {"ok": False, "error": "Invalid embedding shape"}
+
+            first_name = str(payload.get("first_name") or "")
+            last_name = str(payload.get("last_name") or "")
+            full_name = str(payload.get("full_name") or "").strip()
+            if not full_name:
+                full_name = f"{first_name} {last_name}".strip()
+
+            os.makedirs(self.storage_dir, exist_ok=True)
+            filename = f"user_{user_id}.json"
+            filepath = os.path.join(self.storage_dir, filename)
+            data = {
+                "user_id": user_id,
+                "email": str(payload.get("email") or ""),
+                "first_name": first_name,
+                "last_name": last_name,
+                "full_name": full_name,
+                "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "embeddings": embeddings,
+            }
+
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+
+            self._last_scan = 0.0
+            self._load_known_faces()
+
+            return {
+                "ok": True,
+                "filename": filename,
+                "userId": user_id,
+                "knownUsers": len(self._known_cache),
+            }
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
     def _detect_onnx(self, img: np.ndarray) -> List[Tuple]:
         """Detect using ONNX YuNet"""
         if not self.yunet_detector:
@@ -280,6 +329,12 @@ def create_app(storage_dir: str, models_dir: str, threshold: float) -> Flask:
         data = request.get_json() or {}
         image = data.get("image", "")
         return jsonify(engine.recognize(image))
+
+    @app.route("/enroll", methods=["POST"])
+    def enroll():
+        data = request.get_json() or {}
+        result = engine.enroll(data)
+        return jsonify(result), 200 if result.get("ok") else 400
 
     return app
 
