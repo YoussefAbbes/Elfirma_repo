@@ -38,13 +38,13 @@ For each service: **New → GitHub Repo → (this repo)**, then open **Settings*
 ### 1. elfirma-equipment-ai
 - **Root Directory:** `ai_service/ai_service`
 - **Variables:** `PORT=8001`
-- **Custom Start Command:** `uvicorn main:app --host :: --port $PORT`
+- **Custom Start Command:** `python -m uvicorn main:app --host :: --port $PORT` (the `python -m` form — Railpack's `uvicorn` console script isn't on the runtime PATH for custom start commands)
 - **Networking:** no public domain. (Pure-Python scoring; tiny + fast.)
 
 ### 2. elfirma-chatbot
 - **Root Directory:** `chatbot_ai`
 - **Variables:** `PORT=8002`
-- **Custom Start Command:** `uvicorn main:app --host :: --port $PORT`
+- **Custom Start Command:** `python -m uvicorn main:app --host :: --port $PORT` (the `python -m` form — Railpack's `uvicorn` console script isn't on the runtime PATH for custom start commands)
 - Loads `model/*.pkl` on startup via a relative path — works because Railway runs
   from the root directory. The `.pkl` artifacts are committed, so nothing to upload.
 
