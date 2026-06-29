@@ -27,7 +27,7 @@ with open("model/responses.pkl", "rb") as f:
 
 # ── FastAPI app ───────────────────────────────────────────────────────────────
 app = FastAPI(title="Supplier Chatbot AI", version="1.0.0")
-RAG_CHAT_ENGINE_SCRIPT = Path(__file__).resolve().parents[1] / "rag" / "scripts" / "chat_engine.py"
+RAG_CHAT_ENGINE_SCRIPT = Path(__file__).resolve().parent / "scripts" / "chat_engine.py"
 
 # Allow Symfony (localhost) to call the API
 app.add_middleware(
@@ -209,7 +209,7 @@ def rag_chat(request: RagRequest):
     try:
         completed = subprocess.run(
             command,
-            cwd=str(Path(__file__).resolve().parents[1]),
+            cwd=str(Path(__file__).resolve().parent),
             capture_output=True,
             text=True,
             timeout=timeout_seconds,
