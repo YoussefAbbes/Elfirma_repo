@@ -6,4 +6,10 @@ uvicorn[standard]
 pydantic
 numpy
 scikit-learn
--r requirements-rag.txt
+sentence-transformers>=5.4
+transformers>=5.5
+torch>=2.11
+huggingface_hub>=1.10
+tokenizers>=0.22
+safetensors>=0.7
+scipy>=1.17
