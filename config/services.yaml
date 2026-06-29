@@ -28,6 +28,8 @@ services:
     bind:
       string $pixabayApiKey: "%env(default::PIXABAY_API_KEY)%"
       string $trefleApiKey: "%env(default::TREFLE_API_KEY)%"
+      string $baseUrl: "%env(default::EQUIPMENT_AI_BASE_URL)%"
+      string $fastApiBaseUrl: "%env(default::AI_FASTAPI_BASE_URL)%"
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
