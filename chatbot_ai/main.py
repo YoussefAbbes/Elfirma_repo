@@ -1,11 +1,16 @@
 import pickle
 import random
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
 import numpy as np
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from analytics import SupplierAnalyticsAI
-from typing import List
+from typing import Any, List
 
 # ── Load trained model artifacts ──────────────────────────────────────────────
 with open("model/rf_model.pkl", "rb") as f:
@@ -22,6 +27,7 @@ with open("model/responses.pkl", "rb") as f:
 
 # ── FastAPI app ───────────────────────────────────────────────────────────────
 app = FastAPI(title="Supplier Chatbot AI", version="1.0.0")
+RAG_CHAT_ENGINE_SCRIPT = Path(__file__).resolve().parents[1] / "rag" / "scripts" / "chat_engine.py"
 
 # Allow Symfony (localhost) to call the API
 app.add_middleware(
@@ -39,6 +45,17 @@ class ChatResponse(BaseModel):
     intent:     str
     response:   str
     confidence: float
+
+
+class RagRequest(BaseModel):
+    query: str
+    top_k: int | None = None
+    min_score: float | None = None
+    route_override: str | None = None
+    disable_routing: bool = False
+    rerank_pool_size: int | None = None
+    filters: dict[str, Any] | None = None
+    debug: bool = False
 
 
 FALLBACK_RESPONSES = {
@@ -130,6 +147,106 @@ def health():
         "model":  "Random Forest",
         "classes": list(label_encoder.classes_)
     }
+
+
+@app.get("/rag/health")
+def rag_health():
+    return {
+        "ok": True,
+        "service": "rag",
+        "wrapped_by": "chatbot_ai",
+    }
+
+
+@app.post("/rag/chat")
+def rag_chat(request: RagRequest):
+    if not RAG_CHAT_ENGINE_SCRIPT.exists():
+        raise HTTPException(status_code=500, detail=f"Missing RAG engine script: {RAG_CHAT_ENGINE_SCRIPT}")
+
+    command = [
+        sys.executable,
+        str(RAG_CHAT_ENGINE_SCRIPT),
+        "--json",
+        "--query",
+        request.query,
+    ]
+
+    if request.top_k is not None:
+        command.extend(["--top-k", str(request.top_k)])
+    if request.min_score is not None:
+        command.extend(["--min-score", str(request.min_score)])
+    if request.route_override is not None:
+        command.extend(["--route", request.route_override])
+    if request.disable_routing:
+        command.append("--disable-routing")
+    if request.rerank_pool_size is not None:
+        command.extend(["--rerank-pool-size", str(request.rerank_pool_size)])
+    if request.debug:
+        command.extend(["--include-context-items", "--include-prompt-payload"])
+
+    filter_option_map = {
+        "domain": "--domain",
+        "document_type": "--document-type",
+        "confidence": "--confidence",
+        "language": "--language",
+        "evidence_scope": "--evidence-scope",
+    }
+
+    for key, cli_flag in filter_option_map.items():
+        values = (request.filters or {}).get(key)
+        if values is None:
+            continue
+        if isinstance(values, str):
+            values = [values]
+        if not isinstance(values, list):
+            continue
+        for value in values:
+            if isinstance(value, str) and value.strip():
+                command.extend([cli_flag, value.strip()])
+
+    timeout_seconds = float(os.environ.get("RAG_PROCESS_TIMEOUT", "60"))
+
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=str(Path(__file__).resolve().parents[1]),
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise HTTPException(
+            status_code=504,
+            detail={
+                "message": "RAG engine timed out",
+                "timeout_seconds": timeout_seconds,
+                "stderr": (exc.stderr or "").strip() if isinstance(exc.stderr, str) else "",
+                "stdout": (exc.stdout or "").strip() if isinstance(exc.stdout, str) else "",
+            },
+        ) from exc
+
+    if completed.returncode != 0:
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "message": "RAG engine failed",
+                "stderr": completed.stderr.strip(),
+                "stdout": completed.stdout.strip(),
+            },
+        )
+
+    try:
+        return json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "message": "RAG engine returned invalid JSON",
+                "stderr": completed.stderr.strip(),
+                "stdout": completed.stdout.strip(),
+                "error": str(exc),
+            },
+        ) from exc
 analytics_ai = SupplierAnalyticsAI()
 
 # ── Analytics request model ───────────────────────────────────────────────────

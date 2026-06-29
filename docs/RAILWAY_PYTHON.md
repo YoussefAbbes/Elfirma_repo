@@ -4,15 +4,14 @@ EL FIRMA's Python code runs as **separate Railway services** in the *same* Railw
 project as the PHP app, reached over Railway's **private network**. This guide
 covers the three HTTP services that are ready today:
 
-| Railway service (suggested name) | Root directory       | Listens | PHP env var that points to it     |
-|----------------------------------|----------------------|---------|-----------------------------------|
-| `elfirma-equipment-ai`           | `ai_service/ai_service` | 8001 | `EQUIPMENT_AI_BASE_URL`           |
-| `elfirma-chatbot`                | `chatbot_ai`         | 8002    | `AI_FASTAPI_BASE_URL`             |
-| `elfirma-faceid`                 | `scripts/faceid`     | 8765    | `FACE_ID_HOST` + `FACE_ID_PORT`   |
+| Railway service (suggested name) | Root directory          | Listens | PHP env var that points to it   |
+|----------------------------------|-------------------------|---------|---------------------------------|
+| `elfirma-equipment-ai`           | `ai_service/ai_service` | 8001    | `EQUIPMENT_AI_BASE_URL`         |
+| `elfirma-chatbot`                | `chatbot_ai`            | 8002    | `AI_FASTAPI_BASE_URL` and `RAG_FASTAPI_BASE_URL` |
+| `elfirma-faceid`                 | `scripts/faceid`        | 8765    | `FACE_ID_HOST` + `FACE_ID_PORT` |
 
-> RAG (`rag/scripts`) is **not** covered here — it is still a CLI subprocess and
-> needs a FastAPI wrapper + a PHP refactor before it can be deployed. Do it after
-> these three are healthy.
+> On the free plan, RAG is served from the existing `elfirma-chatbot` Railway
+> service at `/rag/chat`, so no extra Railway service is needed.
 
 ---
 
@@ -47,12 +46,19 @@ For each service: **New → GitHub Repo → (this repo)**, then open **Settings*
 - **Custom Start Command:** `python -m uvicorn main:app --host :: --port $PORT` (the `python -m` form — Railpack's `uvicorn` console script isn't on the runtime PATH for custom start commands)
 - Loads `model/*.pkl` on startup via a relative path — works because Railway runs
   from the root directory. The `.pkl` artifacts are committed, so nothing to upload.
+- This same service also serves RAG at `POST /rag/chat` and `GET /rag/health`.
 
 ### 3. elfirma-faceid  ⚠️ has prerequisites — see below
 - **Root Directory:** `scripts/faceid`
 - **Variables:** `PORT=8765`
 - **Custom Start Command:**
   `python face_id_api.py --host :: --port $PORT --storage-dir /data/encodings --models-dir /data/models --threshold 0.28`
+
+### 4. elfirma-rag
+- **Root Directory:** `rag`
+- **Variables:** `PORT=8010`
+- **Custom Start Command:** `python -m uvicorn app:app --host :: --port $PORT`
+- **Networking:** private only. This service wraps `rag/scripts/chat_engine.py`.
 
 ---
 
@@ -66,6 +72,7 @@ EQUIPMENT_AI_BASE_URL=http://elfirma-equipment-ai.railway.internal:8001
 AI_FASTAPI_BASE_URL=http://elfirma-chatbot.railway.internal:8002
 FACE_ID_HOST=elfirma-faceid.railway.internal
 FACE_ID_PORT=8765
+RAG_FASTAPI_BASE_URL=http://elfirma-chatbot.railway.internal:8002
 ```
 
 (`FACE_ID_HOST`/`FACE_ID_PORT` are split because `FaceIdClient` builds
@@ -109,6 +116,8 @@ Shell), or by exercising the app:
 - Chatbot: `curl http://elfirma-chatbot.railway.internal:8002/health`; exercise the
   chatbot widget and the `/elfirma/supplier-analytics` page.
 - Face ID: attempt a face-ID login; the service log should show detect/recognize hits.
+- RAG: call `GET /rag/health` on the chatbot service, then hit `/api/chat` in
+  Symfony and confirm it returns the same contract fields as the CLI engine.
 
 If a call fails with a connection error, the usual causes are: service bound to
 `0.0.0.0` instead of `::`, wrong port in the PHP env var, or (faceid) missing ONNX

@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class ChatbotEngineService
 {
@@ -40,7 +41,9 @@ final class ChatbotEngineService
         #[Autowire('%rag.llm_timeout_seconds%')] private readonly float $llmTimeoutSeconds,
         #[Autowire('%rag.llm_max_output_tokens%')] private readonly int $llmMaxOutputTokens,
         #[Autowire('%rag.gemini_api_key%')] private readonly string $geminiApiKey,
-        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
+        private readonly HttpClientInterface $httpClient,
+        #[Autowire('%rag.fastapi_base_url%')] private readonly string $fastApiBaseUrl = ''
     ) {
     }
 
@@ -51,6 +54,10 @@ final class ChatbotEngineService
     {
         if (function_exists('set_time_limit')) {
             @set_time_limit((int) ceil($this->processTimeout) + 20);
+        }
+
+        if (trim($this->fastApiBaseUrl) !== '') {
+            return $this->askViaHttp($request);
         }
 
         $resolvedPython = $this->resolvePythonPath();
@@ -166,6 +173,67 @@ final class ChatbotEngineService
         $this->assertValidResponseContract($payload);
 
         return $payload;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function askViaHttp(ChatbotRequest $request): array
+    {
+        $payload = [
+            'query' => $request->getQuery(),
+            'debug' => $request->isDebug(),
+            'disable_routing' => $request->isDisableRouting(),
+        ];
+
+        if ($request->getTopK() !== null) {
+            $payload['top_k'] = $request->getTopK();
+        }
+
+        if ($request->getMinScore() !== null) {
+            $payload['min_score'] = $request->getMinScore();
+        }
+
+        if ($request->getRouteOverride() !== null) {
+            $payload['route_override'] = $request->getRouteOverride();
+        }
+
+        if ($request->getRerankPoolSize() !== null) {
+            $payload['rerank_pool_size'] = $request->getRerankPoolSize();
+        }
+
+        if ($request->getFilters() !== []) {
+            $payload['filters'] = $request->getFilters();
+        }
+
+        try {
+            $response = $this->httpClient->request('POST', rtrim($this->fastApiBaseUrl, '/') . '/rag/chat', [
+                'json' => $payload,
+                'timeout' => $this->processTimeout,
+            ]);
+
+            $upstreamPayload = $response->toArray();
+        } catch (\Throwable $exception) {
+            throw new ChatbotEngineException(
+                'python_execution_error',
+                'RAG HTTP service failed to respond successfully.',
+                Response::HTTP_BAD_GATEWAY,
+                ['error' => $exception->getMessage()],
+                $exception
+            );
+        }
+
+        if (!\is_array($upstreamPayload)) {
+            throw new ChatbotEngineException(
+                'upstream_contract_error',
+                'RAG HTTP service returned an invalid payload.',
+                Response::HTTP_BAD_GATEWAY
+            );
+        }
+
+        $this->assertValidResponseContract($upstreamPayload);
+
+        return $upstreamPayload;
     }
 
     /**
