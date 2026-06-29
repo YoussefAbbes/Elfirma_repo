@@ -1,0 +1,11 @@
+# RAG runtime packages used by the embedded /rag/chat route.
+# Keep this file inside chatbot_ai so Railway can install it from the service root.
+numpy>=2.4
+sentence-transformers>=5.4
+transformers>=5.5
+torch>=2.11
+huggingface_hub>=1.10
+tokenizers>=0.22
+safetensors>=0.7
+scikit-learn>=1.8
+scipy>=1.17
