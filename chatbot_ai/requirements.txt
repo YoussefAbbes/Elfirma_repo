@@ -1,0 +1,8 @@
+# Supplier chatbot + rating analyser (FastAPI). Unpickles a RandomForest model and
+# a TF-IDF vectorizer at startup (model/*.pkl), so numpy + scikit-learn are required
+# at runtime. train_model.py-only deps are not separated out; they overlap.
+fastapi
+uvicorn[standard]
+pydantic
+numpy
+scikit-learn

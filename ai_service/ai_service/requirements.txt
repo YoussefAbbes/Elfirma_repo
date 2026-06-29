@@ -1,0 +1,6 @@
+# Equipment AI service (FastAPI). main.py is pure-Python scoring — no ML libs at
+# runtime. train.py / db_loader.py deps (scikit-learn, pandas, mysql-connector)
+# are NOT needed to serve /full-analysis and are intentionally omitted.
+fastapi
+uvicorn[standard]
+pydantic

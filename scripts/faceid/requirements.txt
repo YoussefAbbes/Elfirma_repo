@@ -1,0 +1,5 @@
+# Face ID service (Flask + OpenCV). Use the *headless* OpenCV build: Railway
+# containers have no X11/GUI libraries, so plain opencv-python fails to import.
+flask
+numpy
+opencv-python-headless
