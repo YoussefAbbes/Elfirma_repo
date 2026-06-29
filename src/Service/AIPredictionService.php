@@ -11,20 +11,17 @@ class AIPredictionService
     private const DEFAULT_BASE_URL = 'http://127.0.0.1:8001';
 
     private $client;
+    private string $baseUrl;
 
-    public function __construct(HttpClientInterface $client)
+    public function __construct(HttpClientInterface $client, string $baseUrl = '')
     {
         $this->client = $client;
+        $this->baseUrl = rtrim($baseUrl !== '' ? $baseUrl : self::DEFAULT_BASE_URL, '/');
     }
 
     public function predict($data)
     {
-        $base = rtrim(
-            (string) ($_ENV['EQUIPMENT_AI_BASE_URL'] ?? self::DEFAULT_BASE_URL),
-            '/',
-        );
-
-        $response = $this->client->request('POST', $base . '/full-analysis', [
+        $response = $this->client->request('POST', $this->baseUrl . '/full-analysis', [
             'json' => $data
         ]);
 

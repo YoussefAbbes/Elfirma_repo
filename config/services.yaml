@@ -69,6 +69,10 @@ services:
       $port: "%env(int:FACE_ID_PORT)%"
       $threshold: "%env(float:FACE_ID_THRESHOLD)%"
 
+  App\Service\AIPredictionService:
+    arguments:
+      $baseUrl: "%env(default::EQUIPMENT_AI_BASE_URL)%"
+
   App\Service\Tripo3DGenerationService:
     arguments:
       $projectDir: "%kernel.project_dir%"
