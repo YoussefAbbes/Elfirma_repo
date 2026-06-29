@@ -6,3 +6,4 @@ uvicorn[standard]
 pydantic
 numpy
 scikit-learn
+-r ../rag/requirements-lock.txt
