@@ -73,6 +73,14 @@ services:
     arguments:
       $baseUrl: "%env(default::EQUIPMENT_AI_BASE_URL)%"
 
+  App\Controller\ChatbotController:
+    arguments:
+      $fastApiBaseUrl: "%env(default::AI_FASTAPI_BASE_URL)%"
+
+  App\Controller\SupplierAnalyticsController:
+    arguments:
+      $fastApiBaseUrl: "%env(default::AI_FASTAPI_BASE_URL)%"
+
   App\Service\Tripo3DGenerationService:
     arguments:
       $projectDir: "%kernel.project_dir%"

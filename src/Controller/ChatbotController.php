@@ -15,16 +15,18 @@ class ChatbotController extends AbstractController
     /** Default AI service base URL; override in any environment via AI_FASTAPI_BASE_URL. */
     private const FASTAPI_DEFAULT_BASE_URL = 'http://localhost:8002';
 
-    public function __construct(private HttpClientInterface $http) {}
+    private string $fastApiBaseUrl;
+
+    public function __construct(
+        private HttpClientInterface $http,
+        string $fastApiBaseUrl = ''
+    ) {
+        $this->fastApiBaseUrl = rtrim($fastApiBaseUrl !== '' ? $fastApiBaseUrl : self::FASTAPI_DEFAULT_BASE_URL, '/');
+    }
 
     private function fastApiUrl(string $path): string
     {
-        $base = rtrim(
-            (string) ($_ENV['AI_FASTAPI_BASE_URL'] ?? self::FASTAPI_DEFAULT_BASE_URL),
-            '/',
-        );
-
-        return $base . $path;
+        return $this->fastApiBaseUrl . $path;
     }
 
     #[Route('/chatbot/message', name: 'chatbot_message', methods: ['POST'])]
