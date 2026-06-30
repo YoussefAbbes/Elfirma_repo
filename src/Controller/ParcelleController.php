@@ -19,6 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Service\CropRecommendationService;
+use App\Service\PixabayService;
 
 #[Route("/elfirma/parcelles")]
 final class ParcelleController extends AbstractController
@@ -550,6 +551,7 @@ final class ParcelleController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         ParcelleRepository $parcelleRepository,
+        PixabayService $pixabay,
     ): Response {
         $file = $request->files->get("importFile");
         if (!$file) {
@@ -665,7 +667,14 @@ final class ParcelleController extends AbstractController
                         : null,
                 );
 
-                // Images skipped during import to avoid blocking HTTP calls per row.
+                // --- Pixabay: auto-fetch image based on parcel name + soil type ---
+                $imageBlob = $pixabay->fetchImageBlob(
+                    $pixabay->buildParcelleQuery($nom, $typeSol),
+                    $idx % 5,
+                );
+                if ($imageBlob !== null) {
+                    $p->setImage($imageBlob);
+                }
 
                 $entityManager->persist($p);
                 $imported++;
