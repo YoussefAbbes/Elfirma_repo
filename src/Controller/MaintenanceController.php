@@ -506,7 +506,7 @@ private function updateEquipementEtat(Equipement $equipement, EntityManagerInter
             error_log('📧 Sending email to: ' . $technicien->getEmailU());
 
             $email = (new TemplatedEmail())
-                ->from('fethizouabi190@gmail.com')
+                ->from((string) ($_ENV['MAILER_FROM'] ?? $_SERVER['MAILER_FROM'] ?? 'noreply@elfirma.tn'))
                 ->to($technicien->getEmailU())
                 ->subject('⚠️ Maintenance critique - ' . $equipement->getNomEq())
                 ->htmlTemplate('emails/maintenance_alert.html.twig')
@@ -539,7 +539,11 @@ private function updateEquipementEtat(Equipement $equipement, EntityManagerInter
 
        private function isHoliday(\DateTime $date): bool
         {
-            $apiKey = 'uUEzUqYq5jExcWlBWULmo5eSzFm6SBFyeSeHG9pt';
+            $apiKey = trim((string) ($_SERVER['API_NINJAS_KEY'] ?? $_ENV['API_NINJAS_KEY'] ?? ''));
+
+            if ($apiKey === '') {
+                return false;
+            }
 
             $query = http_build_query([
                 'country' => 'TN',

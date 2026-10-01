@@ -30,7 +30,7 @@ final class ChatbotYController extends AbstractController
      * LM Studio OpenAI-compatible endpoint.
      * /api/v1/chat requires a different request schema — do NOT use it.
      */
-    private const LM_BASE = "http://192.168.56.1:1234";
+    private const LM_BASE_DEFAULT = "http://127.0.0.1:1234";
     private const LM_ENDPOINT = "/v1/chat/completions";
     private const LM_MODEL = "nvidia/nemotron-3-nano-4b";
 
@@ -77,7 +77,7 @@ final class ChatbotYController extends AbstractController
     #[Route("/debug", name: "app_chatbot_debug", methods: ["GET"])]
     public function debug(): JsonResponse
     {
-        $url = self::LM_BASE . self::LM_ENDPOINT;
+        $url = self::lmBase() . self::LM_ENDPOINT;
 
         try {
             $response = $this->httpClient->request("POST", $url, [
@@ -192,7 +192,7 @@ final class ChatbotYController extends AbstractController
         try {
             $response = $this->httpClient->request(
                 "POST",
-                self::LM_BASE . self::LM_ENDPOINT,
+                self::lmBase() . self::LM_ENDPOINT,
                 [
                     "headers" => [
                         "Content-Type" => "application/json",
@@ -228,7 +228,7 @@ final class ChatbotYController extends AbstractController
                 [
                     "error" =>
                         "Cannot reach LM Studio at " .
-                        self::LM_BASE .
+                        self::lmBase() .
                         ". Is it running? " .
                         $e->getMessage(),
                 ],
@@ -601,5 +601,13 @@ final class ChatbotYController extends AbstractController
     private function textLength(string $text): int
     {
         return function_exists("mb_strlen") ? mb_strlen($text) : strlen($text);
+    }
+
+    /** LM Studio base URL; override with LM_STUDIO_BASE_URL (e.g. http://<lan-ip>:1234). */
+    private static function lmBase(): string
+    {
+        $base = trim((string) ($_SERVER["LM_STUDIO_BASE_URL"] ?? $_ENV["LM_STUDIO_BASE_URL"] ?? ""));
+
+        return rtrim($base !== "" ? $base : self::LM_BASE_DEFAULT, "/");
     }
 }

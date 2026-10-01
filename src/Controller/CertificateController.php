@@ -25,6 +25,10 @@ class CertificateController extends AbstractController
     #[Route('/{userId}/generate', name: 'training_certificate_generate', methods: ['POST'], requirements: ['userId' => '\d+'])]
     public function generate(int $userId, Request $request): Response
     {
+        if (!$this->canAccess($userId, $request)) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
         $userProgress = $this->userProgressRepository->findOneBy(['userId' => $userId]);
 
         if (!$userProgress) {
@@ -50,8 +54,12 @@ class CertificateController extends AbstractController
      * Download certificate PDF
      */
     #[Route('/{userId}/download', name: 'training_certificate_download', methods: ['GET'], requirements: ['userId' => '\d+'])]
-    public function download(int $userId): Response
+    public function download(int $userId, Request $request): Response
     {
+        if (!$this->canAccess($userId, $request)) {
+            throw $this->createAccessDeniedException('Access denied');
+        }
+
         $userProgress = $this->userProgressRepository->findOneBy(['userId' => $userId]);
 
         if (!$userProgress) {
@@ -101,8 +109,12 @@ class CertificateController extends AbstractController
      * Get certificate status for user
      */
     #[Route('/{userId}/status', name: 'training_certificate_status', methods: ['GET'], requirements: ['userId' => '\d+'])]
-    public function status(int $userId): Response
+    public function status(int $userId, Request $request): Response
     {
+        if (!$this->canAccess($userId, $request)) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
         $userProgress = $this->userProgressRepository->findOneBy(['userId' => $userId]);
 
         if (!$userProgress) {
@@ -116,5 +128,19 @@ class CertificateController extends AbstractController
             'quizScore' => $userProgress->getQuizScore(),
             'generatedAt' => $userProgress->getCertificateGeneratedAt()?->format('Y-m-d H:i:s'),
         ]);
+    }
+
+    /**
+     * A user may only act on their own training progress; staff may act on anyone's.
+     */
+    private function canAccess(int $userId, Request $request): bool
+    {
+        $session = $request->getSession();
+
+        if ((int) $session->get('user_id') === $userId) {
+            return true;
+        }
+
+        return in_array((string) $session->get('user_role'), ['admin', 'administrateur', 'employee'], true);
     }
 }

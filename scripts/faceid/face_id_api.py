@@ -1,8 +1,10 @@
 import argparse
 import base64
 import glob
+import hmac
 import json
 import os
+import sys
 import time
 import urllib.request
 from typing import Dict, List, Optional, Tuple
@@ -309,9 +311,19 @@ def _download_if_missing(file_path: str, url: str) -> None:
         print("Will use Haar Cascade fallback for face detection")
 
 
-def create_app(storage_dir: str, models_dir: str, threshold: float) -> Flask:
+def create_app(storage_dir: str, models_dir: str, threshold: float, api_token: str = "") -> Flask:
     app = Flask(__name__)
     engine = FaceEngine(storage_dir=storage_dir, models_dir=models_dir, threshold=threshold)
+
+    @app.before_request
+    def require_token():
+        # Everything except /health needs the shared secret the Symfony app sends.
+        if not api_token or request.path == "/health":
+            return None
+        supplied = request.headers.get("X-Face-Id-Token", "")
+        if not hmac.compare_digest(supplied.encode(), api_token.encode()):
+            return jsonify({"ok": False, "error": "Unauthorized"}), 401
+        return None
 
     @app.route("/health", methods=["GET"])
     def health():
@@ -349,5 +361,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    app = create_app(args.storage_dir, args.models_dir, args.threshold)
+    api_token = os.environ.get("FACE_ID_API_TOKEN", "").strip()
+    if not api_token and args.host not in ("127.0.0.1", "localhost", "::1"):
+        # Without a token anyone who can reach the service could enroll a face for
+        # any user id and then log in as that user.
+        print("Refusing to listen on a public interface without FACE_ID_API_TOKEN set.", file=sys.stderr)
+        sys.exit(1)
+
+    app = create_app(args.storage_dir, args.models_dir, args.threshold, api_token)
     app.run(host=args.host, port=args.port, debug=False)

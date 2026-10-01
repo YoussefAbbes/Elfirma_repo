@@ -535,8 +535,15 @@ public function index(
             ], 400);
         }
 
-        $accountId = '1c9e8098b3c6cb26f06ef73dcc8d8846';
-        $apiToken = '81nlNeNoH1aS4SZ0K06jKtt8X9H2DnluC75DR_Jn';
+        $accountId = trim((string) ($_SERVER['CLOUDFLARE_ACCOUNT_ID'] ?? $_ENV['CLOUDFLARE_ACCOUNT_ID'] ?? ''));
+        $apiToken = trim((string) ($_SERVER['CLOUDFLARE_API_TOKEN'] ?? $_ENV['CLOUDFLARE_API_TOKEN'] ?? ''));
+
+        if ($accountId === '' || $apiToken === '') {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Image generation is not configured'
+            ], 503);
+        }
 
         $url = "https://api.cloudflare.com/client/v4/accounts/$accountId/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0";
 

@@ -17,6 +17,7 @@ Write-Host ""
 
 if (-not (Test-Path "lib\ZKFingerReader.jar")) {
     Write-Host "[ERROR] SDK JAR not found: $PSScriptRoot\lib\ZKFingerReader.jar" -ForegroundColor Red
+    Write-Host "        Download the ZKFinger SDK from ZKTeco (see README.md)." -ForegroundColor Red
     Read-Host "Press Enter to exit"; exit 1
 }
 

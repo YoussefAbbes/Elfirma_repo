@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #Raspberry Pi irrigation control script
 import lgpio
+import os
 import time
 from datetime import datetime
 import mysql.connector
@@ -13,16 +14,16 @@ PUMP_ON_LEVEL = 1
 PUMP_OFF_LEVEL = 0
 SENSOR_DRY_VALUE = 0  # your case: dry => 0
 
-# DB
+# DB (set these in the Pi's environment, e.g. in the systemd unit or ~/.profile)
 DB_CFG = {
-    "host": "172.20.10.5",   # <-- your PC IP
-    "user": "pi_writer",
-    "password": "abbes2023ab",
-    "database": "personne",
-    "port": 3306
+    "host": os.environ.get("IRRIGATION_DB_HOST", "127.0.0.1"),  # IP of the PC running MySQL
+    "user": os.environ.get("IRRIGATION_DB_USER", "pi_writer"),
+    "password": os.environ["IRRIGATION_DB_PASSWORD"],
+    "database": os.environ.get("IRRIGATION_DB_NAME", "personne"),
+    "port": int(os.environ.get("IRRIGATION_DB_PORT", "3306")),
 }
 
-PARCELLE_ID = 1  # <-- change
+PARCELLE_ID = int(os.environ.get("IRRIGATION_PARCELLE_ID", "1"))
 
 def now_dt():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

@@ -300,12 +300,12 @@ final class ReclamationController extends AbstractController
                 ]);
             }
 
-            $fromEmail = (string) ($_ENV['MAILER_FROM'] ?? $_SERVER['MAILER_FROM'] ?? 'islem.souid@esprit.tn');
+            $fromEmail = (string) ($_ENV['MAILER_FROM'] ?? $_SERVER['MAILER_FROM'] ?? 'noreply@elfirma.tn');
             $alternateMailerDsn = (string) ($_ENV['MAILER_DSN_OTHER'] ?? $_SERVER['MAILER_DSN_OTHER'] ?? '');
 
             // When an alternate SMTP transport is configured, prefer it for complaint replies.
             if ($alternateMailerDsn !== '' && str_contains($alternateMailerDsn, 'smtp.gmail.com')) {
-                $fromEmail = 'fethizouabi190@gmail.com';
+                $fromEmail = (string) ($_ENV['MAILER_FROM_OTHER'] ?? $_SERVER['MAILER_FROM_OTHER'] ?? $fromEmail);
             }
 
             $emailHtml = $this->renderView('emails/complaint_reply.html.twig', [

@@ -72,6 +72,7 @@ services:
       $host: "%env(FACE_ID_HOST)%"
       $port: "%env(int:FACE_ID_PORT)%"
       $threshold: "%env(float:FACE_ID_THRESHOLD)%"
+      $apiToken: "%env(default::FACE_ID_API_TOKEN)%"
 
   App\Service\Tripo3DGenerationService:
     arguments:

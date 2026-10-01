@@ -61,6 +61,10 @@ public class FingerprintBridgeServer {
 
     // ── Constants ────────────────────────────────────────────────────────────
     private static final int    PORT            = 8085;
+    /** Interface to listen on. Defaults to loopback; set FINGERPRINT_BIND_HOST=0.0.0.0 to expose on the LAN. */
+    private static final String BIND_HOST       = envOr("FINGERPRINT_BIND_HOST", "127.0.0.1");
+    /** Browser origin allowed to call the bridge directly (e.g. http://localhost:8000). Empty = no CORS. */
+    private static final String ALLOWED_ORIGIN  = envOr("FINGERPRINT_ALLOWED_ORIGIN", "");
     private static final int    TEMPLATE_SIZE   = 2048;
     private static final int    ENROLL_STEPS    = 3;
     private static final long   ACQUIRE_TIMEOUT = 12_000;   // ms
@@ -97,7 +101,7 @@ public class FingerprintBridgeServer {
     private void start() throws IOException {
         initSdk();
 
-        HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 64);
+        HttpServer server = HttpServer.create(new InetSocketAddress(BIND_HOST, PORT), 64);
         server.createContext("/status",         new StatusHandler());
         server.createContext("/enroll/start",   new EnrollStartHandler());
         server.createContext("/enroll/capture", new EnrollCaptureHandler());
@@ -107,7 +111,7 @@ public class FingerprintBridgeServer {
         server.start();
 
         LOG.info("===========================================================");
-        LOG.info("  ZKFinger HTTP Bridge  →  http://localhost:" + PORT);
+        LOG.info("  ZKFinger HTTP Bridge  →  http://" + BIND_HOST + ":" + PORT);
         LOG.info("  SDK initialised : " + sdkInitialized);
         LOG.info("  Device open     : " + deviceOpen);
         LOG.info("===========================================================");
@@ -222,9 +226,7 @@ public class FingerprintBridgeServer {
     private static void sendJson(HttpExchange ex, int status, String json) throws IOException {
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
         ex.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        ex.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-        ex.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
-        ex.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+        setCorsHeaders(ex);
         ex.sendResponseHeaders(status, body.length);
         try (OutputStream os = ex.getResponseBody()) { os.write(body); }
     }
@@ -241,12 +243,26 @@ public class FingerprintBridgeServer {
         }
     }
 
+    /** Only the configured origin may call the bridge from a browser; none by default. */
+    private static void setCorsHeaders(HttpExchange ex) {
+        if (ALLOWED_ORIGIN.isEmpty()) {
+            return;
+        }
+        ex.getResponseHeaders().set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+        ex.getResponseHeaders().set("Vary", "Origin");
+        ex.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
+        ex.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    private static String envOr(String name, String fallback) {
+        String value = System.getenv(name);
+        return value == null || value.trim().isEmpty() ? fallback : value.trim();
+    }
+
     /** Handle CORS pre-flight and return false for non-POST; true to continue. */
     private static boolean handlePreflight(HttpExchange ex) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(ex.getRequestMethod())) {
-            ex.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-            ex.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
-            ex.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+            setCorsHeaders(ex);
             ex.sendResponseHeaders(204, -1);
             return false;
         }
