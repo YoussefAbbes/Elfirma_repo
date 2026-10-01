@@ -67,10 +67,11 @@ __pycache__/
 **/__pycache__/
 *.pyc
 
-# Screenshots & demo captures (not needed to run the app)
+# Raw screenshot captures (only the compressed README images in demo/screenshots/ are committed)
 /client-screenshots/
 /.admin_screens/
-/demo/screenshots/
+/demo/client-screenshots/
+/demo/.admin_screens/
 
 # Machine-learning model binaries (large; regenerate or download at deploy time)
 *.joblib
