@@ -65,33 +65,31 @@ This platform goes far beyond a typical CRUD application. It integrates **biomet
 
 ### 🧑‍🌾 Client / Public Experience
 
-| Sign In | Public Home |
-|:---:|:---:|
-| ![Sign In](demo/screenshots/signin.jpg) | ![Public Home](demo/screenshots/public-home.jpg) |
-| **Product Marketplace** | **Livestock Catalog** |
-| ![Marketplace](demo/screenshots/marketplace.jpg) | ![Livestock Catalog](demo/screenshots/livestock-catalog.jpg) |
-| **AI Farm Assistant (RAG Chatbot)** | **Two-Factor Admin Access** |
-| ![Chatbot](demo/screenshots/chatbot.jpg) | ![2FA](demo/screenshots/twofa.jpg) |
+| Sign In |
+|:---:|
+| ![Sign In](demo/screenshots/signin.jpg) |
 
 ### 🖥️ Admin — Management Dashboards
 
 | Main Dashboard | Parcels Management |
 |:---:|:---:|
 | ![Main Dashboard](demo/screenshots/admin-dashboard.jpg) | ![Parcels](demo/screenshots/parcels.jpg) |
-| **Crops Management** | **Parcel Detail & Map** |
-| ![Crops](demo/screenshots/crops.jpg) | ![Parcel Detail](demo/screenshots/parcel-detail.jpg) |
-| **Animal Management** | **Livestock Capacity** |
-| ![Animals](demo/screenshots/animals.jpg) | ![Livestock](demo/screenshots/livestock.jpg) |
-| **Products Management** | **Suppliers & Partners** |
-| ![Products](demo/screenshots/products.jpg) | ![Suppliers](demo/screenshots/suppliers.jpg) |
-| **Contracts Analytics** | **3D Livestock Habitat Studio** |
-| ![Contracts](demo/screenshots/contracts.jpg) | ![3D Habitat](demo/screenshots/livestock-3d.jpg) |
-
-### 🎓 Training & Certification
-
-| Training Dashboard | Interactive Lesson |
-|:---:|:---:|
-| ![Training](demo/screenshots/training.jpg) | ![Lesson](demo/screenshots/lesson.jpg) |
+| **Crops Management** | **Agricultural Calendar** |
+| ![Crops](demo/screenshots/crops.jpg) | ![Agricultural Calendar](demo/screenshots/crop-calendar.jpg) |
+| **Irrigation Control Center** | **Livestock Map** |
+| ![Irrigation](demo/screenshots/irrigation.jpg) | ![Livestock Map](demo/screenshots/livestock-map.jpg) |
+| **Livestock Capacity** | **Animal Management** |
+| ![Livestock](demo/screenshots/livestock.jpg) | ![Animals](demo/screenshots/animals.jpg) |
+| **Vaccination Calendar** | **3D Livestock Habitat Studio** |
+| ![Vaccinations](demo/screenshots/vaccinations.jpg) | ![3D Habitat](demo/screenshots/livestock-3d.jpg) |
+| **Farm Assistant (Chatbot)** | **Products Management** |
+| ![Farm Assistant](demo/screenshots/farm-assistant.jpg) | ![Products](demo/screenshots/products.jpg) |
+| **Product Categories** | **Orders & Geographic Analysis** |
+| ![Categories](demo/screenshots/categories.jpg) | ![Orders](demo/screenshots/orders.jpg) |
+| **Equipment Park** | **Suppliers & Partners** |
+| ![Equipment](demo/screenshots/equipment.jpg) | ![Suppliers](demo/screenshots/suppliers.jpg) |
+| **Contract Management** | **Meeting Management** |
+| ![Contracts](demo/screenshots/contracts.jpg) | ![Meetings](demo/screenshots/meetings.jpg) |
 
 > All screenshots live in [`demo/screenshots/`](demo/screenshots/).
 
