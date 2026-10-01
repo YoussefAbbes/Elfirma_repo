@@ -28,7 +28,7 @@ All uploaded animal photos are stored under the Symfony project's public directo
 
 **Concrete example:**
 ```
-C:\Users\youss\Music\yassine\symfony-agriculturefinale-20260410-0258\public\uploads\animals\vache-png-69eb1e3a0bdca445097015.jpg
+<project>\public\uploads\animals\vache-png-69eb1e3a0bdca445097015.jpg
 ```
 
 Actual files present in that folder (sample):
@@ -68,7 +68,7 @@ http://localhost:8000/uploads/animals/vache-png-69eb1e3a0bdca445097015.jpg
 ```java
 // Point this to wherever the Symfony project lives on the shared machine
 public static final String ANIMAL_PHOTOS_DIR =
-    "C:/Users/youss/Music/yassine/symfony-agriculturefinale-20260410-0258/public/uploads/animals/";
+    "<project>/public/uploads/animals/";
 ```
 
 > If the JavaFX app and Symfony project run on different machines, either:

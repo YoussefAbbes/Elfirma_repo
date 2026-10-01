@@ -490,7 +490,7 @@ final class FournisseurController extends AbstractController
             try {
                 $fromEmail =
                     (string) ($_ENV["MAILER_FROM"] ??
-                        ($_SERVER["MAILER_FROM"] ?? "islem.souid@esprit.tn"));
+                        ($_SERVER["MAILER_FROM"] ?? "noreply@elfirma.tn"));
                 $alternateMailerDsn =
                     (string) ($_ENV["MAILER_DSN_OTHER"] ??
                         ($_SERVER["MAILER_DSN_OTHER"] ?? ""));
@@ -499,7 +499,7 @@ final class FournisseurController extends AbstractController
                     $alternateMailerDsn !== "" &&
                     str_contains($alternateMailerDsn, "smtp.gmail.com")
                 ) {
-                    $fromEmail = "fethizouabi190@gmail.com";
+                    $fromEmail = (string) ($_ENV["MAILER_FROM_OTHER"] ?? $_SERVER["MAILER_FROM_OTHER"] ?? $fromEmail);
                 }
 
                 $emailContent = $twig->render(

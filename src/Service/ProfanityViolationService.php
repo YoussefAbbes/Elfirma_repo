@@ -299,15 +299,16 @@ class ProfanityViolationService
     }
 
     /**
-     * Mark notification as read
+     * Mark notification as read (only if it belongs to the given user)
      * @param int $notificationId
+     * @param int $userId
      */
-    public function markNotificationAsRead(int $notificationId): void
+    public function markNotificationAsRead(int $notificationId, int $userId): void
     {
         try {
             $connection = $this->entityManager->getConnection();
-            $sql = 'UPDATE user_notifications SET is_read = 1 WHERE id = ?';
-            $connection->executeStatement($sql, [$notificationId]);
+            $sql = 'UPDATE user_notifications SET is_read = 1 WHERE id = ? AND user_id = ?';
+            $connection->executeStatement($sql, [$notificationId, $userId]);
         } catch (\Exception $e) {
             $this->logger->error('[ProfanityViolation] Error marking notification as read: ' . $e->getMessage());
         }

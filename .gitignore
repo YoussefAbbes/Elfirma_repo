@@ -19,8 +19,17 @@
 # Dependencies / build artifacts that should never be committed
 /node_modules/
 /composer.phar
-# Redownloadable JavaFX SDK jars (the tiny proprietary ZKFingerReader.jar is kept)
-fingerprint/javafx-*.jar
+# Fingerprint bridge: proprietary ZKTeco SDK files (download them from ZKTeco,
+# see fingerprint/README.md), compiled classes and IDE/Maven leftovers.
+fingerprint/lib/
+fingerprint/*.dll
+fingerprint/*.pdf
+fingerprint/*.class
+fingerprint/sample/
+fingerprint/javafx-*
+fingerprint/_remote.repositories
+fingerprint/.classpath
+fingerprint/.project
 
 # Local SSL workaround / tooling / logs (machine-specific, keep out of the repo)
 /cacert.pem
@@ -92,3 +101,10 @@ __pycache__/
 # OS / IDE noise
 .DS_Store
 Thumbs.db
+
+# Local Claude Code / editor permissions (machine-specific)
+/.claude/settings.local.json
+/.claude/settings.json
+
+# Generated RAG runtime report (contains local machine paths)
+/rag/outputs/reports/runtime_report.json

@@ -412,41 +412,16 @@ class RatingController extends AbstractController
         }
     }
 
-    #[Route('/api/test-profanity', name: 'api_test_profanity', methods: ['POST'])]
-    public function testProfanity(Request $request): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $text = $data['text'] ?? 'test';
-
-            $this->logger->info('========== TEST PROFANITY API CALLED ==========');
-            $this->logger->info('Input text: "' . $text . '"');
-
-            $result = $this->checkProfanity($text);
-
-            $this->logger->info('Result received: ' . json_encode($result));
-            $this->logger->info('API Key configured: ' . (!empty($_ENV['PROFANITY_FILTER_API_KEY'] ?? '') ? 'YES' : 'NO'));
-            $this->logger->info('========== TEST PROFANITY COMPLETE ==========');
-
-            return new JsonResponse([
-                'text' => $text,
-                'result' => $result,
-                'api_key_set' => !empty($_ENV['PROFANITY_FILTER_API_KEY'] ?? ''),
-                'api_key_preview' => substr($_ENV['PROFANITY_FILTER_API_KEY'] ?? '', 0, 5) . '...',
-                'timestamp' => date('Y-m-d H:i:s')
-            ]);
-        } catch (\Exception $e) {
-            $this->logger->error('EXCEPTION in testProfanity: ' . $e->getMessage());
-            return new JsonResponse([
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
-    }
-
     #[Route('/api/user/{userId}/notifications', name: 'api_get_user_notifications', methods: ['GET'])]
-    public function getUserNotifications(int $userId): JsonResponse
+    public function getUserNotifications(int $userId, Request $request): JsonResponse
     {
+        if ((int) $request->getSession()->get('user_id') !== $userId) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Access denied'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         try {
             $this->logger->info('[Notifications] Fetching unread notifications for user: ' . $userId);
             
@@ -466,12 +441,14 @@ class RatingController extends AbstractController
     }
 
     #[Route('/api/notification/{notificationId}/read', name: 'api_mark_notification_read', methods: ['POST'])]
-    public function markNotificationAsRead(int $notificationId): JsonResponse
+    public function markNotificationAsRead(int $notificationId, Request $request): JsonResponse
     {
+        $userId = (int) $request->getSession()->get('user_id');
+
         try {
             $this->logger->info('[Notifications] Marking notification as read: ' . $notificationId);
             
-            $this->violationService->markNotificationAsRead($notificationId);
+            $this->violationService->markNotificationAsRead($notificationId, $userId);
             
             return new JsonResponse([
                 'success' => true,

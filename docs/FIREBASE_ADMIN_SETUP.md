@@ -11,7 +11,7 @@ Important
 
 2) Configure Local Environment
 - In .env.local, set:
-  FIREBASE_CREDENTIALS_PATH=C:/Users/youss/OneDrive/Bureau/My Projects/symfony-agriculturefinale-20260410-0258/config/firebase_credentials.json
+  FIREBASE_CREDENTIALS_PATH=<project>/config/firebase_credentials.json
 - Set the Realtime Database URL exactly as shown in Firebase Console -> Realtime Database:
   FIREBASE_DATABASE_URI=https://<your-database-host>.firebaseio.com
   or

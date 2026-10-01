@@ -1,7 +1,7 @@
 {
   "generated_at": "2026-04-16T03:51:19.562316+00:00",
-  "cases_file": "C:\\Users\\msi\\Desktop\\symfony-agriculturefinale-20260410-0258\\rag\\tests\\route_relevance_cases.json",
-  "config_file": "C:\\Users\\msi\\Desktop\\symfony-agriculturefinale-20260410-0258\\rag\\configs\\embedding_config.json",
+  "cases_file": "<project>\\rag\\tests\\route_relevance_cases.json",
+  "config_file": "<project>\\rag\\configs\\embedding_config.json",
   "settings": {
     "top_k": 5,
     "rerank_pool_size": 20,

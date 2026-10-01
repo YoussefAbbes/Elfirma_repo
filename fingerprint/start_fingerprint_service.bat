@@ -13,7 +13,7 @@ echo.
 REM ── Check required files ─────────────────────────────────────
 if not exist "lib\ZKFingerReader.jar" (
     echo [ERROR] SDK JAR not found: %~dp0lib\ZKFingerReader.jar
-    echo         Place ZKFingerReader.jar inside the lib\ folder.
+    echo         Download the ZKFinger SDK from ZKTeco and place ZKFingerReader.jar in lib\ ^(see README.md^).
     echo.
     pause
     exit /b 1

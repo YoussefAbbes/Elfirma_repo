@@ -879,7 +879,7 @@ twilio.auth_token=YOUR_TOKEN
 twilio.from_number=+1234567890
 usda.api_key=YOUR_KEY
 tripo3d.api_key=YOUR_KEY
-pixabay.api_key=55415437-b3420b2f0246b02e1eae7d44b
+pixabay.api_key=YOUR_KEY
 
 symfony.uploads_path=C:/path/to/symfony/public/uploads/
 ```

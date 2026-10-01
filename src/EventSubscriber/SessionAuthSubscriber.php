@@ -18,10 +18,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * "user_role" stored on the session) instead of a Symfony firewall. This subscriber
  * provides what a firewall normally would:
  *
- *  1. Back-office authorization (kernel.request): /elfirma and /admin are restricted
- *     to staff (admin/employee). Anonymous users go to login; logged-in clients go
- *     back to the public home. A small allow-list (e.g. a user's own profile) stays
- *     open to any authenticated user.
+ *  1. Back-office authorization (kernel.request): /elfirma, /admin and the other
+ *     back-office prefixes listed in STAFF_PREFIXES are restricted to staff
+ *     (admin/employee). Anonymous users go to login; logged-in clients go back to the
+ *     public home (API/AJAX requests get a 401/403 JSON instead). A small allow-list
+ *     (e.g. a user's own profile) stays open to any authenticated user.
  *
  *  2. Customer-interaction authorization (kernel.request): browsing the storefront is
  *     public, but any *interaction* (cart, checkout/buying, orders, ratings,
@@ -37,8 +38,34 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final class SessionAuthSubscriber implements EventSubscriberInterface
 {
-    /** Back-office areas: staff (admin/employee) only. */
-    private const STAFF_PREFIXES = ['/elfirma', '/admin'];
+    /**
+     * Back-office areas: staff (admin/employee) only. Besides /elfirma and /admin this
+     * covers back-office modules and JSON endpoints that live outside those prefixes.
+     */
+    private const STAFF_PREFIXES = [
+        '/elfirma',
+        '/admin',
+        '/dashboard',
+        '/employee',               // technician maintenance panel
+        '/equipements',
+        '/equipement',             // AI image generation (paid API)
+        '/analyse',                // equipment AI analysis
+        '/maintenances',
+        '/maintenance',
+        '/irrigation',
+        '/livestock',              // DNA detection (not /livestock-catalog)
+        '/voice-assistant',
+        '/chatbot',                // back-office assistant and user insights
+        '/api/dashboard',
+        '/api/parcelles',
+        '/api/livestock',          // includes 3D generation (paid API)
+        '/api/maintenances',
+        '/api/predict',
+        '/api/supplier-analytics',
+        '/api/exchange-rates',
+        '/api/geocode-address',
+        '/api/chatbot/debug',
+    ];
 
     /** Back-office paths any authenticated user may use (e.g. own profile). */
     private const SHARED_PREFIXES = ['/elfirma/profile'];
@@ -106,7 +133,11 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
         if ($isStaffArea) {
             // Anonymous -> login. Pages any authenticated user may use are allowed.
             if (empty($userId)) {
-                $event->setResponse($this->loginRedirect());
+                $event->setResponse(
+                    $this->isApiRequest($request, $path)
+                        ? $this->jsonError('Authentication required. Please sign in.', 401)
+                        : $this->loginRedirect(),
+                );
 
                 return;
             }
@@ -117,9 +148,11 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
             $role = (string) $session?->get('user_role');
             if (!in_array($role, self::STAFF_ROLES, true)) {
                 $event->setResponse(
-                    new RedirectResponse(
-                        $this->urlGenerator->generate('app_pages_home'),
-                    ),
+                    $this->isApiRequest($request, $path)
+                        ? $this->jsonError('Access denied.', 403)
+                        : new RedirectResponse(
+                            $this->urlGenerator->generate('app_pages_home'),
+                        ),
                 );
             }
 
@@ -174,6 +207,19 @@ final class SessionAuthSubscriber implements EventSubscriberInterface
     {
         return new RedirectResponse(
             $this->urlGenerator->generate('app_login'),
+        );
+    }
+
+    private function jsonError(string $message, int $status): JsonResponse
+    {
+        return new JsonResponse(
+            [
+                'ok' => false,
+                'success' => false,
+                'error' => $message,
+                'redirect' => $this->urlGenerator->generate('app_login'),
+            ],
+            $status,
         );
     }
 

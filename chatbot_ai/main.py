@@ -29,10 +29,11 @@ with open("model/responses.pkl", "rb") as f:
 app = FastAPI(title="Supplier Chatbot AI", version="1.0.0")
 RAG_CHAT_ENGINE_SCRIPT = Path(__file__).resolve().parents[1] / "rag" / "scripts" / "chat_engine.py"
 
-# Allow Symfony (localhost) to call the API
+# Symfony calls this service server-side, so browsers need no CORS access by default.
+# Set CORS_ALLOWED_ORIGINS (comma-separated) if a front-end must call it directly.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if o.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )

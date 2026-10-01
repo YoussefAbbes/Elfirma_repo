@@ -338,7 +338,7 @@ cp .env.example .env.local
 
 > ⚠️ **Never commit real secrets.** `.env.local` is git-ignored. Real API keys, passwords and DSNs must live there (or in real environment variables) — never in a committed file. See the [Symfony secrets guide](https://symfony.com/doc/current/configuration/secrets.html).
 
-Key groups: `APP_*`, `DATABASE_URL`, `MAILER_*`, `TWILIO_*`, `STRIPE_*`, `RAG_* / OPENAI_* / OPENROUTER_*`, `TRIPO3D_*`, `FACE_ID_*`, OAuth (`GOOGLE_*`, `GITHUB_*`), `RECAPTCHA_*`, and the agriculture APIs (`TREFLE_*`, `USDA_*`, `OPENWEATHER_*`, `PIXABAY_*`, `MAPTILER_*`).
+Key groups: `APP_*`, `DATABASE_URL`, `MAILER_*`, `TWILIO_*`, `STRIPE_*`, `RAG_* / OPENAI_* / OPENROUTER_*`, `TRIPO3D_*`, `FACE_ID_*` (incl. `FACE_ID_API_TOKEN`), `CLOUDFLARE_*`, `API_NINJAS_KEY`, OAuth (`GOOGLE_*`, `GITHUB_*`), `RECAPTCHA_*`, and the agriculture APIs (`TREFLE_*`, `USDA_*`, `OPENWEATHER_*`, `PIXABAY_*`, `MAPTILER_*`).
 
 ---
 
@@ -552,7 +552,7 @@ elfirma/
 │   └── faceid/              # Python Face ID service
 ├── rag/                     # Python RAG chatbot (+ requirements)
 ├── chatbot_ai/ · ai_service/# Intent / chatbot NLP services
-├── fingerprint/             # Java ZKFinger SDK bridge
+├── fingerprint/             # Java ZKFinger SDK bridge (SDK not included, see fingerprint/README.md)
 ├── notebooks/               # Jupyter exploration notebooks
 ├── docs/                    # Technical documentation
 ├── demo/                    # Screenshots / demo video

@@ -62,8 +62,14 @@ those services are not running and reachable:
 - AI chatbot & supplier analytics → FastAPI, configured via `AI_FASTAPI_BASE_URL`
   (default `http://localhost:8002`).
 - Face ID login → `FACE_ID_HOST` / `FACE_ID_PORT` (default `127.0.0.1:8765`).
+  When the service is not bound to localhost (e.g. on Railway) set the same random
+  `FACE_ID_API_TOKEN` on **both** the Face ID service and the Symfony app; the
+  service refuses to start on a public interface without it.
 - RAG assistant → local Python (`RAG_*` vars).
 - Fingerprint reader → Java/ZK bridge (`FINGERPRINT_HOST` / `FINGERPRINT_PORT`).
+
+The FastAPI services send no CORS headers by default because Symfony calls them
+server-side; set `CORS_ALLOWED_ORIGINS` only if a browser must call them directly.
 
 Either deploy these alongside the app (and point the env vars at them) or accept
 that those specific features won't work. The core app (auth, storefront, orders,
@@ -75,4 +81,5 @@ back office) does not depend on them.
 - [ ] All secrets set via env, none in committed files.
 - [ ] HTTPS enforced; `APP_PUBLIC_BASE_URL` set to the real domain.
 - [ ] Leaked API keys rotated at each provider.
+- [ ] `FACE_ID_API_TOKEN` set on the app and the Face ID service (if deployed).
 - [ ] OAuth redirect URIs (Google/GitHub) updated to the production domain.

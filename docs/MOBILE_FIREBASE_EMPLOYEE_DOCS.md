@@ -408,7 +408,7 @@ JavaFX App
 
 ```java
 // EmployeeDbService.java
-private static final String URL  = "jdbc:mysql://172.20.10.5:3306/personne?useSSL=false&serverTimezone=UTC";
+private static final String URL  = "jdbc:mysql://<DB_HOST>:3306/personne?useSSL=false&serverTimezone=UTC";
 private static final String USER = "pi_writer";
 private static final String PASS = "your_password";
 

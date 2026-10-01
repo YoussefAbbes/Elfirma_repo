@@ -9,19 +9,22 @@ class FaceIdClient
     private string $pythonBin;
     private string $projectDir;
     private float $threshold;
+    private string $apiToken;
 
     public function __construct(
         string $projectDir,
         string $pythonBin,
         string $host,
         int $port,
-        float $threshold
+        float $threshold,
+        string $apiToken = ''
     ) {
         $this->projectDir = $projectDir;
         $this->pythonBin = $pythonBin;
         $this->host = $host;
         $this->port = $port;
         $this->threshold = $threshold;
+        $this->apiToken = $apiToken;
     }
 
     public function detect(string $imageBase64): array
@@ -45,7 +48,11 @@ class FaceIdClient
             $url = "http://{$this->host}:{$this->port}/{$endpoint}";
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            $headers = ['Content-Type: application/json'];
+            if ($this->apiToken !== '') {
+                $headers[] = 'X-Face-Id-Token: ' . $this->apiToken;
+            }
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
